@@ -132,9 +132,7 @@ class AuthController {
         exit();
     }
     
-    // ============================================
     // LOGIN DE ADMIN (EMAIL + CONTRASEÑA + CAPTCHA TEXTO)
-    // ============================================
     public function login() {
         // Generar CAPTCHA si no existe
         if (!isset($_SESSION['captcha_codigo'])) {
@@ -166,17 +164,14 @@ class AuthController {
         require_once 'views/auth/login.php';
     }
     
-    // ============================================
     // LOGIN CON RECONOCIMIENTO FACIAL (API)
-    // ============================================
     public function loginFacial() {
         // Este método ahora está en api/face_routes.php
         // Se maneja via API
     }
     
-    // ============================================
+    
     // MÉTODOS AUXILIARES
-    // ============================================
     
     /**
      * Genera código CAPTCHA de 6 caracteres (letras mayúsculas + números)
