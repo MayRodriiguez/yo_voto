@@ -13,7 +13,7 @@ unset($_SESSION['error_login']);
     <title>Yo Voto - Sistema Electoral Bolivia 2026</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.21.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.8.6/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
     <style>
@@ -452,14 +452,6 @@ unset($_SESSION['error_login']);
                 <div style="font-family:'Montserrat',sans-serif;font-size:17px;font-weight:800;color:#fff;margin-bottom:8px;">Emite tu voto</div>
                 <p style="font-size:13px;color:rgba(255,255,255,0.45);line-height:1.6;">Elige a tu candidato preferido. Tu voto es secreto, único e irrepetible.</p>
             </div>
-            <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:28px 22px;text-align:center;">
-                <div style="width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,#FF6B00,#FF8C38);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
-                    <i class="fas fa-link" style="font-size:22px;color:#fff;"></i>
-                </div>
-                <div style="font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;color:#FF8C38;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Paso 4</div>
-                <div style="font-family:'Montserrat',sans-serif;font-size:17px;font-weight:800;color:#fff;margin-bottom:8px;">Verifica en Blockchain</div>
-                <p style="font-size:13px;color:rgba(255,255,255,0.45);line-height:1.6;">Tu voto queda registrado en blockchain para garantizar transparencia total.</p>
-            </div>
         </div>
 
         <!-- CARACTERÍSTICAS -->
@@ -658,7 +650,12 @@ unset($_SESSION['error_login']);
             const res = await fetch('/yo_voto/api/candidatos');
             const data = await res.json();
             if (!data.length) {
-                g.innerHTML = '<p style="color:rgba(255,255,255,0.3);text-align:center;padding:40px;">No hay candidatos registrados.</p>';
+                g.innerHTML = `
+                    <div style="text-align:center;padding:30px 20px;color:rgba(255,255,255,0.3);">
+                        <i class="fas fa-users" style="font-size:36px;display:block;margin-bottom:12px;color:rgba(255,107,0,0.3);"></i>
+                        <p style="font-size:13px;">Aún no hay candidatos<br>registrados.</p>
+                        <a href="/yo_voto/candidatos/agregar" style="color:#FF6B00;font-size:12px;font-weight:700;text-decoration:none;margin-top:10px;display:inline-block;">+ Agregar candidato</a>
+                    </div>`;
                 return;
             }
             document.getElementById('candidatos-count').textContent = data.length + ' registrados';
@@ -674,7 +671,11 @@ unset($_SESSION['error_login']);
                 </div>
             `).join('');
         } catch(e) {
-            g.innerHTML = '<p style="color:rgba(255,255,255,0.3);text-align:center;padding:40px;">Error al cargar candidatos.</p>';
+            g.innerHTML = `
+                <div style="text-align:center;padding:30px 20px;color:rgba(255,255,255,0.3);">
+                    <i class="fas fa-wifi" style="font-size:32px;display:block;margin-bottom:10px;color:rgba(255,107,0,0.3);"></i>
+                    <p style="font-size:13px;">No se pudo conectar<br>con el servidor.</p>
+                </div>`;
         }
     }
 
