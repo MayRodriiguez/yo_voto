@@ -4,7 +4,11 @@
 
 class Database {
     private $host = "localhost";
+<<<<<<< HEAD
     private $db_name = "yo_voto010";
+=======
+    private $db_name = "yo_voto";
+>>>>>>> 14bf65808c01528e1449c8356f81b4b5f8f1154f
     private $username = "root";
     private $password = "";
     public $conn;
