@@ -1,5 +1,4 @@
 <?php
-
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -12,989 +11,566 @@ unset($_SESSION['error_login']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yo Voto - Sistema Electoral Bolivia</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Yo Voto - Sistema Electoral Bolivia 2026</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #003399, #1a5bc4, #f5c518);
-            min-height: 100vh;
-        }
-        
-        /* 
-           MENÚ DE NAVEGACIÓN
-        */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Open Sans', sans-serif; min-height: 100vh; background: #0a1628; }
+
+        /* NAVBAR */
         .navbar {
-            background: rgba(0,51,153,0.95);
-            backdrop-filter: blur(10px);
-            padding: 15px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            flex-wrap: wrap;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            background: rgba(10,22,50,0.97); backdrop-filter: blur(10px);
+            height: 60px; display: flex; align-items: center;
+            padding: 0 40px; justify-content: space-between;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
         }
-        
-        .logo {
-            font-size: 28px;
-            font-weight: bold;
-            color: #f5c518;
+        .navbar-logo { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 20px; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 8px; }
+        .navbar-logo span { color: #FF6B00; }
+        .navbar-logo i { color: #FF6B00; font-size: 18px; }
+        .navbar-nav { display: flex; align-items: center; gap: 4px; }
+        .navbar-nav a {
+            color: rgba(255,255,255,0.65); text-decoration: none; font-size: 13px; font-weight: 600;
+            padding: 7px 13px; border-radius: 8px; transition: .2s;
+            display: flex; align-items: center; gap: 6px; cursor: pointer;
         }
-        
-        .logo span {
-            color: white;
+        .navbar-nav a:hover, .navbar-nav a.active { color: #fff; background: rgba(255,255,255,0.08); }
+        .navbar-nav .btn-login { background: #FF6B00; color: #fff; }
+        .navbar-nav .btn-login:hover { background: #FF8C38; }
+        .navbar-nav .btn-logout { background: rgba(231,76,60,0.15); color: #ff6b6b; border: 1px solid rgba(231,76,60,0.3); }
+        .navbar-nav .btn-logout:hover { background: #E74C3C; color: #fff; }
+        .navbar-nav .user-name { color: #FF8C38; font-size: 13px; font-weight: 600; padding: 7px 13px; }
+        .navbar-nav .btn-votar { background: rgba(39,174,96,0.15); color: #5cdb95; border: 1px solid rgba(39,174,96,0.3); }
+        .navbar-nav .btn-votar:hover { background: #27AE60; color: #fff; }
+
+        /* MAIN */
+        .main {
+            min-height: 100vh;
+            background: linear-gradient(160deg, #0a1628 0%, #0d2251 40%, #1a3a7a 70%, #0d2251 100%);
+            padding: 80px 24px 60px;
+            position: relative;
         }
-        
-        .nav-links {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-            flex-wrap: wrap;
+        .main::before {
+            content: ''; position: fixed; inset: 0; pointer-events: none;
+            background-image: radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 36px 36px;
         }
-        
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            transition: 0.3s;
-            padding: 8px 16px;
-            border-radius: 25px;
+
+        /* HERO */
+        .hero { text-align: center; padding: 40px 20px 32px; position: relative; z-index: 1; }
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(255,107,0,0.12); border: 1px solid rgba(255,107,0,0.35);
+            color: #FF8C38; padding: 6px 18px; border-radius: 50px;
+            font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+            margin-bottom: 16px;
         }
-        
-        .nav-links a:hover, .nav-links a.active {
-            background: #f5c518;
-            color: #003399;
+        .hero h1 { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 42px; color: #fff; margin-bottom: 8px; }
+        .hero h1 span { color: #FF6B00; }
+        .hero p { color: rgba(255,255,255,0.45); font-size: 15px; }
+
+        /* NAV SECCIONES */
+        .sec-nav { display: flex; justify-content: center; gap: 10px; margin-bottom: 36px; flex-wrap: wrap; position: relative; z-index: 1; }
+        .sec-nav button {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.6); padding: 10px 22px; border-radius: 50px;
+            font-size: 13px; font-weight: 700; cursor: pointer; transition: .2s;
+            display: flex; align-items: center; gap: 8px; font-family: 'Open Sans', sans-serif;
         }
-        
-        .btn-login-nav {
-            background: #f5c518;
-            color: #003399 !important;
-            font-weight: bold;
+        .sec-nav button:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .sec-nav button.active { background: #FF6B00; border-color: #FF6B00; color: #fff; box-shadow: 0 4px 16px rgba(255,107,0,0.3); }
+
+        /* CONTENEDOR */
+        .container { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
+
+        /* CARD */
+        .card {
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px; overflow: hidden;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.4); margin-bottom: 24px;
         }
-        
-        .btn-login-nav:hover {
-            background: #ffdd44;
-            transform: scale(1.05);
+        .card-head {
+            background: linear-gradient(135deg, #0d2251, #1a3a7a);
+            border-bottom: 2px solid #FF6B00;
+            padding: 20px 28px; display: flex; align-items: center; gap: 14px;
         }
-        
-        .user-info {
-            background: rgba(245,197,24,0.2);
-            padding: 8px 16px;
-            border-radius: 25px;
-            color: white;
-        }
-        
-        .user-info i {
-            margin-right: 8px;
-            color: #f5c518;
-        }
-        
-        .btn-logout {
-            background: #dc2626;
-            color: white !important;
-        }
-        
-        /* 
-           HERO PRINCIPAL
-         */
-        .hero {
-            text-align: center;
-            padding: 60px 20px;
-            color: white;
-        }
-        
-        .hero h1 {
-            font-size: 48px;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-        
-        .hero p {
-            font-size: 20px;
-            opacity: 0.95;
-        }
-        
-        /* 
-           CONTENEDOR PRINCIPAL
-         */
-        .main-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .section {
-            background: white;
-            border-radius: 30px;
-            padding: 30px;
-            margin-bottom: 40px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        
-        .section-title {
-            color: #003399;
-            font-size: 28px;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 3px solid #f5c518;
-            display: inline-block;
-        }
-        
-        /* 
-           TARJETAS DE CANDIDATOS
-         */
-        .candidatos-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-        }
-        
+        .card-head-icon { width: 42px; height: 42px; border-radius: 10px; background: #FF6B00; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .card-head-icon i { font-size: 18px; color: #fff; }
+        .card-head h2 { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 17px; color: #fff; margin: 0; }
+        .card-head p { font-size: 12px; color: rgba(255,255,255,0.4); margin: 3px 0 0; }
+        .card-body { padding: 28px; }
+
+        /* GRID CANDIDATOS */
+        .candidatos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; }
         .candidato-card {
-            background: linear-gradient(135deg, #f8f5ff, #e8e0ff);
-            border-radius: 20px;
-            overflow: hidden;
-            transition: 0.3s;
-            cursor: pointer;
-            border: 1px solid #003399;
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 18px; overflow: hidden; cursor: pointer; transition: .25s;
         }
-        
-        .candidato-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,51,153,0.3);
-            border-color: #f5c518;
-        }
-        
-        .candidato-img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-        }
-        
-        .candidato-info {
-            padding: 20px;
-            text-align: center;
-        }
-        
-        .candidato-nombre {
-            font-size: 20px;
-            font-weight: bold;
-            color: #003399;
-            margin-bottom: 5px;
-        }
-        
-        .candidato-partido {
-            color: #1a5bc4;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-        
-        .candidato-cargo {
-            color: #666;
-            font-size: 12px;
-        }
-        
+        .candidato-card:hover { border-color: rgba(255,107,0,0.4); transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.3); background: rgba(255,255,255,0.07); }
+        .candidato-img { width: 100%; height: 180px; object-fit: cover; display: block; }
+        .candidato-info { padding: 16px; text-align: center; }
+        .candidato-nombre { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 15px; color: #fff; margin-bottom: 4px; }
+        .candidato-partido { color: #FF8C38; font-size: 12px; margin-bottom: 4px; }
+        .candidato-cargo { color: rgba(255,255,255,0.35); font-size: 11px; margin-bottom: 12px; }
         .btn-ver {
-            background: #003399;
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 25px;
-            margin-top: 15px;
-            cursor: pointer;
-            transition: 0.3s;
+            background: rgba(255,107,0,0.12); border: 1px solid rgba(255,107,0,0.3);
+            color: #FF8C38; padding: 7px 18px; border-radius: 20px; font-size: 12px;
+            font-weight: 700; cursor: pointer; transition: .2s;
         }
-        
-        .btn-ver:hover {
-            background: #f5c518;
-            color: #003399;
-        }
-        
-        /* 
-           MODALES
-      */
-        .modal-custom {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 2000;
-            overflow-y: auto;
-        }
-        
-        .modal-content-custom {
-            background: white;
-            max-width: 450px;
-            margin: 80px auto;
-            border-radius: 30px;
-            overflow: hidden;
-            animation: modalFade 0.3s;
-        }
-        
-        .modal-content-large {
-            max-width: 800px;
-        }
-        
-        @keyframes modalFade {
-            from {
-                opacity: 0;
-                transform: translateY(-50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .modal-header-custom {
-            background: linear-gradient(135deg, #003399, #1a5bc4);
-            color: white;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .modal-header-custom h2 {
-            margin: 0;
-            font-size: 24px;
-        }
-        
-        .close-modal {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 28px;
-            cursor: pointer;
-        }
-        
-        .modal-body-custom {
-            padding: 30px;
-        }
-        
-        /*
-           FORMULARIO DE LOGIN*/
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #003399;
-        }
-        
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: 0.3s;
-        }
-        
-        .form-group input:focus {
-            outline: none;
-            border-color: #f5c518;
-        }
-        
-        .captcha-box {
-            background: #e8e0ff;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        
-        .captcha-pregunta {
-            font-size: 20px;
-            font-weight: bold;
-            color: #003399;
-            margin-bottom: 10px;
-        }
-        
-        .captcha-input {
-            text-align: center;
-        }
-        
-        .captcha-input input {
-            width: 120px;
-            text-align: center;
-            font-size: 18px;
-            padding: 10px;
-        }
-        
-        .btn-login-submit {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #003399, #1a5bc4);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        
-        .btn-login-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,51,153,0.4);
-            background: linear-gradient(135deg, #1a5bc4, #003399);
-        }
-        
-        .alert-error {
-            background: #fee2e2;
-            color: #dc2626;
-            padding: 12px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            text-align: center;
-        }
-        
-        .alert-success {
-            background: #e8f5e9;
-            color: #2e7d32;
-            padding: 12px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            text-align: center;
-        }
-        
-        /* 
-           MODAL CANDIDATO
-         */
-        .modal-candidato-img {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin: 0 auto 20px;
-            display: block;
-            border: 4px solid #f5c518;
-        }
-        
-        .equipo-arbol {
-            background: #e8e0ff;
-            border-radius: 15px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-        
-        .nivel-equipo {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        
-        .nivel-titulo {
-            background: #003399;
-            color: white;
-            display: inline-block;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 12px;
-            margin-bottom: 10px;
-        }
-        
-        .integrantes-grid {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
-        }
-        
-        .integrante-card {
-            background: white;
-            padding: 10px 15px;
-            border-radius: 10px;
-            text-align: center;
-            min-width: 120px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            border-left: 3px solid #f5c518;
-        }
-        
-        .integrante-nombre {
-            font-weight: bold;
-            color: #003399;
-        }
-        
-        .integrante-cargo {
-            font-size: 11px;
-            color: #1a5bc4;
-        }
-        
+        .btn-ver:hover { background: #FF6B00; color: #fff; border-color: #FF6B00; }
+
+        /* PROPUESTAS */
         .propuesta-item {
-            background: #e8e0ff;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            border-left: 4px solid #f5c518;
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+            border-left: 3px solid #FF6B00; border-radius: 12px; padding: 16px; margin-bottom: 12px;
         }
-        
-        .propuesta-titulo {
-            font-weight: bold;
-            color: #003399;
+        .propuesta-cat { font-size: 10px; font-weight: 700; color: #FF8C38; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+        .propuesta-titulo { font-weight: 700; color: #fff; font-size: 14px; margin-bottom: 4px; }
+        .propuesta-desc { color: rgba(255,255,255,0.45); font-size: 13px; margin-bottom: 6px; }
+        .propuesta-autor { font-size: 11px; color: rgba(255,255,255,0.3); }
+
+        /* RESULTADOS */
+        .total-votos-badge {
+            background: rgba(255,107,0,0.08); border: 1px solid rgba(255,107,0,0.2);
+            border-radius: 12px; padding: 16px 20px; text-align: center; margin-bottom: 24px;
+            font-family: 'Montserrat', sans-serif; font-weight: 800; color: #fff; font-size: 18px;
         }
-        
-        .propuesta-categoria {
-            font-size: 11px;
-            color: #1a5bc4;
-            margin-bottom: 5px;
+        .total-votos-badge span { color: #FF6B00; }
+        .resultado-item { margin-bottom: 16px; }
+        .resultado-top { display: flex; justify-content: space-between; margin-bottom: 6px; }
+        .resultado-nombre { font-weight: 700; color: #fff; font-size: 14px; }
+        .resultado-votos { font-size: 13px; color: rgba(255,255,255,0.45); }
+        .barra { height: 10px; background: rgba(255,255,255,0.07); border-radius: 10px; overflow: hidden; }
+        .barra-fill { height: 100%; background: linear-gradient(90deg, #FF6B00, #FF8C38); border-radius: 10px; transition: width 1s ease; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; }
+        .barra-pct { font-size: 10px; font-weight: 700; color: #fff; }
+
+        /* VERIFICAR JURADO */
+        .form-field { margin-bottom: 20px; }
+        .form-label { display: block; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .form-input {
+            width: 100%; padding: 13px 16px; background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12); border-radius: 10px;
+            color: #fff; font-size: 15px; outline: none; transition: .2s;
+            font-family: 'Open Sans', sans-serif;
         }
-        
-        /* 
-           RESULTADOS
-         */
-        .resultado-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-            padding: 10px;
-            background: #e8e0ff;
-            border-radius: 10px;
-            flex-wrap: wrap;
+        .form-input:focus { border-color: #FF6B00; background: rgba(255,107,0,0.06); }
+        .form-input::placeholder { color: rgba(255,255,255,0.2); }
+        .form-error { font-size: 12px; color: #ff6b6b; margin-top: 6px; display: none; }
+        .btn-verificar {
+            width: 100%; padding: 14px; border-radius: 10px; border: none;
+            background: #FF6B00; color: #fff; font-family: 'Montserrat', sans-serif;
+            font-size: 15px; font-weight: 800; cursor: pointer; transition: .25s;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
-        
-        .resultado-nombre {
-            flex: 2;
-            font-weight: bold;
-            min-width: 150px;
-            color: #003399;
+        .btn-verificar:hover { background: #FF8C38; transform: translateY(-1px); }
+
+        /* RESULTADOS JURADO */
+        .jurado-result { border-radius: 16px; padding: 28px; text-align: center; margin-top: 24px; }
+        .jurado-result.es-jurado { background: rgba(39,174,96,0.08); border: 1px solid rgba(39,174,96,0.2); }
+        .jurado-result.no-jurado { background: rgba(255,152,0,0.08); border: 1px solid rgba(255,152,0,0.2); }
+        .jurado-result i.icono { font-size: 44px; margin-bottom: 14px; display: block; }
+        .jurado-result.es-jurado i.icono { color: #5cdb95; }
+        .jurado-result.no-jurado i.icono { color: #FFB74D; }
+        .jurado-result h3 { font-family: 'Montserrat', sans-serif; font-weight: 800; color: #fff; font-size: 18px; margin-bottom: 8px; }
+        .jurado-result p { color: rgba(255,255,255,0.45); font-size: 14px; }
+        .jurado-data { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 16px; margin-top: 16px; text-align: left; }
+        .jurado-row { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 13px; }
+        .jurado-row:last-child { border-bottom: none; }
+        .jurado-row strong { color: rgba(255,255,255,0.5); min-width: 140px; }
+        .jurado-row code { background: rgba(255,107,0,0.1); color: #FF8C38; padding: 2px 10px; border-radius: 6px; font-family: 'Courier New', monospace; }
+        .jurado-row span { color: #fff; }
+
+        /* MODAL CANDIDATO */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; overflow-y: auto; padding: 20px; }
+        .modal-box { background: #0d2251; border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; max-width: 700px; margin: 40px auto; overflow: hidden; animation: fadeUp .3s; }
+        @keyframes fadeUp { from { opacity:0; transform: translateY(-30px); } to { opacity:1; transform: translateY(0); } }
+        .modal-head { background: linear-gradient(135deg, #0d2251, #1a3a7a); border-bottom: 2px solid #FF6B00; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; }
+        .modal-head h2 { font-family: 'Montserrat', sans-serif; font-weight: 800; color: #fff; font-size: 18px; margin: 0; }
+        .modal-close { background: none; border: none; color: rgba(255,255,255,0.5); font-size: 24px; cursor: pointer; transition: .2s; }
+        .modal-close:hover { color: #ff6b6b; }
+        .modal-body { padding: 28px; }
+        .modal-cand-img { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin: 0 auto 16px; display: block; border: 3px solid #FF6B00; }
+        .modal-cand-name { font-family: 'Montserrat', sans-serif; font-weight: 800; color: #fff; font-size: 20px; text-align: center; margin-bottom: 4px; }
+        .modal-cand-partido { color: #FF8C38; font-size: 13px; text-align: center; margin-bottom: 6px; }
+        .modal-cand-bio { color: rgba(255,255,255,0.45); font-size: 13px; text-align: center; margin-bottom: 20px; line-height: 1.6; }
+        .modal-sec { font-size: 11px; font-weight: 700; color: #FF6B00; text-transform: uppercase; letter-spacing: 2px; margin: 20px 0 12px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,107,0,0.25); }
+        .nivel-titulo { display: inline-block; background: rgba(255,107,0,0.12); border: 1px solid rgba(255,107,0,0.3); color: #FF8C38; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; margin-bottom: 10px; }
+        .integrantes-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+        .integrante-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-left: 3px solid #FF6B00; border-radius: 8px; padding: 8px 14px; min-width: 130px; }
+        .integrante-nombre { font-weight: 700; color: #fff; font-size: 13px; }
+        .integrante-cargo { color: rgba(255,255,255,0.35); font-size: 11px; }
+
+        /* LOGIN MODAL */
+        .login-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 300; align-items: center; justify-content: center; }
+        .login-overlay.open { display: flex; }
+        .login-box { background: #0d2251; border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; width: 100%; max-width: 420px; overflow: hidden; animation: fadeUp .3s; }
+        .login-head { background: linear-gradient(135deg, #0d2251, #1a3a7a); border-bottom: 2px solid #FF6B00; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; }
+        .login-head h2 { font-family: 'Montserrat', sans-serif; font-weight: 800; color: #fff; font-size: 17px; margin: 0; }
+        .login-body { padding: 28px; }
+        .login-error { background: rgba(231,76,60,0.1); border: 1px solid rgba(231,76,60,0.3); color: #ff6b6b; border-radius: 10px; padding: 12px; font-size: 13px; text-align: center; margin-bottom: 16px; display: none; }
+        .btn-login-submit {
+            width: 100%; padding: 14px; border-radius: 10px; border: none;
+            background: #FF6B00; color: #fff; font-family: 'Montserrat', sans-serif;
+            font-size: 15px; font-weight: 800; cursor: pointer; transition: .25s;
         }
-        
-        .resultado-votos {
-            flex: 1;
-            min-width: 80px;
-        }
-        
-        .barra {
-            flex: 3;
-            height: 25px;
-            background: #e0e0e0;
-            border-radius: 12px;
-            overflow: hidden;
-            min-width: 150px;
-        }
-        
-        .barra-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #003399, #f5c518);
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding-right: 10px;
-            color: white;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 50px;
-            color: #003399;
-        }
-        
-        footer {
-            text-align: center;
-            padding: 30px;
-            color: white;
-            background: rgba(0,51,153,0.9);
-            margin-top: 40px;
-        }
-        
+        .btn-login-submit:hover { background: #FF8C38; transform: translateY(-1px); }
+
+        /* CAPTCHA */
+        .captcha-box { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 14px; text-align: center; margin-bottom: 16px; }
+        .captcha-pregunta { font-size: 18px; font-weight: 700; color: #FF8C38; margin-bottom: 10px; font-family: 'Montserrat', sans-serif; }
+
+        /* LOADING */
+        .loading { text-align: center; padding: 50px; color: rgba(255,255,255,0.3); font-size: 14px; }
+        .loading i { font-size: 28px; margin-bottom: 10px; display: block; color: #FF6B00; }
+
+        /* FOOTER */
+        footer { background: #070e1f; color: rgba(255,255,255,0.3); text-align: center; padding: 28px; font-size: 13px; border-top: 1px solid rgba(255,255,255,0.06); }
+        footer span { color: #FF6B00; font-weight: 700; }
+
         @media (max-width: 768px) {
-            .navbar {
-                flex-direction: column;
-                gap: 15px;
-            }
-            .nav-links {
-                justify-content: center;
-            }
-            .hero h1 {
-                font-size: 32px;
-            }
-            .resultado-item {
-                flex-direction: column;
-                gap: 10px;
-                text-align: center;
-            }
-            .barra {
-                width: 100%;
-            }
+            .navbar { padding: 0 16px; }
+            .hero h1 { font-size: 28px; }
+            .candidatos-grid { grid-template-columns: 1fr 1fr; }
+            .card-body { padding: 18px 14px; }
+            .resultado-top { flex-direction: column; gap: 2px; }
+        }
+        @media (max-width: 480px) {
+            .candidatos-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <!-- MENÚ DE NAVEGACIÓN -->
-    <nav class="navbar">
-        <div class="logo">Yo <span>Voto</span></div>
-        <div class="nav-links">
-            <a href="#" class="active" onclick="mostrarSeccion('candidatos')"><i class="fas fa-users"></i> Inicio</a>
-            <a href="#" onclick="mostrarSeccion('candidatos')"><i class="fas fa-user-check"></i> Candidatos</a>
-            <a href="#" onclick="mostrarSeccion('propuestas')"><i class="fas fa-list-check"></i> Propuestas</a>
-            <a href="#" onclick="mostrarSeccion('resultados')"><i class="fas fa-chart-bar"></i> Resultados</a>
-            <a href="#" onclick="mostrarSeccion('verificar')"><i class="fas fa-id-card"></i> Verificar Jurado</a>
-            <?php if (isset($_SESSION['user']) && $_SESSION['user']['rol'] == 'usuario'): ?>
-                <span class="user-info"><i class="fas fa-user-check"></i> <?= htmlspecialchars($_SESSION['user']['nombres']) ?></span>
-                <a href="/yo_voto/votar" class="btn-login-nav"><i class="fas fa-vote-yea"></i> Votar</a>
-                <a href="/yo_voto/logout-votante" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Salir</a>
-            <?php else: ?>
-                <a href="#" onclick="mostrarModalLogin()" class="btn-login-nav"><i class="fas fa-sign-in-alt"></i> Iniciar sesión</a>
+
+<!-- NAVBAR -->
+<header class="navbar">
+    <a href="/yo_voto/" class="navbar-logo"><i class="fas fa-envelope"></i> Yo <span>Voto</span></a>
+    <nav class="navbar-nav">
+        <a href="#" onclick="mostrarSeccion('candidatos')" id="nav-candidatos" class="active"><i class="fas fa-users"></i> Candidatos</a>
+        <a href="#" onclick="mostrarSeccion('propuestas')" id="nav-propuestas"><i class="fas fa-list-check"></i> Propuestas</a>
+        <a href="#" onclick="mostrarSeccion('resultados')" id="nav-resultados"><i class="fas fa-chart-bar"></i> Resultados</a>
+        <a href="#" onclick="mostrarSeccion('verificar')" id="nav-verificar"><i class="fas fa-id-card"></i> Verificar Jurado</a>
+        <?php if (isset($_SESSION['user']) && $_SESSION['user']['rol'] == 'usuario'): ?>
+            <span class="user-name"><i class="fas fa-user"></i> <?= htmlspecialchars($_SESSION['user']['nombres']) ?></span>
+            <?php if (!$_SESSION['user']['ya_voto'] && $_SESSION['user']['habilitado_voto']): ?>
+                <a href="/yo_voto/votar" class="btn-votar"><i class="fas fa-vote-yea"></i> Votar</a>
             <?php endif; ?>
-        </div>
-    </nav>
-
-    <!-- HERO PRINCIPAL -->
-    <div class="hero">
-        <h1>Yo Voto</h1>
-        <p>Sistema Electoral Bolivia 2026</p>
-    </div>
-
-    <!-- CONTENEDOR PRINCIPAL -->
-    <div class="main-container">
-        <!-- Sección Candidatos -->
-        <div id="seccion-candidatos" class="section">
-            <h2 class="section-title"><i class="fas fa-users"></i> Candidatos a la Presidencia</h2>
-            <div class="candidatos-grid" id="candidatos-grid">
-                <div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando candidatos...</div>
-            </div>
-        </div>
-
-        <!-- Sección Propuestas -->
-        <div id="seccion-propuestas" class="section" style="display: none;">
-            <h2 class="section-title"><i class="fas fa-list-check"></i> Propuestas de Gobierno</h2>
-            <div id="propuestas-container">
-                <div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando propuestas...</div>
-            </div>
-        </div>
-
-        <!-- Sección Resultados -->
-        <div id="seccion-resultados" class="section" style="display: none;">
-            <h2 class="section-title"><i class="fas fa-chart-bar"></i> Resultados Electorales</h2>
-            <div id="resultados-container">
-                <div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando resultados...</div>
-            </div>
-        </div>
-
-        <!-- Sección Verificar Jurado -->
-        <div id="seccion-verificar" class="section" style="display: none;">
-            <h2 class="section-title"><i class="fas fa-id-card"></i> Verificar Estado de Jurado</h2>
-            
-            <div style="max-width: 500px; margin: 0 auto;">
-                <?php if (isset($_SESSION['user']) && $_SESSION['user']['rol'] == 'usuario'): ?>
-                    <div class="alert alert-success">
-                        <i class="fas fa-check-circle"></i> ¡Bienvenido! Has iniciado sesión correctamente.
-                    </div>
-                <?php endif; ?>
-                
-                <div class="form-group">
-                    <label><i class="fas fa-id-card"></i> Ingresa tu número de CI (8 dígitos):</label>
-                    <input type="text" id="carnet-verificar" class="form-control" placeholder="Ej: 12345678" maxlength="8" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,8)">
-                    <small id="carnet-error" style="color: #dc2626; display: none;"> La CI debe tener exactamente 8 dígitos numéricos.</small>
-                </div>
-                
-                <button class="btn-ver" onclick="verificarJurado()" style="width: 100%;">
-                    <i class="fas fa-search"></i> Verificar
-                </button>
-                
-                <div id="resultado-verificar" style="margin-top: 30px;"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL DE INICIO DE SESIÓN -->
-    <div id="modalLogin" class="modal-custom">
-        <div class="modal-content-custom">
-            <div class="modal-header-custom">
-                <h2><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</h2>
-                <button class="close-modal" onclick="cerrarModalLogin()">&times;</button>
-            </div>
-            <div class="modal-body-custom">
-                <div id="login-error-message" class="alert-error" style="display: none;"></div>
-                
-                <form id="loginFormulario" method="POST" action="/yo_voto/login-votante">
-                    <div class="form-group">
-                        <label><i class="fas fa-id-card"></i> Número de Carnet</label>
-                        <input type="text" name="carnet" id="login-carnet" placeholder="Ej: 12345678" required autocomplete="off" maxlength="8">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label><i class="fas fa-lock"></i> Contraseña</label>
-                        <input type="password" name="password" id="login-password" placeholder="Ingrese su contraseña" required>
-                    </div>
-                    
-                    <div class="captcha-box">
-                        <div class="captcha-pregunta" id="captcha-pregunta">Cargando...</div>
-                        <div class="captcha-input">
-                            <input type="text" name="captcha" id="login-captcha" placeholder="Ingrese el resultado" required autocomplete="off">
-                        </div>
-                    </div>
-                    
-                    <input type="hidden" name="login_votante" value="1">
-                    
-                    <button type="submit" class="btn-login-submit" id="btnSubmitLogin">
-                        <i class="fas fa-vote-yea"></i> Ingresar a Votar
-                    </button>
-                </form>
-                
-                <div class="text-center mt-4">
-                    <small style="color: #666;">
-                        <i class="fas fa-info-circle"></i> ¿No tienes cuenta? Contacta con el administrador electoral.
-                    </small>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL DE CANDIDATO -->
-    <div id="modalCandidato" class="modal-custom">
-        <div class="modal-content-custom modal-content-large">
-            <div class="modal-header-custom">
-                <h2 id="modal-titulo">Candidato</h2>
-                <button class="close-modal" onclick="cerrarModal()">&times;</button>
-            </div>
-            <div class="modal-body-custom" id="modal-body">
-                <div class="loading">Cargando...</div>
-            </div>
-        </div>
-    </div>
-
-    <footer>
-        <p><i class="fas fa-gavel"></i> Yo Voto - Sistema Electoral Bolivia 2026 | Democracia y Transparencia</p>
-    </footer>
-
-    <script>
-        let candidatosData = [];
-
-        // Mostrar sección
-        function mostrarSeccion(seccion) {
-            document.getElementById('seccion-candidatos').style.display = seccion === 'candidatos' ? 'block' : 'none';
-            document.getElementById('seccion-propuestas').style.display = seccion === 'propuestas' ? 'block' : 'none';
-            document.getElementById('seccion-resultados').style.display = seccion === 'resultados' ? 'block' : 'none';
-            document.getElementById('seccion-verificar').style.display = seccion === 'verificar' ? 'block' : 'none';
-            
-            document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            if (seccion === 'propuestas' && document.getElementById('propuestas-container').innerHTML.includes('Cargando propuestas')) {
-                cargarPropuestas();
-            }
-            if (seccion === 'candidatos' && document.getElementById('candidatos-grid').innerHTML.includes('Cargando candidatos')) {
-                cargarCandidatos();
-            }
-            if (seccion === 'resultados') {
-                cargarResultados();
-            }
-        }
-
-        // Cargar resultados
-        async function cargarResultados() {
-            try {
-                const response = await fetch('/yo_voto/api/resultados');
-                const data = await response.json();
-                const container = document.getElementById('resultados-container');
-                
-                if (data.candidatos.length === 0) {
-                    container.innerHTML = '<p class="text-center">No hay resultados disponibles.</p>';
-                    return;
-                }
-                
-                let html = `<div class="total-votos" style="text-align: center; margin-bottom: 20px; padding: 15px; background: #e8e0ff; border-radius: 15px;">
-                    <h3> Total de votos emitidos: <strong>${data.total_votos}</strong></h3>
-                </div>`;
-                
-                data.candidatos.forEach(c => {
-                    const porcentaje = data.total_votos > 0 ? ((c.votos_recibidos / data.total_votos) * 100).toFixed(1) : 0;
-                    html += `
-                        <div class="resultado-item">
-                            <div class="resultado-nombre">${escapeHtml(c.nombre)}</div>
-                            <div class="resultado-votos">${c.votos_recibidos} votos</div>
-                            <div class="barra">
-                                <div class="barra-fill" style="width: ${porcentaje}%;">${porcentaje}%</div>
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                container.innerHTML = html;
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('resultados-container').innerHTML = '<p class="text-center text-danger">Error al cargar resultados</p>';
-            }
-        }
-
-        // Verificar Jurado
-        async function verificarJurado() {
-            const carnet = document.getElementById('carnet-verificar').value;
-            const resultadoDiv = document.getElementById('resultado-verificar');
-            const carnetError = document.getElementById('carnet-error');
-            
-            // Validar carnet
-            if (!carnet) {
-                carnetError.style.display = 'block';
-                carnetError.innerHTML = ' Ingrese un número de carnet';
-                resultadoDiv.innerHTML = '';
-                return;
-            }
-            
-            if (carnet.length !== 8 || !/^\d+$/.test(carnet)) {
-                carnetError.style.display = 'block';
-                carnetError.innerHTML = ' La CI debe tener exactamente 8 dígitos numéricos.';
-                resultadoDiv.innerHTML = '';
-                return;
-            }
-            
-            carnetError.style.display = 'none';
-            resultadoDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Verificando...</div>';
-            
-            try {
-                const response = await fetch(`/yo_voto/api/verificar-jurado?carnet=${carnet}`);
-                const data = await response.json();
-                
-                if (data.es_jurado) {
-                    resultadoDiv.innerHTML = `
-                        <div style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border-radius: 20px; padding: 25px; text-align: center; border: 2px solid #4caf50;">
-                            <i class="fas fa-trophy" style="font-size: 50px; color: #ff9800; margin-bottom: 15px;"></i>
-                            <h3 style="color: #2e7d32; margin-bottom: 15px;"> Usted es jurado</h3>
-                            <p style="font-size: 18px; color: #2e7d32;">Has sido designado como <strong>Jurado Electoral</strong>.</p>
-                            <div style="background: white; border-radius: 15px; padding: 20px; margin-top: 20px; text-align: left;">
-                                <p><strong><i class="fas fa-user"></i> Tu usuario:</strong> <code style="background: #f0f0f0; padding: 5px 10px; border-radius: 5px;">${data.carnet}</code></p>
-                                <p><strong><i class="fas fa-lock"></i> Tu contraseña:</strong> <code style="background: #f0f0f0; padding: 5px 10px; border-radius: 5px;">${data.password || 'ange2006'}</code></p>
-                                <p><strong><i class="fas fa-qrcode"></i> Código de Jurado:</strong> <code style="background: #f0f0f0; padding: 5px 10px; border-radius: 5px;">${data.codigo_jurado}</code></p>
-                                <p><strong><i class="fas fa-table"></i> Mesa asignada:</strong> Mesa ${data.id_mesa}</p>
-                                <p><strong><i class="fas fa-gavel"></i> Cargo:</strong> ${data.cargo_jurado}</p>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    resultadoDiv.innerHTML = `
-                        <div style="background: #fff3e0; border-radius: 20px; padding: 25px; text-align: center; border: 2px solid #ff9800;">
-                            <i class="fas fa-user-times" style="font-size: 50px; color: #ff9800; margin-bottom: 15px;"></i>
-                            <h3 style="color: #e65100;">No eres Jurado Electoral</h3>
-                            <p style="color: #666;">Luego de la revisión, <strong>${data.nombres || 'el ciudadano'}</strong> no ha sido designado como jurado en este proceso electoral.</p>
-                        </div>
-                    `;
-                }
-            } catch (error) {
-                resultadoDiv.innerHTML = '<div class="alert-error">Error al verificar</div>';
-            }
-        }
-
-        // Cargar candidatos
-        async function cargarCandidatos() {
-            try {
-                const response = await fetch('/yo_voto/api/candidatos');
-                candidatosData = await response.json();
-                
-                const grid = document.getElementById('candidatos-grid');
-                if (candidatosData.length === 0) {
-                    grid.innerHTML = '<p style="text-align: center; color: #666;">No hay candidatos registrados.</p>';
-                    return;
-                }
-                
-                grid.innerHTML = candidatosData.map(c => `
-                    <div class="candidato-card" onclick="verCandidato(${c.id_candidato})">
-                        <img src="/yo_voto/${c.foto_url}" class="candidato-img" onerror="this.src='/yo_voto/uploads/img/sin_foto.jpg'">
-                        <div class="candidato-info">
-                            <div class="candidato-nombre">${escapeHtml(c.nombre)}</div>
-                            <div class="candidato-partido">${escapeHtml(c.partido)}</div>
-                            <div class="candidato-cargo">Candidato a ${escapeHtml(c.cargo)}</div>
-                            <button class="btn-ver"><i class="fas fa-eye"></i> Ver más</button>
-                        </div>
-                    </div>
-                `).join('');
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('candidatos-grid').innerHTML = '<p style="text-align: center; color: red;">Error al cargar candidatos</p>';
-            }
-        }
-
-        // Ver candidato completo
-        async function verCandidato(id) {
-            try {
-                const [candidatoRes, equipoRes, propuestasRes] = await Promise.all([
-                    fetch(`/yo_voto/api/candidato/${id}`),
-                    fetch(`/yo_voto/api/equipo/${id}`),
-                    fetch(`/yo_voto/api/propuestas/${id}`)
-                ]);
-                
-                const c = await candidatoRes.json();
-                const equipo = await equipoRes.json();
-                const propuestas = await propuestasRes.json();
-                
-                document.getElementById('modal-titulo').innerHTML = c.nombre;
-                
-                const modalBody = document.getElementById('modal-body');
-                modalBody.innerHTML = `
-                    <img src="/yo_voto/${c.foto_url}" class="modal-candidato-img" onerror="this.src='/yo_voto/uploads/img/sin_foto.jpg'">
-                    <div style="text-align: center;">
-                        <h3>${escapeHtml(c.nombre)}</h3>
-                        <p style="color: #1a5bc4;"><strong>${escapeHtml(c.partido)}</strong> | Candidato a ${escapeHtml(c.cargo)}</p>
-                        <p style="color: #666; margin-top: 10px;">${escapeHtml(c.biografia || 'Sin biografía disponible')}</p>
-                        <p style="margin-top: 10px;"><strong> Fecha de postulación:</strong> ${c.fecha_postulacion}</p>
-                    </div>
-                    
-                    <h4 style="margin-top: 25px;"><i class="fas fa-users"></i> Equipo de Campaña</h4>
-                    <div class="equipo-arbol" id="equipo-container"></div>
-                    
-                    <h4 style="margin-top: 25px;"><i class="fas fa-list-check"></i> Propuestas</h4>
-                    <div id="propuestas-candidato"></div>
-                `;
-                
-                // Equipo
-                const equipoContainer = document.getElementById('equipo-container');
-                if (Object.keys(equipo).length === 0) {
-                    equipoContainer.innerHTML = '<p style="text-align: center;">No hay integrantes registrados.</p>';
-                } else {
-                    equipoContainer.innerHTML = Object.entries(equipo).map(([nivel, integrantes]) => `
-                        <div class="nivel-equipo">
-                            <div class="nivel-titulo"><i class="fas fa-layer-group"></i> Nivel ${nivel}</div>
-                            <div class="integrantes-grid">
-                                ${integrantes.map(i => `
-                                    <div class="integrante-card">
-                                        <div class="integrante-nombre">${escapeHtml(i.nombre)}</div>
-                                        <div class="integrante-cargo">${escapeHtml(i.cargo)}</div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    `).join('');
-                }
-                
-                // Propuestas
-                const propContainer = document.getElementById('propuestas-candidato');
-                if (propuestas.length === 0) {
-                    propContainer.innerHTML = '<p>Este candidato no tiene propuestas registradas.</p>';
-                } else {
-                    propContainer.innerHTML = propuestas.map(p => `
-                        <div class="propuesta-item">
-                            <div class="propuesta-categoria"><i class="fas fa-tag"></i> ${escapeHtml(p.categoria)}</div>
-                            <div class="propuesta-titulo">${escapeHtml(p.titulo)}</div>
-                            <p style="margin-top: 5px; color: #666;">${escapeHtml(p.descripcion)}</p>
-                        </div>
-                    `).join('');
-                }
-                
-                document.getElementById('modalCandidato').style.display = 'block';
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-
-        // Cargar propuestas
-        async function cargarPropuestas() {
-            try {
-                const response = await fetch('/yo_voto/api/propuestas');
-                const propuestas = await response.json();
-                
-                const container = document.getElementById('propuestas-container');
-                if (propuestas.length === 0) {
-                    container.innerHTML = '<p style="text-align: center;">No hay propuestas registradas.</p>';
-                    return;
-                }
-                
-                container.innerHTML = `
-                    <div class="candidatos-grid">
-                        ${propuestas.map(p => `
-                            <div class="candidato-card" style="cursor: default;">
-                                <div style="padding: 20px;">
-                                    <div class="propuesta-categoria"><i class="fas fa-tag"></i> ${escapeHtml(p.categoria)}</div>
-                                    <div class="candidato-nombre" style="font-size: 18px;">${escapeHtml(p.titulo)}</div>
-                                    <p style="color: #666; margin: 10px 0;">${escapeHtml(p.descripcion.substring(0, 100))}${p.descripcion.length > 100 ? '...' : ''}</p>
-                                    <div style="color: #1a5bc4; font-size: 12px; margin-top: 10px;">
-                                        <i class="fas fa-user"></i> ${escapeHtml(p.candidato_nombre)} - ${escapeHtml(p.candidato_partido)}
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-
-        // Función para cargar captcha
-        function cargarCaptcha() {
-            fetch('/yo_voto/api/captcha')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('captcha-pregunta').innerHTML = '<i class="fas fa-calculator"></i> ' + data.pregunta;
-                })
-                .catch(error => console.error('Error cargando captcha:', error));
-        }
-
-        // Mostrar modal login
-        function mostrarModalLogin() {
-            document.getElementById('modalLogin').style.display = 'block';
-            document.getElementById('login-error-message').style.display = 'none';
-            document.getElementById('loginFormulario').reset();
-            cargarCaptcha();
-        }
-        
-        function cerrarModalLogin() {
-            document.getElementById('modalLogin').style.display = 'none';
-        }
-        
-        function cerrarModal() {
-            document.getElementById('modalCandidato').style.display = 'none';
-        }
-        
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-        
-        // Manejar el envío del formulario de login
-        document.getElementById('loginFormulario').addEventListener('submit', function(e) {
-            // Aqui no prevenimos el envío, dejamos que el formulario se envíe normalmente
-            // El captcha se validará en el servidor
-        });
-        
-        // Cerrar modal con ESC
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                cerrarModal();
-                cerrarModalLogin();
-            }
-        });
-        
-        // Cerrar modal al hacer clic fuera
-        window.onclick = function(event) {
-            const modal = document.getElementById('modalCandidato');
-            const modalLogin = document.getElementById('modalLogin');
-            if (event.target === modal) cerrarModal();
-            if (event.target === modalLogin) cerrarModalLogin();
-        }
-        
-        // Inicializarlo
-        cargarCandidatos();
-        
-        // Mostrar error de login si existe
-        <?php if ($error_login): ?>
-        document.addEventListener('DOMContentLoaded', function() {
-            mostrarModalLogin();
-            document.getElementById('login-error-message').innerHTML = '<?= $error_login ?>';
-            document.getElementById('login-error-message').style.display = 'block';
-        });
+            <a href="/yo_voto/logout-votante" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Salir</a>
+        <?php else: ?>
+            <a href="#" onclick="abrirLogin()" class="btn-login"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</a>
         <?php endif; ?>
-    </script>
+    </nav>
+</header>
+
+<!-- MAIN -->
+<main class="main">
+    <div class="hero">
+        <div class="hero-badge"><i class="fas fa-flag"></i> Elecciones Generales Bolivia 2026</div>
+        <h1>Yo <span>Voto</span></h1>
+        <p>Sistema Electoral Bolivia 2026 · Democracia y Transparencia</p>
+    </div>
+
+    <!-- NAV SECCIONES -->
+    <div class="sec-nav">
+        <button onclick="mostrarSeccion('candidatos')" id="btn-candidatos" class="active"><i class="fas fa-users"></i> Candidatos</button>
+        <button onclick="mostrarSeccion('propuestas')" id="btn-propuestas"><i class="fas fa-list-check"></i> Propuestas</button>
+        <button onclick="mostrarSeccion('resultados')" id="btn-resultados"><i class="fas fa-chart-bar"></i> Resultados</button>
+        <button onclick="mostrarSeccion('verificar')" id="btn-verificar"><i class="fas fa-id-card"></i> Verificar Jurado</button>
+    </div>
+
+    <div class="container">
+
+        <!-- CANDIDATOS -->
+        <div id="seccion-candidatos">
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-head-icon"><i class="fas fa-users"></i></div>
+                    <div><h2>Candidatos a la Presidencia</h2><p>Conoce a los postulantes para Bolivia 2026</p></div>
+                </div>
+                <div class="card-body">
+                    <div class="candidatos-grid" id="candidatos-grid">
+                        <div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando candidatos...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROPUESTAS -->
+        <div id="seccion-propuestas" style="display:none;">
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-head-icon"><i class="fas fa-list-check"></i></div>
+                    <div><h2>Propuestas de Gobierno</h2><p>Las propuestas de cada candidato</p></div>
+                </div>
+                <div class="card-body" id="propuestas-container">
+                    <div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando propuestas...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESULTADOS -->
+        <div id="seccion-resultados" style="display:none;">
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-head-icon"><i class="fas fa-chart-bar"></i></div>
+                    <div><h2>Resultados Electorales</h2><p>Conteo en tiempo real</p></div>
+                </div>
+                <div class="card-body" id="resultados-container">
+                    <div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando resultados...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VERIFICAR JURADO -->
+        <div id="seccion-verificar" style="display:none;">
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-head-icon"><i class="fas fa-id-card"></i></div>
+                    <div><h2>Verificar Estado de Jurado</h2><p>Ingresa tu CI para consultar</p></div>
+                </div>
+                <div class="card-body">
+                    <div style="max-width:460px; margin: 0 auto;">
+                        <div class="form-field">
+                            <label class="form-label"><i class="fas fa-id-card"></i> Número de CI (8 dígitos)</label>
+                            <input type="text" id="carnet-verificar" class="form-input" placeholder="Ej: 12345678" maxlength="8" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,8)">
+                            <div class="form-error" id="carnet-error">La CI debe tener exactamente 8 dígitos numéricos.</div>
+                        </div>
+                        <button class="btn-verificar" onclick="verificarJurado()">
+                            <i class="fas fa-search"></i> Verificar
+                        </button>
+                        <div id="resultado-verificar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<!-- MODAL CANDIDATO -->
+<div class="modal-overlay" id="modalCandidato">
+    <div class="modal-box">
+        <div class="modal-head">
+            <h2 id="modal-titulo">Candidato</h2>
+            <button class="modal-close" onclick="cerrarModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" id="modal-body">
+            <div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL LOGIN -->
+<div class="login-overlay" id="loginOverlay">
+    <div class="login-box">
+        <div class="login-head">
+            <h2><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</h2>
+            <button class="modal-close" onclick="cerrarLogin()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="login-body">
+            <div class="login-error" id="login-error-message"></div>
+            <form id="loginFormulario" method="POST" action="/yo_voto/login-votante">
+                <div class="form-field">
+                    <label class="form-label"><i class="fas fa-id-card"></i> Número de Carnet</label>
+                    <input type="text" name="carnet" class="form-input" placeholder="Ej: 12345678" required maxlength="8">
+                </div>
+                <div class="form-field">
+                    <label class="form-label"><i class="fas fa-lock"></i> Contraseña</label>
+                    <input type="password" name="password" class="form-input" placeholder="Ingrese su contraseña" required>
+                </div>
+                <div class="captcha-box">
+                    <div class="captcha-pregunta" id="captcha-pregunta"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
+                    <input type="text" name="captcha" class="form-input" placeholder="Ingrese el resultado" required autocomplete="off" style="text-align:center; margin-top:8px;">
+                </div>
+                <input type="hidden" name="login_votante" value="1">
+                <button type="submit" class="btn-login-submit"><i class="fas fa-vote-yea"></i> Ingresar a Votar</button>
+            </form>
+            <p style="text-align:center; margin-top:16px; font-size:12px; color:rgba(255,255,255,0.3);">
+                <i class="fas fa-info-circle"></i> ¿No tienes cuenta? Contacta con el administrador electoral.
+            </p>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>🗳️ <span>Yo Voto</span> — Sistema Electoral Bolivia 2026 · Democracia y Transparencia</p>
+</footer>
+
+<script>
+    let candidatosData = [];
+
+    function mostrarSeccion(sec) {
+        ['candidatos','propuestas','resultados','verificar'].forEach(s => {
+            document.getElementById('seccion-' + s).style.display = s === sec ? 'block' : 'none';
+            document.getElementById('btn-' + s).classList.toggle('active', s === sec);
+            const nav = document.getElementById('nav-' + s);
+            if (nav) nav.classList.toggle('active', s === sec);
+        });
+        if (sec === 'propuestas' && document.getElementById('propuestas-container').innerHTML.includes('Cargando')) cargarPropuestas();
+        if (sec === 'candidatos' && document.getElementById('candidatos-grid').innerHTML.includes('Cargando')) cargarCandidatos();
+        if (sec === 'resultados') cargarResultados();
+    }
+
+    async function cargarCandidatos() {
+        try {
+            const res = await fetch('/yo_voto/api/candidatos');
+            candidatosData = await res.json();
+            const grid = document.getElementById('candidatos-grid');
+            if (!candidatosData.length) { grid.innerHTML = '<p style="color:rgba(255,255,255,0.3);text-align:center;">No hay candidatos registrados.</p>'; return; }
+            grid.innerHTML = candidatosData.map(c => `
+                <div class="candidato-card" onclick="verCandidato(${c.id_candidato})">
+                    <img src="/yo_voto/${c.foto_url}" class="candidato-img" onerror="this.src='/yo_voto/uploads/img/sin_foto.jpg'">
+                    <div class="candidato-info">
+                        <div class="candidato-nombre">${esc(c.nombre)}</div>
+                        <div class="candidato-partido">${esc(c.partido)}</div>
+                        <div class="candidato-cargo">Candidato a ${esc(c.cargo)}</div>
+                        <button class="btn-ver"><i class="fas fa-eye"></i> Ver más</button>
+                    </div>
+                </div>
+            `).join('');
+        } catch(e) { document.getElementById('candidatos-grid').innerHTML = '<p style="color:#ff6b6b;text-align:center;">Error al cargar candidatos</p>'; }
+    }
+
+    async function verCandidato(id) {
+        document.getElementById('modalCandidato').style.display = 'block';
+        document.getElementById('modal-body').innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+        try {
+            const [cRes, eRes, pRes] = await Promise.all([
+                fetch(`/yo_voto/api/candidato/${id}`),
+                fetch(`/yo_voto/api/equipo/${id}`),
+                fetch(`/yo_voto/api/propuestas/${id}`)
+            ]);
+            const c = await cRes.json(), equipo = await eRes.json(), propuestas = await pRes.json();
+            document.getElementById('modal-titulo').textContent = c.nombre;
+            let equipoHtml = Object.keys(equipo).length === 0
+                ? '<p style="color:rgba(255,255,255,0.3);text-align:center;">No hay integrantes registrados.</p>'
+                : Object.entries(equipo).map(([nivel, ints]) => `
+                    <div style="margin-bottom:14px;">
+                        <div class="nivel-titulo"><i class="fas fa-layer-group"></i> Nivel ${nivel}</div>
+                        <div class="integrantes-grid">
+                            ${ints.map(i => `<div class="integrante-card"><div class="integrante-nombre">${esc(i.nombre)}</div><div class="integrante-cargo">${esc(i.cargo)}</div></div>`).join('')}
+                        </div>
+                    </div>`).join('');
+            let propHtml = !propuestas.length
+                ? '<p style="color:rgba(255,255,255,0.3);">Sin propuestas registradas.</p>'
+                : propuestas.map(p => `<div class="propuesta-item"><div class="propuesta-cat"><i class="fas fa-tag"></i> ${esc(p.categoria)}</div><div class="propuesta-titulo">${esc(p.titulo)}</div><div class="propuesta-desc">${esc(p.descripcion)}</div></div>`).join('');
+            document.getElementById('modal-body').innerHTML = `
+                <img src="/yo_voto/${c.foto_url}" class="modal-cand-img" onerror="this.src='/yo_voto/uploads/img/sin_foto.jpg'">
+                <div class="modal-cand-name">${esc(c.nombre)}</div>
+                <div class="modal-cand-partido">${esc(c.partido)} · Candidato a ${esc(c.cargo)}</div>
+                <div class="modal-cand-bio">${esc(c.biografia || 'Sin biografía disponible.')}</div>
+                <div class="modal-sec"><i class="fas fa-users"></i> Equipo de Campaña</div>
+                ${equipoHtml}
+                <div class="modal-sec"><i class="fas fa-list-check"></i> Propuestas</div>
+                ${propHtml}`;
+        } catch(e) { document.getElementById('modal-body').innerHTML = '<p style="color:#ff6b6b;text-align:center;">Error al cargar datos.</p>'; }
+    }
+
+    async function cargarPropuestas() {
+        try {
+            const res = await fetch('/yo_voto/api/propuestas');
+            const propuestas = await res.json();
+            const c = document.getElementById('propuestas-container');
+            if (!propuestas.length) { c.innerHTML = '<p style="color:rgba(255,255,255,0.3);text-align:center;">No hay propuestas registradas.</p>'; return; }
+            c.innerHTML = '<div class="candidatos-grid">' + propuestas.map(p => `
+                <div class="propuesta-item" style="border-radius:14px;">
+                    <div class="propuesta-cat"><i class="fas fa-tag"></i> ${esc(p.categoria)}</div>
+                    <div class="propuesta-titulo">${esc(p.titulo)}</div>
+                    <div class="propuesta-desc">${esc(p.descripcion.substring(0,100))}${p.descripcion.length > 100 ? '...' : ''}</div>
+                    <div class="propuesta-autor"><i class="fas fa-user"></i> ${esc(p.candidato_nombre)} — ${esc(p.candidato_partido)}</div>
+                </div>`).join('') + '</div>';
+        } catch(e) {}
+    }
+
+    async function cargarResultados() {
+        try {
+            const res = await fetch('/yo_voto/api/resultados');
+            const data = await res.json();
+            const c = document.getElementById('resultados-container');
+            if (!data.candidatos.length) { c.innerHTML = '<p style="color:rgba(255,255,255,0.3);text-align:center;">No hay resultados disponibles.</p>'; return; }
+            let html = `<div class="total-votos-badge">Total de votos emitidos: <span>${data.total_votos}</span></div>`;
+            data.candidatos.forEach(cand => {
+                const pct = data.total_votos > 0 ? ((cand.votos_recibidos / data.total_votos) * 100).toFixed(1) : 0;
+                html += `<div class="resultado-item">
+                    <div class="resultado-top">
+                        <div class="resultado-nombre">${esc(cand.nombre)}</div>
+                        <div class="resultado-votos">${cand.votos_recibidos} votos · ${pct}%</div>
+                    </div>
+                    <div class="barra"><div class="barra-fill" style="width:${pct}%"></div></div>
+                </div>`;
+            });
+            c.innerHTML = html;
+        } catch(e) { document.getElementById('resultados-container').innerHTML = '<p style="color:#ff6b6b;text-align:center;">Error al cargar resultados</p>'; }
+    }
+
+    async function verificarJurado() {
+        const carnet = document.getElementById('carnet-verificar').value;
+        const errEl = document.getElementById('carnet-error');
+        const resEl = document.getElementById('resultado-verificar');
+        if (!carnet || carnet.length !== 8 || !/^\d+$/.test(carnet)) {
+            errEl.style.display = 'block'; resEl.innerHTML = ''; return;
+        }
+        errEl.style.display = 'none';
+        resEl.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Verificando...</div>';
+        try {
+            const res = await fetch(`/yo_voto/api/verificar-jurado?carnet=${carnet}`);
+            const data = await res.json();
+            if (data.es_jurado) {
+                resEl.innerHTML = `<div class="jurado-result es-jurado">
+                    <i class="fas fa-trophy icono"></i>
+                    <h3>¡Eres Jurado Electoral!</h3>
+                    <p>Has sido designado como Jurado en este proceso electoral.</p>
+                    <div class="jurado-data">
+                        <div class="jurado-row"><strong><i class="fas fa-user"></i> Usuario:</strong> <code>${esc(data.carnet)}</code></div>
+                        <div class="jurado-row"><strong><i class="fas fa-lock"></i> Contraseña:</strong> <code>${esc(data.password || 'usuario123')}</code></div>
+                        <div class="jurado-row"><strong><i class="fas fa-qrcode"></i> Código Jurado:</strong> <code>${esc(data.codigo_jurado)}</code></div>
+                        <div class="jurado-row"><strong><i class="fas fa-table"></i> Mesa asignada:</strong> <span>Mesa ${esc(String(data.id_mesa))}</span></div>
+                        <div class="jurado-row"><strong><i class="fas fa-gavel"></i> Cargo:</strong> <span>${esc(data.cargo_jurado)}</span></div>
+                    </div>
+                </div>`;
+            } else {
+                resEl.innerHTML = `<div class="jurado-result no-jurado">
+                    <i class="fas fa-user-times icono"></i>
+                    <h3>No eres Jurado Electoral</h3>
+                    <p>${esc(data.nombres || 'El ciudadano')} no ha sido designado como jurado en este proceso electoral.</p>
+                </div>`;
+            }
+        } catch(e) { resEl.innerHTML = '<p style="color:#ff6b6b;text-align:center;">Error al verificar</p>'; }
+    }
+
+    function abrirLogin() { document.getElementById('loginOverlay').classList.add('open'); cargarCaptcha(); }
+    function cerrarLogin() { document.getElementById('loginOverlay').classList.remove('open'); }
+    function cerrarModal() { document.getElementById('modalCandidato').style.display = 'none'; }
+
+    function cargarCaptcha() {
+        fetch('/yo_voto/api/captcha').then(r => r.json()).then(d => {
+            document.getElementById('captcha-pregunta').innerHTML = '<i class="fas fa-calculator"></i> ' + (d.pregunta || d.captcha);
+        }).catch(() => {});
+    }
+
+    function esc(t) {
+        if (!t) return '';
+        const d = document.createElement('div');
+        d.textContent = t;
+        return d.innerHTML;
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') { cerrarModal(); cerrarLogin(); } });
+    window.onclick = e => {
+        if (e.target === document.getElementById('modalCandidato')) cerrarModal();
+        if (e.target === document.getElementById('loginOverlay')) cerrarLogin();
+    };
+
+    cargarCandidatos();
+
+    <?php if ($error_login): ?>
+    document.addEventListener('DOMContentLoaded', () => {
+        abrirLogin();
+        const err = document.getElementById('login-error-message');
+        err.innerHTML = '<?= addslashes($error_login) ?>';
+        err.style.display = 'block';
+    });
+    <?php endif; ?>
+</script>
 </body>
 </html>
