@@ -20,219 +20,71 @@ unset($_SESSION['error_login']);
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Open Sans', sans-serif; min-height: 100vh; background: #0a1628; }
 
-        /* ── INTRO SPLASH ── */
-    #intro-splash {
-        position: fixed; inset: 0; z-index: 9999;
-        background: linear-gradient(160deg, #0a1628 0%, #0d2251 50%, #0a1628 100%);
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        transition: opacity .6s ease, visibility .6s ease;
-    }
-    #intro-splash.oculto { opacity: 0; visibility: hidden; }
-    .splash-logo {
-        font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 52px;
-        color: #fff; display: flex; align-items: center; gap: 12px;
-        animation: splashEntrada .8s ease forwards;
-        opacity: 0;
-    }
-    .splash-logo span { color: #FF6B00; }
-    .splash-logo i { color: #FF6B00; font-size: 46px; }
-    .splash-sub {
-        font-size: 15px; color: rgba(255,255,255,0.45); margin-top: 14px;
-        letter-spacing: 3px; text-transform: uppercase;
-        animation: splashEntrada .8s ease .2s forwards; opacity: 0;
-    }
-    .splash-bar-wrap {
-        width: 220px; height: 3px; background: rgba(255,255,255,0.08);
-        border-radius: 10px; margin-top: 40px; overflow: hidden;
-        animation: splashEntrada .8s ease .3s forwards; opacity: 0;
-    }
-    .splash-bar {
-        height: 100%; width: 0%; background: #FF6B00;
-        border-radius: 10px; animation: splashLoad 1.8s ease .5s forwards;
-    }
-    .splash-badge {
-        margin-top: 20px; font-size: 11px; color: rgba(255,255,255,0.3);
-        letter-spacing: 1.5px; text-transform: uppercase;
-        animation: splashEntrada .8s ease .4s forwards; opacity: 0;
-    }
-    @keyframes splashEntrada { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
-    @keyframes splashLoad { from { width:0%; } to { width:100%; } }
-        .navbar {
-            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-            background: rgba(10, 22, 50, 0.95); backdrop-filter: blur(10px);
-            height: 60px; display: flex; align-items: center;
-            padding: 0 40px; justify-content: space-between;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
+        /* INTRO SPLASH */
+        #intro-splash {
+            position: fixed; inset: 0; z-index: 9999;
+            background: linear-gradient(160deg, #0a1628 0%, #0d2251 50%, #0a1628 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity .6s ease, visibility .6s ease;
         }
-        .navbar-logo {
-            font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 20px;
-            color: #fff; text-decoration: none; display: flex; align-items: center; gap: 8px;
-        }
+        #intro-splash.oculto { opacity: 0; visibility: hidden; }
+        .splash-logo { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 52px; color: #fff; display: flex; align-items: center; gap: 12px; animation: splashEntrada .8s ease forwards; opacity: 0; }
+        .splash-logo span { color: #FF6B00; }
+        .splash-logo i { color: #FF6B00; font-size: 46px; }
+        .splash-sub { font-size: 15px; color: rgba(255,255,255,0.45); margin-top: 14px; letter-spacing: 3px; text-transform: uppercase; animation: splashEntrada .8s ease .2s forwards; opacity: 0; }
+        .splash-bar-wrap { width: 220px; height: 3px; background: rgba(255,255,255,0.08); border-radius: 10px; margin-top: 40px; overflow: hidden; animation: splashEntrada .8s ease .3s forwards; opacity: 0; }
+        .splash-bar { height: 100%; width: 0%; background: #FF6B00; border-radius: 10px; animation: splashLoad 1.8s ease .5s forwards; }
+        .splash-badge { margin-top: 20px; font-size: 11px; color: rgba(255,255,255,0.3); letter-spacing: 1.5px; text-transform: uppercase; animation: splashEntrada .8s ease .4s forwards; opacity: 0; }
+        @keyframes splashEntrada { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes splashLoad { from { width:0%; } to { width:100%; } }
+
+        /* NAVBAR */
+        .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,22,50,0.95); backdrop-filter: blur(10px); height: 60px; display: flex; align-items: center; padding: 0 40px; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .navbar-logo { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 20px; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 8px; }
         .navbar-logo span { color: #FF6B00; }
         .navbar-logo i { color: #FF6B00; font-size: 18px; }
         .navbar-nav { display: flex; align-items: center; gap: 6px; }
-        .navbar-nav a {
-            color: rgba(255,255,255,0.85); text-decoration: none; font-size: 14px;
-            font-weight: 600; padding: 7px 14px; border-radius: 8px; transition: .2s;
-            display: flex; align-items: center; gap: 6px;
-        }
+        .navbar-nav a { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 14px; font-weight: 600; padding: 7px 14px; border-radius: 8px; transition: .2s; display: flex; align-items: center; gap: 6px; }
         .navbar-nav a:hover { color: #fff; background: rgba(255,255,255,0.08); }
-        .navbar-nav .btn-registro {
-            background: #FF6B00; color: #fff; padding: 7px 18px; border-radius: 8px;
-        }
+        .navbar-nav .btn-registro { background: #FF6B00; color: #fff; padding: 7px 18px; border-radius: 8px; }
         .navbar-nav .btn-registro:hover { background: #FF8C38; }
         .navbar-nav .user-name { color: #FF8C38; font-size: 14px; font-weight: 600; }
 
-        /* ── HERO ── */
-        .hero {
-            min-height: 100vh;
-            background: linear-gradient(160deg, #0a1628 0%, #0d2251 40%, #1a3a7a 70%, #0d2251 100%);
-            display: flex; flex-direction: column; align-items: center;
-            justify-content: center; text-align: center;
-            padding: 80px 24px 40px; position: relative; overflow: hidden;
-        }
-        .hero::before {
-            content: ''; position: absolute; inset: 0;
-            background:
-                radial-gradient(ellipse 80% 60% at 50% 40%, rgba(26,58,122,0.6) 0%, transparent 70%),
-                radial-gradient(ellipse 40% 40% at 20% 80%, rgba(255,107,0,0.08) 0%, transparent 60%),
-                radial-gradient(ellipse 40% 40% at 80% 20%, rgba(255,107,0,0.06) 0%, transparent 60%);
-            pointer-events: none;
-        }
-        .hero-badge {
-            display: inline-flex; align-items: center; gap: 8px;
-            background: rgba(255,107,0,0.12); border: 1px solid rgba(255,107,0,0.35);
-            color: #FF8C38; padding: 7px 20px; border-radius: 50px;
-            font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
-            margin-bottom: 32px; position: relative; z-index: 1;
-        }
-        .hero h1 {
-            font-family: 'Montserrat', sans-serif; font-weight: 900;
-            font-size: clamp(48px, 8vw, 80px); color: #fff;
-            line-height: 1.05; margin-bottom: 20px; position: relative; z-index: 1;
-        }
-        .hero h1 span { color: #FF6B00; display: block; }
-        .hero-sub {
-            font-size: 18px; color: rgba(255,255,255,0.55);
-            margin-bottom: 44px; position: relative; z-index: 1;
-        }
-        .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; position: relative; z-index: 1; }
-        .btn-votar {
-            background: #FF6B00; color: #fff; padding: 14px 32px; border-radius: 10px;
-            font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 15px;
-            display: inline-flex; align-items: center; gap: 9px; transition: .25s;
-            box-shadow: 0 6px 24px rgba(255,107,0,0.4); border: none; cursor: pointer;
-            text-decoration: none;
-        }
-        .btn-votar:hover { background: #FF8C38; transform: translateY(-2px); box-shadow: 0 10px 32px rgba(255,107,0,0.5); color: #fff; }
-        .btn-outline {
-            background: rgba(255,255,255,0.08); color: #fff;
-            padding: 14px 32px; border-radius: 10px; text-decoration: none;
-            font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 15px;
-            display: inline-flex; align-items: center; gap: 9px; transition: .25s;
-            border: 1.5px solid rgba(255,255,255,0.2); cursor: pointer;
-        }
+        /* HERO */
+        .hero { min-height: 100vh; background: linear-gradient(160deg, #0a1628 0%, #0d2251 40%, #1a3a7a 70%, #0d2251 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 80px 24px 40px; position: relative; overflow: hidden; }
+        .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(26,58,122,0.6) 0%, transparent 70%), radial-gradient(ellipse 40% 40% at 20% 80%, rgba(255,107,0,0.08) 0%, transparent 60%), radial-gradient(ellipse 40% 40% at 80% 20%, rgba(255,107,0,0.06) 0%, transparent 60%); pointer-events: none; }
+        .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,107,0,0.12); border: 1px solid rgba(255,107,0,0.35); color: #FF8C38; padding: 7px 20px; border-radius: 50px; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 32px; position: relative; z-index: 1; }
+        .btn-votar { background: #FF6B00; color: #fff; padding: 14px 32px; border-radius: 10px; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 15px; display: inline-flex; align-items: center; gap: 9px; transition: .25s; box-shadow: 0 6px 24px rgba(255,107,0,0.4); border: none; cursor: pointer; text-decoration: none; }
+        .btn-votar:hover { background: #FF8C38; transform: translateY(-2px); color: #fff; }
+        .btn-outline { background: rgba(255,255,255,0.08); color: #fff; padding: 14px 32px; border-radius: 10px; text-decoration: none; font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 15px; display: inline-flex; align-items: center; gap: 9px; transition: .25s; border: 1.5px solid rgba(255,255,255,0.2); cursor: pointer; }
         .btn-outline:hover { background: rgba(255,255,255,0.15); transform: translateY(-2px); color: #fff; }
 
-        /* ── MÓDULOS CARDS ── */
-        .modules-section {
-            background: linear-gradient(180deg, #0d2251 0%, #0a1a3e 100%);
-            padding: 60px 24px;
-        }
-        .modules-grid {
-            max-width: 1000px; margin: 0 auto;
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
-        }
-        .module-card {
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 20px; padding: 36px 24px; text-align: center;
-            text-decoration: none; transition: .25s; cursor: pointer;
-            display: flex; flex-direction: column; align-items: center; gap: 14px;
-        }
-        .module-card:hover {
-            background: rgba(255,255,255,0.1); transform: translateY(-4px);
-            border-color: rgba(255,107,0,0.3);
-            box-shadow: 0 12px 32px rgba(0,0,0,0.3);
-        }
-        .module-icon-wrap {
-            width: 64px; height: 64px; border-radius: 16px;
-            background: #FF6B00; display: flex; align-items: center; justify-content: center;
-        }
+        /* MÓDULOS */
+        .modules-section { background: linear-gradient(180deg, #0d2251 0%, #0a1a3e 100%); padding: 60px 24px; }
+        .modules-grid { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .module-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 36px 24px; text-align: center; text-decoration: none; transition: .25s; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+        .module-card:hover { background: rgba(255,255,255,0.1); transform: translateY(-4px); border-color: rgba(255,107,0,0.3); box-shadow: 0 12px 32px rgba(0,0,0,0.3); }
+        .module-icon-wrap { width: 64px; height: 64px; border-radius: 16px; background: #FF6B00; display: flex; align-items: center; justify-content: center; }
         .module-icon-wrap i { font-size: 26px; color: #fff; }
         .module-name { font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 800; color: #fff; }
         .module-desc { font-size: 13px; color: rgba(255,255,255,0.5); }
 
-        /* ── CANDIDATOS ── */
-        .candidatos-section { background: #0a1628; padding: 60px 24px; }
-        .section-header { max-width: 1200px; margin: 0 auto 32px; display: flex; align-items: center; gap: 16px; }
-        .section-header h2 { font-family: 'Montserrat', sans-serif; font-size: 26px; font-weight: 800; color: #fff; white-space: nowrap; }
-        .section-line { flex: 1; height: 2px; background: linear-gradient(90deg, #FF6B00, transparent); }
-        .candidatos-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 22px; }
-        .candidato-card {
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 16px; overflow: hidden; transition: .25s; cursor: pointer;
-        }
-        .candidato-card:hover { transform: translateY(-5px); border-color: #FF6B00; box-shadow: 0 12px 32px rgba(255,107,0,0.2); }
-        .candidato-card img { width: 100%; height: 200px; object-fit: cover; }
-        .candidato-card-body { padding: 18px; text-align: center; }
-        .c-nombre { font-family: 'Montserrat', sans-serif; font-size: 16px; font-weight: 800; color: #fff; margin-bottom: 4px; }
-        .c-partido { font-size: 13px; color: #FF8C38; margin-bottom: 3px; }
-        .c-cargo { font-size: 11px; color: rgba(255,255,255,0.4); margin-bottom: 14px; }
-        .btn-ver { background: #FF6B00; color: #fff; border: none; padding: 8px 20px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; transition: .2s; }
-        .btn-ver:hover { background: #FF8C38; }
-        .loading { text-align: center; padding: 60px; color: rgba(255,255,255,0.3); font-size: 15px; }
-
-        /* ── MODAL ── */
-        .modal-overlay {
-            display: none; position: fixed; inset: 0; z-index: 500;
-            background: rgba(0,10,30,0.85); backdrop-filter: blur(8px);
-            overflow-y: auto; padding: 40px 20px;
-        }
-        .modal-box {
-            background: #111e3a; border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 20px; max-width: 520px; margin: 0 auto; overflow: hidden;
-            box-shadow: 0 24px 60px rgba(0,0,0,0.5); animation: slideUp .3s ease;
-        }
+        /* MODAL */
+        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 500; background: rgba(0,10,30,0.85); backdrop-filter: blur(8px); overflow-y: auto; padding: 40px 20px; }
+        .modal-box { background: #111e3a; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; max-width: 520px; margin: 0 auto; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,0.5); animation: slideUp .3s ease; }
         .modal-box-lg { max-width: 820px; }
         @keyframes slideUp { from { opacity:0; transform:translateY(40px); } to { opacity:1; transform:translateY(0); } }
-        .modal-head {
-            background: linear-gradient(135deg, #0d2251, #1a3a7a);
-            padding: 20px 24px; display: flex; align-items: center; justify-content: space-between;
-            border-bottom: 2px solid #FF6B00;
-        }
+        .modal-head { background: linear-gradient(135deg, #0d2251, #1a3a7a); padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #FF6B00; }
         .modal-head h2 { font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 800; color: #fff; }
         .modal-head h2 i { color: #FF6B00; margin-right: 8px; }
-        .btn-close-modal {
-            background: rgba(255,255,255,0.1); border: none; color: #fff;
-            width: 32px; height: 32px; border-radius: 8px; font-size: 18px;
-            cursor: pointer; transition: .2s; display: flex; align-items: center; justify-content: center;
-        }
+        .btn-close-modal { background: rgba(255,255,255,0.1); border: none; color: #fff; width: 32px; height: 32px; border-radius: 8px; font-size: 18px; cursor: pointer; transition: .2s; display: flex; align-items: center; justify-content: center; }
         .btn-close-modal:hover { background: #FF6B00; }
         .modal-body { padding: 28px; }
-
-        /* FORM */
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.7); margin-bottom: 6px; }
-        .form-group input {
-            width: 100%; padding: 11px 14px; border: 1.5px solid rgba(255,255,255,0.12);
-            border-radius: 10px; font-size: 14px; background: rgba(255,255,255,0.07);
-            color: #fff; transition: .2s;
-        }
+        .form-group input { width: 100%; padding: 11px 14px; border: 1.5px solid rgba(255,255,255,0.12); border-radius: 10px; font-size: 14px; background: rgba(255,255,255,0.07); color: #fff; transition: .2s; }
         .form-group input::placeholder { color: rgba(255,255,255,0.3); }
         .form-group input:focus { outline: none; border-color: #FF6B00; background: rgba(255,255,255,0.1); }
-        .captcha-box {
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px; padding: 18px; text-align: center; margin-bottom: 16px;
-        }
-        .captcha-codigo {
-            font-size: 28px; font-weight: 900; letter-spacing: 8px;
-            background: #FF6B00; color: #fff; padding: 10px 22px;
-            border-radius: 10px; display: inline-block; margin-bottom: 14px; font-family: monospace;
-        }
-        .btn-recargar { background: none; border: none; color: rgba(255,255,255,0.5); cursor: pointer; font-size: 12px; font-weight: 600; margin-top: 8px; display: inline-flex; align-items: center; gap: 5px; }
-        .btn-recargar:hover { color: #FF6B00; }
-        .btn-submit { width: 100%; padding: 13px; background: #FF6B00; color: #fff; border: none; border-radius: 10px; font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 800; cursor: pointer; transition: .25s; margin-top: 8px; }
-        .btn-submit:hover { background: #FF8C38; transform: translateY(-1px); }
         .btn-facial { background: rgba(255,255,255,0.1); color: #fff; padding: 10px 22px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); font-size: 13px; font-weight: 700; cursor: pointer; transition: .2s; display: inline-flex; align-items: center; gap: 7px; }
         .btn-facial:hover { background: #FF6B00; border-color: #FF6B00; }
         .btn-facial-stop { background: rgba(231,76,60,0.2); border-color: #E74C3C; }
@@ -248,9 +100,6 @@ unset($_SESSION['error_login']);
         .btn-admin-link:hover { background: #FF6B00; color: #fff; border-color: #FF6B00; }
         .link-registro { text-align: center; margin-top: 14px; font-size: 13px; color: rgba(255,255,255,0.4); }
         .link-registro a { color: #FF6B00; font-weight: 700; text-decoration: none; }
-        .link-registro a:hover { text-decoration: underline; }
-
-        /* MODAL CANDIDATO */
         .modal-candidato-img { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin: 0 auto 16px; display: block; border: 4px solid #FF6B00; }
         .propuesta-item { background: rgba(255,255,255,0.05); padding: 14px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid #FF6B00; }
         .propuesta-item strong { color: #fff; display: block; margin-bottom: 4px; }
@@ -259,16 +108,26 @@ unset($_SESSION['error_login']);
         .equipo-item strong { color: #fff; }
         .equipo-item span { color: rgba(255,255,255,0.4); font-size: 12px; }
         .seccion-titulo { font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 800; color: #FF6B00; text-transform: uppercase; letter-spacing: 1.5px; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid rgba(255,107,0,0.3); }
+        .loading { text-align: center; padding: 60px; color: rgba(255,255,255,0.3); font-size: 15px; }
+
+        /* RECUPERAR CONTRASEÑA */
+        .digit-input {
+            width: 44px; height: 52px; text-align: center; font-size: 22px; font-weight: 800;
+            border: 1.5px solid rgba(255,255,255,0.15); border-radius: 10px;
+            background: rgba(255,255,255,0.07); color: #fff; font-family: monospace;
+            transition: .2s;
+        }
+        .digit-input:focus { outline: none; border-color: #FF6B00; background: rgba(255,107,0,0.1); }
 
         /* FOOTER */
-        footer { background: #070e1f; color: rgba(255,255,255,0.3); text-align: center; padding: 28px; font-size: 13px; border-top: 1px solid rgba(255,255,255,0.06); }
-        footer span { color: #FF6B00; font-weight: 700; }
+        footer { background: #070e1f; color: rgba(255,255,255,0.3); text-align: center; padding: 32px; font-size: 14px; border-top: 1px solid rgba(255,255,255,0.06); }
+        .footer-logo { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 20px; color: #fff; margin-bottom: 8px; }
+        .footer-logo span { color: #FF6B00; }
 
         @media (max-width: 768px) {
             .navbar { padding: 0 16px; }
             .modules-grid { grid-template-columns: 1fr; }
             .hero h1 { font-size: 40px; }
-            .hero-btns { flex-direction: column; align-items: center; }
         }
     </style>
 </head>
@@ -304,12 +163,11 @@ unset($_SESSION['error_login']);
 <!-- HERO -->
 <section class="hero">
     <div style="position:relative;z-index:1;width:100%;max-width:1200px;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;text-align:left;">
-        <!-- TEXTO IZQUIERDA -->
         <div>
             <div class="hero-badge"><i class="fas fa-shield-alt"></i> Elecciones Generales Bolivia 2026</div>
-            <h1 style="font-family:'Montserrat',sans-serif;font-weight:900;font-size:clamp(42px,5vw,70px);color:#fff;line-height:1.05;margin-bottom:18px;">Tu Voto es<span style="color:#FF6B00;display:block;">tu Voz</span></h1>
-            <p style="font-size:17px;color:rgba(255,255,255,0.55);margin-bottom:36px;line-height:1.6;">Participa y sé parte de la democracia boliviana. Un sistema seguro, transparente y accesible.</p>
-            <div class="hero-btns" style="justify-content:flex-start;">
+            <h1 style="font-family:'Montserrat',sans-serif;font-weight:900;font-size:clamp(42px,5vw,70px);color:#fff;line-height:1.05;margin-bottom:18px;position:relative;z-index:1;">Tu Voto es<span style="color:#FF6B00;display:block;">tu Voz</span></h1>
+            <p style="font-size:17px;color:rgba(255,255,255,0.55);margin-bottom:36px;line-height:1.6;position:relative;z-index:1;">Participa y sé parte de la democracia boliviana. Un sistema seguro, transparente y accesible.</p>
+            <div style="display:flex;gap:14px;flex-wrap:wrap;position:relative;z-index:1;">
                 <?php if (!isset($_SESSION['user']) || $_SESSION['user']['rol'] != 'usuario'): ?>
                     <button class="btn-votar" onclick="mostrarModalLogin()"><i class="fas fa-vote-yea"></i> Votar Ahora</button>
                 <?php elseif ($_SESSION['user']['ya_voto'] == 0): ?>
@@ -321,16 +179,14 @@ unset($_SESSION['error_login']);
                 <a href="/yo_voto/login" class="btn-outline"><i class="fas fa-lock"></i> Panel Admin</a>
             </div>
         </div>
-
-        <!-- CANDIDATOS DERECHA -->
         <div>
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-                <div style="font-family:'Montserrat',sans-serif;font-size:15px;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px;">
+                <div style="font-family:'Montserrat',sans-serif;font-size:15px;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px;position:relative;z-index:1;">
                     <i class="fas fa-users" style="color:#FF6B00;"></i> Candidatos
                 </div>
-                <div id="candidatos-count" style="background:rgba(255,107,0,0.15);color:#FF8C38;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:700;"></div>
+                <div id="candidatos-count" style="background:rgba(255,107,0,0.15);color:#FF8C38;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:700;position:relative;z-index:1;"></div>
             </div>
-            <div id="candidatos-grid" style="display:flex;flex-direction:column;gap:12px;max-height:420px;overflow-y:auto;padding-right:4px;">
+            <div id="candidatos-grid" style="display:flex;flex-direction:column;gap:12px;max-height:420px;overflow-y:auto;padding-right:4px;position:relative;z-index:1;">
                 <div style="text-align:center;padding:40px;color:rgba(255,255,255,0.3);"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
             </div>
         </div>
@@ -362,42 +218,109 @@ unset($_SESSION['error_login']);
 <div id="modalLogin" class="modal-overlay">
     <div class="modal-box">
         <div class="modal-head">
-            <h2><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</h2>
+            <h2 id="modal-login-titulo"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</h2>
             <button class="btn-close-modal" onclick="cerrarModalLogin()">×</button>
         </div>
         <div class="modal-body">
-            <div id="login-error-message" class="alert-error"></div>
 
-            <!-- Carnet -->
-            <div class="form-group" style="margin-bottom:14px;">
-                <label><i class="fas fa-id-card"></i> Número de Carnet *</label>
-                <input type="text" id="face-carnet" placeholder="Ej: 12345678" maxlength="10">
+            <!-- PASO 1: LOGIN NORMAL -->
+            <div id="paso-login">
+                <div id="login-error-message" class="alert-error"></div>
+                <div class="form-group" style="margin-bottom:14px;">
+                    <label><i class="fas fa-id-card"></i> Número de Carnet *</label>
+                    <input type="text" id="face-carnet" placeholder="Ej: 12345678" maxlength="10">
+                </div>
+                <div class="form-group" style="margin-bottom:6px;">
+                    <label><i class="fas fa-lock"></i> Contraseña *</label>
+                    <input type="password" id="face-password" placeholder="Tu contraseña">
+                </div>
+                <div style="text-align:right;margin-bottom:14px;">
+                    <a href="#" onclick="mostrarRecuperar()" style="color:#FF6B00;font-size:12px;font-weight:700;text-decoration:none;">¿Olvidaste tu contraseña?</a>
+                </div>
+                <div style="display:flex;justify-content:center;margin-bottom:16px;">
+                    <div class="h-captcha" data-sitekey="a22ee458-031e-489e-93ee-1aa2545e7aa2"></div>
+                </div>
+                <div style="text-align:center;margin-bottom:10px;">
+                    <p style="color:rgba(255,255,255,0.4);font-size:12px;margin-bottom:10px;"><i class="fas fa-face-smile" style="color:#FF6B00;"></i> Verificación facial</p>
+                    <video id="login-video" class="face-preview" autoplay muted playsinline></video>
+                    <div style="margin-top:10px;display:flex;gap:10px;justify-content:center;">
+                        <button type="button" id="start-face-login-btn" class="btn-facial" onclick="startFaceLogin()"><i class="fas fa-camera"></i> Activar Cámara y Verificar</button>
+                        <button type="button" id="stop-face-login-btn" class="btn-facial btn-facial-stop" onclick="stopFaceLogin()" style="display:none;"><i class="fas fa-stop"></i> Detener</button>
+                    </div>
+                </div>
+                <div id="face-login-status" class="face-status"></div>
+                <hr class="divider">
+                <a href="/yo_voto/login" class="btn-admin-link"><i class="fas fa-user-shield"></i> ¿Eres Administrador? Haz clic aquí</a>
+                <div class="link-registro">¿No tienes cuenta? <a href="/yo_voto/registro">Regístrate aquí</a></div>
             </div>
 
-            <!-- Contraseña -->
-            <div class="form-group" style="margin-bottom:14px;">
-                <label><i class="fas fa-lock"></i> Contraseña *</label>
-                <input type="password" id="face-password" placeholder="Tu contraseña">
-            </div>
-
-            <!-- hCaptcha -->
-            <div style="display:flex;justify-content:center;margin-bottom:16px;">
-                <div class="h-captcha" data-sitekey="a22ee458-031e-489e-93ee-1aa2545e7aa2"></div>
-            </div>
-
-            <!-- Reconocimiento facial -->
-            <div style="text-align:center;margin-bottom:10px;">
-                <p style="color:rgba(255,255,255,0.4);font-size:12px;margin-bottom:10px;"><i class="fas fa-face-smile" style="color:#FF6B00;"></i> Verificación facial</p>
-                <video id="login-video" class="face-preview" autoplay muted playsinline></video>
-                <div style="margin-top:10px;display:flex;gap:10px;justify-content:center;">
-                    <button type="button" id="start-face-login-btn" class="btn-facial" onclick="startFaceLogin()"><i class="fas fa-camera"></i> Activar Cámara y Verificar</button>
-                    <button type="button" id="stop-face-login-btn" class="btn-facial btn-facial-stop" onclick="stopFaceLogin()" style="display:none;"><i class="fas fa-stop"></i> Detener</button>
+            <!-- PASO 2: SOLICITAR CÓDIGO -->
+            <div id="paso-recuperar" style="display:none;">
+                <div style="text-align:center;margin-bottom:20px;">
+                    <i class="fas fa-key" style="font-size:40px;color:#FF6B00;display:block;margin-bottom:10px;"></i>
+                    <h3 style="color:#fff;font-family:'Montserrat',sans-serif;font-size:16px;margin-bottom:6px;">Recuperar Contraseña</h3>
+                    <p style="color:rgba(255,255,255,0.4);font-size:13px;">Ingresa tu CI y correo para recibir un código de verificación.</p>
+                </div>
+                <div id="recuperar-error" class="alert-error"></div>
+                <div class="form-group" style="margin-bottom:14px;">
+                    <label><i class="fas fa-id-card"></i> Número de Carnet *</label>
+                    <input type="text" id="rec-carnet" placeholder="Ej: 12345678" maxlength="10">
+                </div>
+                <div class="form-group" style="margin-bottom:20px;">
+                    <label><i class="fas fa-envelope"></i> Correo Electrónico *</label>
+                    <input type="email" id="rec-email" placeholder="tu@correo.com">
+                </div>
+                <button type="button" onclick="enviarCodigoRecuperar()" style="width:100%;padding:13px;background:#FF6B00;color:#fff;border:none;border-radius:10px;font-family:'Montserrat',sans-serif;font-size:15px;font-weight:800;cursor:pointer;">
+                    <i class="fas fa-paper-plane"></i> Enviar Código
+                </button>
+                <div style="text-align:center;margin-top:14px;">
+                    <a href="#" onclick="mostrarLogin()" style="color:rgba(255,255,255,0.4);font-size:13px;text-decoration:none;"><i class="fas fa-arrow-left"></i> Volver al login</a>
                 </div>
             </div>
-            <div id="face-login-status" class="face-status"></div>
-            <hr class="divider">
-            <a href="/yo_voto/login" class="btn-admin-link"><i class="fas fa-user-shield"></i> ¿Eres Administrador? Haz clic aquí</a>
-            <div class="link-registro">¿No tienes cuenta? <a href="/yo_voto/registro">Regístrate aquí</a></div>
+
+            <!-- PASO 3: INGRESAR CÓDIGO -->
+            <div id="paso-codigo" style="display:none;">
+                <div style="text-align:center;margin-bottom:20px;">
+                    <i class="fas fa-envelope-open-text" style="font-size:40px;color:#FF6B00;display:block;margin-bottom:10px;"></i>
+                    <h3 style="color:#fff;font-family:'Montserrat',sans-serif;font-size:16px;margin-bottom:6px;">Código Enviado</h3>
+                    <p style="color:rgba(255,255,255,0.4);font-size:13px;">Revisa tu correo e ingresa el código de 6 dígitos.</p>
+                </div>
+                <div id="codigo-error" class="alert-error"></div>
+                <div style="display:flex;gap:8px;justify-content:center;margin-bottom:20px;">
+                    <input type="text" maxlength="1" class="digit-input" id="c1" inputmode="numeric">
+                    <input type="text" maxlength="1" class="digit-input" id="c2" inputmode="numeric">
+                    <input type="text" maxlength="1" class="digit-input" id="c3" inputmode="numeric">
+                    <input type="text" maxlength="1" class="digit-input" id="c4" inputmode="numeric">
+                    <input type="text" maxlength="1" class="digit-input" id="c5" inputmode="numeric">
+                    <input type="text" maxlength="1" class="digit-input" id="c6" inputmode="numeric">
+                </div>
+                <button type="button" onclick="verificarCodigoRecuperar()" style="width:100%;padding:13px;background:#FF6B00;color:#fff;border:none;border-radius:10px;font-family:'Montserrat',sans-serif;font-size:15px;font-weight:800;cursor:pointer;">
+                    <i class="fas fa-check-circle"></i> Verificar Código
+                </button>
+                <div style="text-align:center;margin-top:12px;font-size:12px;color:rgba(255,255,255,0.3);">Expira en <span id="countdown-rec">10:00</span></div>
+            </div>
+
+            <!-- PASO 4: NUEVA CONTRASEÑA -->
+            <div id="paso-nueva-pass" style="display:none;">
+                <div style="text-align:center;margin-bottom:20px;">
+                    <i class="fas fa-lock-open" style="font-size:40px;color:#27AE60;display:block;margin-bottom:10px;"></i>
+                    <h3 style="color:#fff;font-family:'Montserrat',sans-serif;font-size:16px;margin-bottom:6px;">Nueva Contraseña</h3>
+                    <p style="color:rgba(255,255,255,0.4);font-size:13px;">Ingresa tu nueva contraseña.</p>
+                </div>
+                <div id="pass-error" class="alert-error"></div>
+                <div class="form-group" style="margin-bottom:14px;">
+                    <label><i class="fas fa-lock"></i> Nueva Contraseña *</label>
+                    <input type="password" id="nueva-pass" placeholder="Mín. 6 caracteres">
+                </div>
+                <div class="form-group" style="margin-bottom:20px;">
+                    <label><i class="fas fa-check-double"></i> Confirmar Contraseña *</label>
+                    <input type="password" id="confirmar-pass" placeholder="Repite la contraseña">
+                </div>
+                <button type="button" onclick="guardarNuevaPassword()" style="width:100%;padding:13px;background:#27AE60;color:#fff;border:none;border-radius:10px;font-family:'Montserrat',sans-serif;font-size:15px;font-weight:800;cursor:pointer;">
+                    <i class="fas fa-save"></i> Guardar Contraseña
+                </button>
+            </div>
+
         </div>
     </div>
 </div>
@@ -416,8 +339,6 @@ unset($_SESSION['error_login']);
 <!-- SECCIÓN INFORMATIVA -->
 <section style="background: linear-gradient(180deg, #0a1628 0%, #070e1f 100%); padding: 70px 24px;">
     <div style="max-width:1100px;margin:0 auto;">
-
-        <!-- TÍTULO -->
         <div style="text-align:center;margin-bottom:52px;">
             <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,107,0,0.12);border:1px solid rgba(255,107,0,0.3);color:#FF8C38;padding:6px 18px;border-radius:50px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:18px;">
                 <i class="fas fa-info-circle"></i> Información Electoral
@@ -428,7 +349,7 @@ unset($_SESSION['error_login']);
 
         <!-- PASOS -->
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px;margin-bottom:60px;">
-            <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:28px 22px;text-align:center;transition:.25s;">
+            <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:28px 22px;text-align:center;">
                 <div style="width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,#FF6B00,#FF8C38);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
                     <i class="fas fa-user-plus" style="font-size:22px;color:#fff;"></i>
                 </div>
@@ -454,12 +375,12 @@ unset($_SESSION['error_login']);
             </div>
         </div>
 
-        <!-- CARACTERÍSTICAS -->
+        <!-- GARANTÍAS -->
         <div style="background:rgba(255,107,0,0.06);border:1px solid rgba(255,107,0,0.15);border-radius:20px;padding:40px;margin-bottom:60px;">
             <h3 style="font-family:'Montserrat',sans-serif;font-size:22px;font-weight:800;color:#fff;text-align:center;margin-bottom:32px;"><i class="fas fa-shield-alt" style="color:#FF6B00;margin-right:10px;"></i> Garantías del Sistema</h3>
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;">
                 <div style="display:flex;align-items:flex-start;gap:14px;">
-                    <div style="width:38px;height:38px;border-radius:10px;background:rgba(39,174,96,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <div style="width:38px;height:38px;border-radius:10px;background:rgba(255,107,0,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                         <i class="fas fa-lock" style="color:#FF6B00;font-size:15px;"></i>
                     </div>
                     <div>
@@ -469,11 +390,11 @@ unset($_SESSION['error_login']);
                 </div>
                 <div style="display:flex;align-items:flex-start;gap:14px;">
                     <div style="width:38px;height:38px;border-radius:10px;background:rgba(255,107,0,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                        <i class="fas fa-fingerprint" style="color:#FF6B00;font-size:15px;"></i>
+                        <i class="fas fa-camera" style="color:#FF6B00;font-size:15px;"></i>
                     </div>
                     <div>
                         <div style="font-family:'Montserrat',sans-serif;font-weight:700;color:#fff;font-size:14px;margin-bottom:4px;">Un voto por persona</div>
-                        <div style="font-size:12px;color:rgba(255,255,255,0.4);line-height:1.5;">El sistema biométrico evita duplicados.</div>
+                        <div style="font-size:12px;color:rgba(255,255,255,0.4);line-height:1.5;">Verificación con foto registrada evita duplicados.</div>
                     </div>
                 </div>
                 <div style="display:flex;align-items:flex-start;gap:14px;">
@@ -485,15 +406,6 @@ unset($_SESSION['error_login']);
                         <div style="font-size:12px;color:rgba(255,255,255,0.4);line-height:1.5;">Conteo transparente y actualizado.</div>
                     </div>
                 </div>
-                <div style="display:flex;align-items:flex-start;gap:14px;">
-                    <div style="width:38px;height:38px;border-radius:10px;background:rgba(255,107,0,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                        <i class="fas fa-link" style="color:#FF6B00;font-size:15px;"></i>
-                    </div>
-                    <div>
-                        <div style="font-family:'Montserrat',sans-serif;font-weight:700;color:#fff;font-size:14px;margin-bottom:4px;">Blockchain Inmutable</div>
-                        <div style="font-size:12px;color:rgba(255,255,255,0.4);line-height:1.5;">Los votos no pueden ser alterados.</div>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -502,7 +414,7 @@ unset($_SESSION['error_login']);
             <h3 style="font-family:'Montserrat',sans-serif;font-size:26px;font-weight:900;color:#fff;margin-bottom:12px;">¿Listo para participar?</h3>
             <p style="color:rgba(255,255,255,0.45);margin-bottom:28px;">Únete a miles de ciudadanos bolivianos que ya están registrados.</p>
             <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
-                <a href="/yo_voto/registro" style="background:#FF6B00;color:#fff;padding:14px 32px;border-radius:10px;font-family:'Montserrat',sans-serif;font-weight:800;font-size:15px;text-decoration:none;display:inline-flex;align-items:center;gap:9px;transition:.25s;box-shadow:0 6px 24px rgba(255,107,0,0.35);">
+                <a href="/yo_voto/registro" style="background:#FF6B00;color:#fff;padding:14px 32px;border-radius:10px;font-family:'Montserrat',sans-serif;font-weight:800;font-size:15px;text-decoration:none;display:inline-flex;align-items:center;gap:9px;box-shadow:0 6px 24px rgba(255,107,0,0.35);">
                     <i class="fas fa-user-plus"></i> Crear mi cuenta
                 </a>
                 <a href="/yo_voto/resultados" style="background:rgba(255,255,255,0.08);color:#fff;padding:14px 32px;border-radius:10px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:15px;text-decoration:none;display:inline-flex;align-items:center;gap:9px;border:1.5px solid rgba(255,255,255,0.2);">
@@ -510,32 +422,136 @@ unset($_SESSION['error_login']);
                 </a>
             </div>
         </div>
-
     </div>
 </section>
 
-
-    <p>🗳️ <span>Yo Voto</span> — Sistema Electoral Bolivia 2026 · Democracia y Transparencia</p>
+<!-- FOOTER -->
+<footer>
+    <div class="footer-logo">🗳️ Yo <span>Voto</span></div>
+    <p>Sistema Electoral Bolivia 2026 · Democracia y Transparencia</p>
 </footer>
 
 <script>
-    let loginStream = null, faceModelsLoaded = false, recognitionInterval = null;
+    let loginStream = null, faceModelsLoaded = false, recognitionInterval = null, countdownTimer = null;
 
-    function generarCaptchaLocal() {
-        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-        let c = '';
-        for (let i = 0; i < 5; i++) c += chars[Math.floor(Math.random() * chars.length)];
-        return c;
+    // ── RECUPERAR CONTRASEÑA ──
+    function mostrarRecuperar() {
+        document.getElementById('paso-login').style.display = 'none';
+        document.getElementById('paso-recuperar').style.display = 'block';
+        document.getElementById('modal-login-titulo').innerHTML = '<i class="fas fa-key"></i> Recuperar Contraseña';
+    }
+    function mostrarLogin() {
+        ['paso-recuperar','paso-codigo','paso-nueva-pass'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = 'none';
+        });
+        document.getElementById('paso-login').style.display = 'block';
+        document.getElementById('modal-login-titulo').innerHTML = '<i class="fas fa-sign-in-alt"></i> Iniciar Sesión';
+        if (countdownTimer) clearInterval(countdownTimer);
     }
 
-    function cargarCaptchaFacial() {
-        const el = document.getElementById('face-captcha-codigo');
-        if (!el) return;
-        fetch('/yo_voto/api/captcha')
-            .then(r => r.json())
-            .then(d => { el.innerHTML = d.captcha || generarCaptchaLocal(); })
-            .catch(() => { el.innerHTML = generarCaptchaLocal(); });
+    async function enviarCodigoRecuperar() {
+        const carnet = document.getElementById('rec-carnet').value.trim();
+        const email  = document.getElementById('rec-email').value.trim();
+        const errDiv = document.getElementById('recuperar-error');
+        errDiv.style.display = 'none';
+        if (!carnet || !email) { errDiv.style.display = 'block'; errDiv.innerHTML = '⚠️ Completa todos los campos.'; return; }
+        try {
+            const res = await fetch('/yo_voto/api/recuperar-password', {
+                method: 'POST', headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ carnet, email })
+            });
+            const r = await res.json();
+            if (r.success) {
+                document.getElementById('paso-recuperar').style.display = 'none';
+                document.getElementById('paso-codigo').style.display = 'block';
+                document.getElementById('modal-login-titulo').innerHTML = '<i class="fas fa-envelope-open-text"></i> Verificar Código';
+                iniciarCountdown();
+                document.getElementById('c1').focus();
+                if (r.dev_codigo) console.log('🔑 Código de prueba:', r.dev_codigo);
+            } else {
+                errDiv.style.display = 'block'; errDiv.innerHTML = '❌ ' + r.error;
+            }
+        } catch(e) { errDiv.style.display = 'block'; errDiv.innerHTML = '❌ Error de conexión.'; }
     }
+
+    async function verificarCodigoRecuperar() {
+        const codigo = ['c1','c2','c3','c4','c5','c6'].map(id => document.getElementById(id)?.value || '').join('');
+        const errDiv = document.getElementById('codigo-error');
+        errDiv.style.display = 'none';
+        if (codigo.length !== 6) { errDiv.style.display = 'block'; errDiv.innerHTML = '⚠️ Ingresa los 6 dígitos.'; return; }
+        try {
+            const res = await fetch('/yo_voto/api/verificar-reset', {
+                method: 'POST', headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ codigo })
+            });
+            const r = await res.json();
+            if (r.success) {
+                document.getElementById('paso-codigo').style.display = 'none';
+                document.getElementById('paso-nueva-pass').style.display = 'block';
+                document.getElementById('modal-login-titulo').innerHTML = '<i class="fas fa-lock-open"></i> Nueva Contraseña';
+                if (countdownTimer) clearInterval(countdownTimer);
+            } else {
+                errDiv.style.display = 'block'; errDiv.innerHTML = '❌ ' + r.error;
+            }
+        } catch(e) { errDiv.style.display = 'block'; errDiv.innerHTML = '❌ Error de conexión.'; }
+    }
+
+    async function guardarNuevaPassword() {
+        const password = document.getElementById('nueva-pass').value;
+        const confirm  = document.getElementById('confirmar-pass').value;
+        const errDiv   = document.getElementById('pass-error');
+        errDiv.style.display = 'none';
+        if (password.length < 6) { errDiv.style.display = 'block'; errDiv.innerHTML = '⚠️ Mínimo 6 caracteres.'; return; }
+        if (password !== confirm) { errDiv.style.display = 'block'; errDiv.innerHTML = '⚠️ Las contraseñas no coinciden.'; return; }
+        try {
+            const res = await fetch('/yo_voto/api/nueva-password', {
+                method: 'POST', headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ password, confirm })
+            });
+            const r = await res.json();
+            if (r.success) {
+                document.getElementById('paso-nueva-pass').innerHTML = `
+                    <div style="text-align:center;padding:20px;">
+                        <i class="fas fa-check-circle" style="font-size:50px;color:#27AE60;display:block;margin-bottom:16px;"></i>
+                        <h3 style="color:#fff;font-family:'Montserrat',sans-serif;margin-bottom:8px;">¡Contraseña actualizada!</h3>
+                        <p style="color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:20px;">Ya puedes iniciar sesión.</p>
+                        <button onclick="mostrarLogin()" style="background:#FF6B00;color:#fff;padding:10px 24px;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-family:'Montserrat',sans-serif;">Ir al Login</button>
+                    </div>`;
+            } else {
+                errDiv.style.display = 'block'; errDiv.innerHTML = '❌ ' + r.error;
+            }
+        } catch(e) { errDiv.style.display = 'block'; errDiv.innerHTML = '❌ Error de conexión.'; }
+    }
+
+    function iniciarCountdown() {
+        let seg = 600;
+        const el = document.getElementById('countdown-rec');
+        if (countdownTimer) clearInterval(countdownTimer);
+        countdownTimer = setInterval(() => {
+            seg--;
+            const m = Math.floor(seg / 60), s = seg % 60;
+            if (el) el.textContent = m + ':' + String(s).padStart(2,'0');
+            if (seg <= 0) { clearInterval(countdownTimer); if (el) el.style.color = '#E74C3C'; }
+        }, 1000);
+    }
+
+    // Auto-avanzar inputs del código
+    document.addEventListener('DOMContentLoaded', () => {
+        ['c1','c2','c3','c4','c5','c6'].forEach((id, i, arr) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.addEventListener('input', () => {
+                el.value = el.value.replace(/[^0-9]/g, '');
+                if (el.value && i < arr.length - 1) document.getElementById(arr[i+1]).focus();
+            });
+            el.addEventListener('keydown', e => {
+                if (e.key === 'Backspace' && !el.value && i > 0) document.getElementById(arr[i-1]).focus();
+            });
+        });
+    });
+
+    
 
     async function waitForFaceAPI() {
         return new Promise(resolve => {
@@ -573,16 +589,10 @@ unset($_SESSION['error_login']);
         const password = document.getElementById('face-password').value;
         const errDiv = document.getElementById('login-error-message');
         errDiv.style.display = 'none';
-
         if (!carnet || carnet.length < 5) { errDiv.style.display = 'block'; errDiv.innerHTML = '⚠️ Ingrese un carnet válido'; return; }
         if (!password) { errDiv.style.display = 'block'; errDiv.innerHTML = '⚠️ Ingrese su contraseña'; return; }
-
-        // Verificar hCaptcha
         const hcaptchaResponse = document.querySelector('[name="h-captcha-response"]');
-        if (!hcaptchaResponse || !hcaptchaResponse.value) {
-            errDiv.style.display = 'block'; errDiv.innerHTML = '⚠️ Complete el captcha de seguridad'; return;
-        }
-
+        if (!hcaptchaResponse || !hcaptchaResponse.value) { errDiv.style.display = 'block'; errDiv.innerHTML = '⚠️ Complete el captcha de seguridad'; return; }
         if (!faceModelsLoaded) await loadFaceModels();
         if (!faceModelsLoaded) return;
         try {
@@ -637,7 +647,6 @@ unset($_SESSION['error_login']);
         document.getElementById('face-carnet').value = '';
         document.getElementById('face-password').value = '';
         stopFaceLogin();
-        // Resetear hCaptcha si está disponible
         if (typeof hcaptcha !== 'undefined') hcaptcha.reset();
     }
     function cerrarModalLogin() { document.getElementById('modalLogin').style.display = 'none'; stopFaceLogin(); }
@@ -650,12 +659,7 @@ unset($_SESSION['error_login']);
             const res = await fetch('/yo_voto/api/candidatos');
             const data = await res.json();
             if (!data.length) {
-                g.innerHTML = `
-                    <div style="text-align:center;padding:30px 20px;color:rgba(255,255,255,0.3);">
-                        <i class="fas fa-users" style="font-size:36px;display:block;margin-bottom:12px;color:rgba(255,107,0,0.3);"></i>
-                        <p style="font-size:13px;">Aún no hay candidatos<br>registrados.</p>
-                        <a href="/yo_voto/candidatos/agregar" style="color:#FF6B00;font-size:12px;font-weight:700;text-decoration:none;margin-top:10px;display:inline-block;">+ Agregar candidato</a>
-                    </div>`;
+                g.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(255,255,255,0.3);"><i class="fas fa-users" style="font-size:36px;display:block;margin-bottom:12px;color:rgba(255,107,0,0.3);"></i><p style="font-size:13px;">Aún no hay candidatos registrados.</p></div>';
                 return;
             }
             document.getElementById('candidatos-count').textContent = data.length + ' registrados';
@@ -671,11 +675,7 @@ unset($_SESSION['error_login']);
                 </div>
             `).join('');
         } catch(e) {
-            g.innerHTML = `
-                <div style="text-align:center;padding:30px 20px;color:rgba(255,255,255,0.3);">
-                    <i class="fas fa-wifi" style="font-size:32px;display:block;margin-bottom:10px;color:rgba(255,107,0,0.3);"></i>
-                    <p style="font-size:13px;">No se pudo conectar<br>con el servidor.</p>
-                </div>`;
+            g.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(255,255,255,0.3);"><i class="fas fa-wifi" style="font-size:32px;display:block;margin-bottom:10px;color:rgba(255,107,0,0.3);"></i><p style="font-size:13px;">No se pudo conectar con el servidor.</p></div>';
         }
     }
 
@@ -713,13 +713,11 @@ unset($_SESSION['error_login']);
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        // Ocultar splash después de 2.5 segundos
         setTimeout(() => {
             const splash = document.getElementById('intro-splash');
             splash.classList.add('oculto');
             setTimeout(() => splash.remove(), 700);
         }, 2500);
-
         cargarCandidatos();
         loadFaceModels();
     });

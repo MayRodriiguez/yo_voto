@@ -108,7 +108,7 @@ unset($_SESSION['error_login']);
             border-radius: 18px; overflow: hidden; cursor: pointer; transition: .25s;
         }
         .candidato-card:hover { border-color: rgba(255,107,0,0.4); transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.3); background: rgba(255,255,255,0.07); }
-        .candidato-img { width: 100%; height: 180px; object-fit: cover; display: block; }
+        .candidato-img { width: 100%; height: 220px; object-fit: contain; background: #0d2251; display: block; padding: 10px; }
         .candidato-info { padding: 16px; text-align: center; }
         .candidato-nombre { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 15px; color: #fff; margin-bottom: 4px; }
         .candidato-partido { color: #FF8C38; font-size: 12px; margin-bottom: 4px; }
