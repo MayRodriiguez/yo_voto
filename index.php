@@ -11,6 +11,32 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once 'config/database.php';
 
 // =====================================================
+// API - CHATBOT (Debe ir PRIMERO antes que cualquier otra API)
+// =====================================================
+
+if (strpos($_SERVER['REQUEST_URI'], '/api/chatbot') !== false) {
+    require_once 'controllers/ChatbotController.php';
+    $chatbot = new ChatbotController();
+    
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $chatbot->procesarMensaje();
+    } else {
+        // Para GET, devolver opciones disponibles
+        header('Content-Type: application/json');
+        echo json_encode([
+            'opciones' => [
+                'como_votar' => '🗳️ ¿Cómo votar?',
+                'candidatos' => '👥 Ver Candidatos',
+                'blockchain' => '🔒 Seguridad Blockchain',
+                'reconocimiento_facial' => '👤 Reconocimiento Facial',
+                'habilitacion' => '⏳ Mi cuenta no está habilitada'
+            ]
+        ]);
+    }
+    exit();
+}
+
+// =====================================================
 // API
 // =====================================================
 
@@ -77,6 +103,13 @@ if (strpos($_SERVER['REQUEST_URI'], '/api/') !== false) {
     } elseif (strpos($url, '/api/blockchain') !== false) {
 
         require_once 'api/blockchain_api.php';
+        exit();
+
+    } elseif (strpos($url, '/api/recuperar-password') !== false || 
+              strpos($url, '/api/verificar-reset') !== false || 
+              strpos($url, '/api/nueva-password') !== false) {
+
+        require_once 'api/face_routes.php';
         exit();
     }
 

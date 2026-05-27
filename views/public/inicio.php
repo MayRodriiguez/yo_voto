@@ -551,8 +551,6 @@ unset($_SESSION['error_login']);
         });
     });
 
-    
-
     async function waitForFaceAPI() {
         return new Promise(resolve => {
             let checks = 0;
@@ -736,5 +734,197 @@ unset($_SESSION['error_login']);
     });
     <?php endif; ?>
 </script>
+<!-- ============================================ -->
+<!-- CHATBOT CON FIREBASE REALTIME DATABASE      -->
+<!-- ============================================ -->
+<style>
+    #chatbot-widget {
+        position: fixed; bottom: 20px; right: 20px; z-index: 9999;
+        font-family: 'Open Sans', sans-serif;
+    }
+    #chatbot-toggle {
+        background: #FF6B00; color: white; border: none; border-radius: 50%;
+        width: 60px; height: 60px; font-size: 24px; cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: transform 0.3s;
+    }
+    #chatbot-toggle:hover { transform: scale(1.1); }
+    
+    #chatbot-window {
+        display: none; width: 360px; height: 500px; background: #0d2251;
+        border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+        flex-direction: column; overflow: hidden;
+        position: absolute; bottom: 80px; right: 0;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    #chatbot-header {
+        background: #FF6B00; color: white; padding: 15px; font-weight: bold;
+        display: flex; justify-content: space-between; align-items: center;
+    }
+    #chatbot-close { background: none; border: none; color: white; cursor: pointer; font-size: 18px; }
+    
+    #chatbot-messages {
+        flex: 1; padding: 15px; overflow-y: auto; background: #0a1628;
+        display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth;
+    }
+    .msg-bubble { padding: 10px 14px; border-radius: 15px; max-width: 85%; font-size: 13px; line-height: 1.5; word-wrap: break-word; }
+    .msg-user { background: #FF6B00; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+    .msg-bot { background: #1a2a4a; color: #e2e8f0; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid rgba(255,107,0,0.3); }
+    
+    .quick-buttons {
+        padding: 12px; background: #0d2251; border-top: 1px solid rgba(255,255,255,0.1);
+        display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+    }
+    .chat-btn-option {
+        background: rgba(255,107,0,0.1); border: 1px solid rgba(255,107,0,0.3); color: #FF8C38;
+        padding: 8px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+        cursor: pointer; transition: all 0.2s ease;
+    }
+    .chat-btn-option:hover { background: #FF6B00; color: white; transform: translateY(-2px); }
+</style>
+
+<div id="chatbot-widget">
+    <button id="chatbot-toggle"><i class="fas fa-headset"></i></button>
+    <div id="chatbot-window">
+        <div id="chatbot-header">
+            <span>🤖 Soporte Yo Voto</span>
+            <button id="chatbot-close"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="chatbot-messages">
+            <div class="msg-bubble msg-bot">👋 ¡Hola! Soy el asistente virtual de Yo Voto. ¿En qué puedo ayudarte?</div>
+        </div>
+        <div class="quick-buttons">
+            <button class="chat-btn-option" data-opcion="como_votar">🗳️ ¿Cómo votar?</button>
+            <button class="chat-btn-option" data-opcion="candidatos">👥 Candidatos</button>
+            <button class="chat-btn-option" data-opcion="blockchain">🔒 Blockchain</button>
+            <button class="chat-btn-option" data-opcion="reconocimiento_facial">👤 Facial</button>
+            <button class="chat-btn-option" data-opcion="habilitacion">⏳ Habilitación</button>
+        </div>
+    </div>
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script>
+// CHATBOT CON FIREBASE REALTIME DATABASE
+document.addEventListener('DOMContentLoaded', function() {
+    const windowEl = document.getElementById('chatbot-window');
+    const toggleBtn = document.getElementById('chatbot-toggle');
+    const closeBtn = document.getElementById('chatbot-close');
+    const messagesEl = document.getElementById('chatbot-messages');
+    const optionButtons = document.querySelectorAll('.chat-btn-option');
+    
+    // Configuración de Firebase (Realtime Database)
+    const firebaseConfig = {
+        apiKey: "AIzaSyC_0G2wLZF_m0bYRpuBXVsMNbbwr_F1rPw",
+        authDomain: "yo-voto-chat.firebaseapp.com",
+        projectId: "yo-voto-chat",
+        storageBucket: "yo-voto-chat.firebasestorage.app",
+        messagingSenderId: "840603390342",
+        appId: "1:840603390342:web:b2ca302b5e78f4995edc07",
+        databaseURL: "https://yo-voto-chat-default-rtdb.firebaseio.com/"  // ⚠️ CAMBIA ESTO POR TU URL REAL
+    };
+    
+    // Inicializar Firebase
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const database = firebase.database();
+    
+    // Identificador único del chat (por usuario o sesión)
+    const chatUserId = "<?php echo isset($_SESSION['user']['id']) ? 'user_' . $_SESSION['user']['id'] : 'guest_' . uniqid(); ?>";
+    const chatRef = database.ref('chats/' + chatUserId);
+    
+    // Escuchar nuevos mensajes en tiempo real
+    chatRef.on('child_added', (snapshot) => {
+        const msg = snapshot.val();
+        appendMessageUI(msg.texto, msg.emisor);
+        scrollToBottom();
+    });
+    
+    // Función para agregar mensaje al DOM
+    function appendMessageUI(text, emisor) {
+        const div = document.createElement('div');
+        div.className = 'msg-bubble ' + (emisor === 'user' ? 'msg-user' : 'msg-bot');
+        div.innerHTML = text;
+        messagesEl.appendChild(div);
+    }
+    
+    function scrollToBottom() {
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+    
+    // Función para guardar mensaje en Firebase
+    async function saveMessage(text, emisor) {
+        const newMsgRef = chatRef.push();
+        await newMsgRef.set({
+            texto: text,
+            emisor: emisor,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+    }
+    
+    // Función para enviar consulta al bot (backend PHP)
+    async function askBot(opcion) {
+        const btn = document.querySelector(`.chat-btn-option[data-opcion="${opcion}"]`);
+        const displayText = btn ? btn.innerText : opcion;
+        
+        // Guardar mensaje del usuario
+        await saveMessage(displayText, 'user');
+        
+        // Indicador de escritura
+        const loadingId = Date.now();
+        const tempMsgRef = chatRef.push();
+        await tempMsgRef.set({
+            texto: '<i class="fas fa-spinner fa-spin"></i> Pensando...',
+            emisor: 'bot',
+            temporal: true
+        });
+        
+        try {
+            const response = await fetch('/yo_voto/api/chatbot', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ opcion: opcion })
+            });
+            const data = await response.json();
+            
+            // Eliminar mensaje temporal
+            await tempMsgRef.remove();
+            
+            if (data.respuesta) {
+                await saveMessage(data.respuesta, 'bot');
+            } else {
+                await saveMessage('❌ No se pudo obtener respuesta. Intenta de nuevo.', 'bot');
+            }
+        } catch(error) {
+            await tempMsgRef.remove();
+            await saveMessage('❌ Error de conexión. Verifica tu internet.', 'bot');
+            console.error('Chatbot error:', error);
+        }
+    }
+    
+    // Asignar eventos a los botones
+    optionButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const opcion = this.getAttribute('data-opcion');
+            askBot(opcion);
+        });
+    });
+    
+    // Abrir/cerrar chat
+    toggleBtn.addEventListener('click', () => {
+        const isVisible = windowEl.style.display === 'flex';
+        windowEl.style.display = isVisible ? 'none' : 'flex';
+    });
+    closeBtn.addEventListener('click', () => {
+        windowEl.style.display = 'none';
+    });
+});
+</script>
+</script>
+
 </body>
 </html>
