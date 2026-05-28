@@ -77,8 +77,12 @@ public function create($data, $foto_url) {
     
     public function delete($id) {
         // Eliminar dependencias primero
-        $this->conn->query("DELETE FROM equipo WHERE id_candidato = $id");
-        $this->conn->query("DELETE FROM propuestas WHERE id_candidato = $id");
+        $stmtEq = $this->conn->prepare("DELETE FROM equipo WHERE id_candidato = ?");
+        $stmtEq->bind_param("i", $id);
+        $stmtEq->execute();
+        $stmtPr = $this->conn->prepare("DELETE FROM propuestas WHERE id_candidato = ?");
+        $stmtPr->bind_param("i", $id);
+        $stmtPr->execute();
         
         $sql = "DELETE FROM candidatos WHERE id_candidato = ?";
         $stmt = $this->conn->prepare($sql);

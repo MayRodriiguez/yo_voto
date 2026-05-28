@@ -23,10 +23,14 @@ class BlockchainVote {
         }
         
         // Actualizar contador de candidato
-        $this->conn->query("UPDATE candidatos SET votos_recibidos = votos_recibidos + 1 WHERE id_candidato = $id_candidato");
-        
+        $stmtCand = $this->conn->prepare("UPDATE candidatos SET votos_recibidos = votos_recibidos + 1 WHERE id_candidato = ?");
+        $stmtCand->bind_param("i", $id_candidato);
+        $stmtCand->execute();
+
         // Actualizar estado del usuario
-        $this->conn->query("UPDATE usuarios SET ya_voto = 1 WHERE id = $id_usuario");
+        $stmtUser = $this->conn->prepare("UPDATE usuarios SET ya_voto = 1 WHERE id = ?");
+        $stmtUser->bind_param("i", $id_usuario);
+        $stmtUser->execute();
         
         // Registrar en la blockchain
         $bloque = $this->blockchain->registrarVoto($id_usuario, $id_candidato, $carnet, $hashHuella);

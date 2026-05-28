@@ -978,6 +978,12 @@ footer span { color: #FF6B00; font-weight: 700; }
         <a href="/yo_voto/jurados" class="sidebar-menu-item">
             <i class="fas fa-gavel"></i> Jurados
         </a>
+        <a href="/yo_voto/admin/resultados" class="sidebar-menu-item">
+            <i class="fas fa-chart-bar"></i> Resultados
+        </a>
+        <a href="/yo_voto/admin/blockchain" class="sidebar-menu-item">
+            <i class="fas fa-link"></i> Auditoría Blockchain
+        </a>
     </div>
 
     <div class="main-content">
@@ -1044,8 +1050,8 @@ footer span { color: #FF6B00; font-weight: 700; }
                         ?>
                         <tr id="fila-<?= $row['id'] ?>">
                             <td><?= htmlspecialchars($row['nombres'] . ' ' . $row['apellidos']) ?></td>
-                            <td><?= $row['carnet'] ?></td>
-                            <td><?= $row['email'] ?></td>
+                            <td><?= htmlspecialchars($row['carnet']) ?></td>
+                            <td><?= htmlspecialchars($row['email']) ?></td>
                             <td>
                                 <?php if ($isHabilitado): ?>
                                     <span class="badge-si"><i class="fas fa-check"></i> Habilitado</span>
@@ -1062,7 +1068,6 @@ footer span { color: #FF6B00; font-weight: 700; }
                             </td>
                             <td><?= date('d/m/Y H:i', strtotime($row['fecha_registro'])) ?></td>
                             <td>
-                                <td>
     <a href="/yo_voto/admin/editar-ciudadano/<?= $row['id'] ?>" class="btn-editar">
         <i class="fas fa-edit"></i> Editar
     </a>
@@ -1082,7 +1087,6 @@ footer span { color: #FF6B00; font-weight: 700; }
             <i class="fas fa-check"></i> Activo
         </span>
     <?php endif; ?>
-</td>
                             </td>
                         </tr>
                         <?php endwhile; ?>

@@ -990,26 +990,14 @@ footer span { color: #FF6B00; font-weight: 700; }
                 <i class="fas fa-gavel"></i>
                 <span>Jurados Electorales</span>
             </a>
-            <a href="/yo_voto/procesos" class="sidebar-menu-item">
-                <i class="fas fa-chart-line"></i>
-                <span>Procesos</span>
-            </a>
-            <a href="/yo_voto/resultados-admin" class="sidebar-menu-item">
+            <a href="/yo_voto/admin/resultados" class="sidebar-menu-item">
                 <i class="fas fa-chart-bar"></i>
                 <span>Resultados</span>
             </a>
-            <a href="/yo_voto/admin/blockchain" class="module-card">
-    <div class="module-header">
-        <i class="fas fa-link"></i>
-        <h3>Auditoría Blockchain</h3>
-    </div>
-    <div class="module-body">
-        <p>Verificar integridad de la cadena de bloques y votantes registrados.</p>
-    </div>
-    <div class="module-footer">
-        <i class="fas fa-arrow-right"></i> Verificar blockchain
-    </div>
-</a>
+            <a href="/yo_voto/admin/blockchain" class="sidebar-menu-item">
+                <i class="fas fa-link"></i>
+                <span>Auditoría Blockchain</span>
+            </a>
         </div>
     </div>
 

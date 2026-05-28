@@ -233,7 +233,10 @@ class ApiController {
     $id_candidato = $data['id_candidato'] ?? 0;
     
     // Verificar si ya votó
-    $check = $this->conn->query("SELECT * FROM votos WHERE id_usuario = $id_usuario");
+    $checkStmt = $this->conn->prepare("SELECT id FROM votos WHERE id_usuario = ?");
+    $checkStmt->bind_param("i", $id_usuario);
+    $checkStmt->execute();
+    $check = $checkStmt->get_result();
     if ($check->num_rows > 0) {
         echo json_encode(['success' => false, 'error' => 'Ya votó']);
         return;

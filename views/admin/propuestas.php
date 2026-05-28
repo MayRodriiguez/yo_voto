@@ -1,4 +1,4 @@
-<?php 
+<?php
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -6,6 +6,9 @@ $mensaje = $_SESSION['mensaje'] ?? null;
 $error = $_SESSION['error'] ?? null;
 unset($_SESSION['mensaje']);
 unset($_SESSION['error']);
+/** @var array $candidato */
+/** @var array $propuestas */
+/** @var int $id_candidato */
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -963,6 +966,8 @@ footer span { color: #FF6B00; font-weight: 700; }
         <a href="/yo_voto/admin/registro" class="sidebar-menu-item"><i class="fas fa-user-plus"></i> Registro Ciudadano</a>
         <a href="/yo_voto/candidatos" class="sidebar-menu-item"><i class="fas fa-users"></i> Candidatos</a>
         <a href="/yo_voto/jurados" class="sidebar-menu-item"><i class="fas fa-gavel"></i> Jurados</a>
+        <a href="/yo_voto/admin/resultados" class="sidebar-menu-item"><i class="fas fa-chart-bar"></i> Resultados</a>
+        <a href="/yo_voto/admin/blockchain" class="sidebar-menu-item"><i class="fas fa-link"></i> Auditoría Blockchain</a>
     </div>
 
     <div class="main-content">

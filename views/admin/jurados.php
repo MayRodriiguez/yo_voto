@@ -8,6 +8,8 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['rol'] != 'admin') {
     header("Location: /yo_voto/login");
     exit();
 }
+/** @var array $jurados */
+/** @var array $usuarios */
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -972,6 +974,12 @@ footer span { color: #FF6B00; font-weight: 700; }
         </a>
         <a href="/yo_voto/jurados" class="sidebar-menu-item active">
             <i class="fas fa-gavel"></i> Jurados
+        </a>
+        <a href="/yo_voto/admin/resultados" class="sidebar-menu-item">
+            <i class="fas fa-chart-bar"></i> Resultados
+        </a>
+        <a href="/yo_voto/admin/blockchain" class="sidebar-menu-item">
+            <i class="fas fa-link"></i> Auditoría Blockchain
         </a>
     </div>
 
