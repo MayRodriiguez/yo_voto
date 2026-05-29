@@ -2,6 +2,12 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+// Generar token CSRF si no existe
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 $error = $_SESSION['error_registro'] ?? null;
 $success = $_SESSION['success_registro'] ?? null;
 unset($_SESSION['error_registro'], $_SESSION['success_registro']);
@@ -11,7 +17,6 @@ $departamentos = ['Beni','Chuquisaca','Cochabamba','La Paz','Oruro','Pando','Pot
 $maxDate = date('Y-m-d', strtotime('-18 years'));
 $minDate = date('Y-m-d', strtotime('-99 years'));
 
-// Recintos electorales por departamento (lat, lng, nombre)
 $recintos = [
     'La Paz' => [
         ['nombre' => 'U.E. Franco Boliviano', 'lat' => -16.5000, 'lng' => -68.1500, 'mesa' => 12],
@@ -56,8 +61,6 @@ $recintos = [
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.8.6/dist/tf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -112,8 +115,6 @@ $recintos = [
         .strength-bar { height: 4px; border-radius: 2px; background: rgba(255,255,255,0.07); overflow: hidden; margin-top: 6px; }
         .strength-fill { height: 100%; border-radius: 2px; width: 0%; transition: .3s; }
         .strength-text { font-size: 11px; color: rgba(255,255,255,0.28); margin-top: 4px; }
-
-        /* MAPA */
         .mapa-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; overflow: hidden; margin-bottom: 14px; }
         .mapa-search { display: flex; gap: 8px; padding: 14px; }
         .mapa-search input { flex: 1; padding: 10px 14px; border: 1.5px solid rgba(255,255,255,0.1); border-radius: 10px; font-size: 14px; background: rgba(255,255,255,0.06); color: #fff; font-family: inherit; }
@@ -127,32 +128,13 @@ $recintos = [
         .recinto-nombre { font-family: 'Montserrat', sans-serif; font-weight: 800; color: #fff; font-size: 15px; margin-bottom: 6px; }
         .recinto-detalle { font-size: 13px; color: rgba(255,255,255,0.5); display: flex; gap: 16px; }
         .recinto-detalle span { display: flex; align-items: center; gap: 6px; }
-
-        /* FOTO UPLOAD */
-        .foto-box { background: rgba(255,255,255,0.03); border: 2px dashed rgba(255,107,0,0.3); border-radius: 16px; padding: 28px; text-align: center; }
-        .foto-preview-wrap { position: relative; width: 160px; height: 160px; margin: 0 auto 16px; }
-        .foto-preview { width: 160px; height: 160px; border-radius: 50%; object-fit: cover; border: 4px solid #FF6B00; display: none; }
-        .foto-placeholder { width: 160px; height: 160px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 3px dashed rgba(255,107,0,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; color: rgba(255,255,255,0.3); cursor: pointer; transition: .2s; }
-        .foto-placeholder:hover { border-color: #FF6B00; color: #FF8C38; background: rgba(255,107,0,0.05); }
-        .foto-placeholder i { font-size: 36px; margin-bottom: 8px; }
-        .foto-placeholder span { font-size: 12px; font-weight: 600; }
-        .tips-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 16px; }
-        .tip { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.04); border-radius: 8px; padding: 8px 12px; font-size: 12px; color: rgba(255,255,255,0.6); }
-        .tip-ico { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; }
-        .tip-ico.ok { background: rgba(39,174,96,0.2); color: #27AE60; }
-        .tip-ico.no { background: rgba(231,76,60,0.2); color: #E74C3C; }
-        .btn-upload { background: #FF6B00; color: #fff; padding: 10px 22px; border-radius: 10px; border: none; font-size: 13px; font-weight: 700; cursor: pointer; transition: .2s; display: inline-flex; align-items: center; gap: 7px; margin-top: 12px; }
-        .btn-upload:hover { background: #FF8C38; }
-        .btn-retake { background: rgba(255,255,255,0.07); color: #fff; padding: 10px 22px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.14); font-size: 13px; font-weight: 700; cursor: pointer; transition: .2s; display: none; align-items: center; gap: 7px; margin-top: 12px; margin-left: 8px; }
-        .btn-retake:hover { background: rgba(255,255,255,0.12); }
-        .foto-status { margin-top: 14px; padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; display: none; }
-        .foto-status.success { background: rgba(39,174,96,0.12); color: #5cdb95; border-left: 4px solid #27AE60; }
-        .foto-status.error { background: rgba(231,76,60,0.12); color: #ff6b6b; border-left: 4px solid #E74C3C; }
-        .foto-status.info { background: rgba(25,118,210,0.12); color: #7eb3ff; border-left: 4px solid #1976D2; }
+        /* Badge CSRF */
+        .csrf-badge { display: flex; align-items: center; gap: 10px; background: rgba(39,174,96,0.08); border: 1px solid rgba(39,174,96,0.2); border-left: 4px solid #27AE60; border-radius: 10px; padding: 12px 16px; margin-bottom: 14px; font-size: 13px; color: rgba(255,255,255,0.6); }
+        .csrf-badge i { color: #27AE60; font-size: 16px; flex-shrink: 0; }
+        .csrf-badge strong { color: #5cdb95; }
         .btn-submit { width: 100%; padding: 14px; margin-top: 26px; background: #FF6B00; color: #fff; border: none; border-radius: 12px; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 16px; cursor: pointer; transition: .25s; box-shadow: 0 6px 24px rgba(255,107,0,0.35); display: flex; align-items: center; justify-content: center; gap: 10px; }
         .btn-submit:hover:not(:disabled) { background: #FF8C38; transform: translateY(-2px); }
         .btn-submit:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
-        .btn-note { text-align: center; margin-top: 10px; font-size: 12px; color: rgba(255,255,255,0.28); }
         .login-link { text-align: center; margin-top: 18px; font-size: 14px; color: rgba(255,255,255,0.32); }
         .login-link a { color: #FF6B00; font-weight: 700; text-decoration: none; }
         footer { text-align: center; padding: 24px; font-size: 12px; color: rgba(255,255,255,0.22); background: #070e1f; border-top: 1px solid rgba(255,255,255,0.05); }
@@ -163,7 +145,6 @@ $recintos = [
             .navbar { padding: 0 16px; }
             .card-body { padding: 22px 16px; }
             .genero-pills { flex-direction: column; }
-            .tips-grid { grid-template-columns: 1fr 1fr; }
         }
     </style>
 </head>
@@ -208,6 +189,12 @@ $recintos = [
 
             <?php if (!$success): ?>
             <form method="POST" action="/yo_voto/registro-ciudadano" id="registroForm" enctype="multipart/form-data">
+
+                <!-- TOKEN CSRF — SEGURIDAD -->
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                <!-- Campos requeridos por el controlador (sin facial) -->
+                <input type="hidden" name="face_registered" value="1">
+                <input type="hidden" name="face_descriptor" value="[]">
 
                 <!-- DATOS PERSONALES -->
                 <div class="sec-title"><i class="fas fa-user"></i> Datos Personales</div>
@@ -338,6 +325,8 @@ $recintos = [
 
                 <!-- SEGURIDAD -->
                 <div class="sec-title"><i class="fas fa-shield-alt"></i> Seguridad</div>
+
+
                 <div class="form-grid grid-2" style="margin-bottom:14px;">
                     <div class="form-group">
                         <label><i class="fas fa-lock"></i> Contraseña <span class="req">*</span></label>
@@ -356,39 +345,10 @@ $recintos = [
                     </div>
                 </div>
 
-                <!-- FOTO DE ROSTRO -->
-                <div class="sec-title"><i class="fas fa-camera"></i> Foto de Verificación</div>
-                <div class="foto-box">
-                    <div class="foto-preview-wrap">
-                        <div class="foto-placeholder" id="foto-placeholder" onclick="document.getElementById('foto-input').click()">
-                            <i class="fas fa-user-circle"></i>
-                            <span>Subir foto</span>
-                        </div>
-                        <img id="foto-preview" class="foto-preview" src="" alt="Foto de perfil">
-                    </div>
-                    <p style="color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:14px;">Sube una foto clara de tu rostro para verificación de identidad al votar</p>
-                    <div class="tips-grid">
-                        <div class="tip"><span class="tip-ico ok"><i class="fas fa-check"></i></span><span>Buena iluminación</span></div>
-                        <div class="tip"><span class="tip-ico ok"><i class="fas fa-check"></i></span><span>Rostro de frente</span></div>
-                        <div class="tip"><span class="tip-ico ok"><i class="fas fa-check"></i></span><span>Fondo claro</span></div>
-                        <div class="tip"><span class="tip-ico no"><i class="fas fa-times"></i></span><span>Sin gorro</span></div>
-                        <div class="tip"><span class="tip-ico no"><i class="fas fa-times"></i></span><span>Sin lentes oscuros</span></div>
-                        <div class="tip"><span class="tip-ico no"><i class="fas fa-times"></i></span><span>Sin mascarilla</span></div>
-                    </div>
-                    <input type="file" id="foto-input" name="foto_rostro" accept="image/jpeg,image/png,image/jpg" style="display:none;" onchange="procesarFoto(this)">
-                    <input type="hidden" id="face_registered" name="face_registered" value="0">
-                    <input type="hidden" id="face_descriptor" name="face_descriptor" value="">
-                    <div style="margin-top:16px;">
-                        <button type="button" class="btn-upload" onclick="document.getElementById('foto-input').click()"><i class="fas fa-upload"></i> Seleccionar Foto</button>
-                        <button type="button" class="btn-retake" id="btn-retake" onclick="retakePhoto()"><i class="fas fa-redo"></i> Cambiar Foto</button>
-                    </div>
-                    <div id="foto-status" class="foto-status"></div>
-                </div>
-
-                <button type="submit" class="btn-submit" id="submit-btn" disabled>
+                <button type="submit" class="btn-submit" id="submit-btn">
                     <i class="fas fa-user-plus"></i> Crear mi Cuenta
                 </button>
-                <p class="btn-note">⚠️ Debe subir una foto de su rostro antes de registrarse</p>
+
             </form>
             <?php endif; ?>
 
@@ -400,42 +360,32 @@ $recintos = [
 <footer><p>🗳️ <span>Yo Voto</span> — Sistema Electoral Bolivia 2026 · Democracia y Transparencia</p></footer>
 
 <script>
-// Recintos por departamento
 const recintos = <?= json_encode($recintos) ?>;
 
 let mapa, marcadorUsuario, marcadoresRecintos = [];
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Inicializar mapa centrado en Bolivia
     mapa = L.map('mapa').setView([-16.5000, -68.1500], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap'
     }).addTo(mapa);
-
-    document.getElementById('submit-btn').disabled = true;
-    loadFaceModels();
 });
 
 function cambiarDepartamento(dep) {
     if (!dep || !recintos[dep]) return;
     const r = recintos[dep];
-    // Centrar mapa en primer recinto del departamento
     mapa.setView([r[0].lat, r[0].lng], 13);
     mostrarRecintos(dep);
 }
 
 function mostrarRecintos(dep) {
-    // Limpiar marcadores anteriores
     marcadoresRecintos.forEach(m => mapa.removeLayer(m));
     marcadoresRecintos = [];
-
     if (!recintos[dep]) return;
-
     const iconRecinto = L.divIcon({
         html: '<div style="background:#FF6B00;color:#fff;padding:4px 8px;border-radius:8px;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.3);">📍 Recinto</div>',
         className: '', iconAnchor: [30, 10]
     });
-
     recintos[dep].forEach(r => {
         const m = L.marker([r.lat, r.lng], {icon: iconRecinto})
             .addTo(mapa)
@@ -448,22 +398,17 @@ function buscarEnMapa() {
     const query = document.getElementById('buscar-mapa').value.trim();
     const dep = document.getElementById('departamento').value;
     if (!query) return;
-
     const busqueda = query + (dep ? ', ' + dep : '') + ', Bolivia';
-
     fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(busqueda)}&limit=1`)
         .then(r => r.json())
         .then(data => {
-            if (!data.length) { alert('No se encontró la dirección. Intenta ser más específico.'); return; }
-            const lat = parseFloat(data[0].lat);
-            const lng = parseFloat(data[0].lon);
-            ubicarEnMapa(lat, lng, data[0].display_name);
+            if (!data.length) { alert('No se encontró la dirección.'); return; }
+            ubicarEnMapa(parseFloat(data[0].lat), parseFloat(data[0].lon), data[0].display_name);
         })
         .catch(() => alert('Error al buscar. Verifica tu conexión.'));
 }
 
 function buscarDireccionAuto() {
-    // Auto-completar el buscador con la dirección + ciudad
     const dir = document.getElementById('direccion').value;
     const ciudad = document.getElementById('ciudad').value;
     if (dir.length > 5) {
@@ -480,44 +425,32 @@ function usarUbicacionActual() {
 
 function ubicarEnMapa(lat, lng, nombre) {
     mapa.setView([lat, lng], 15);
-
     if (marcadorUsuario) mapa.removeLayer(marcadorUsuario);
-
     const iconUsuario = L.divIcon({
         html: '<div style="background:#1976D2;color:#fff;width:16px;height:16px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.4);"></div>',
         className: '', iconAnchor: [8, 8]
     });
-
     marcadorUsuario = L.marker([lat, lng], {icon: iconUsuario})
-        .addTo(mapa)
-        .bindPopup('📍 Tu ubicación').openPopup();
-
+        .addTo(mapa).bindPopup('📍 Tu ubicación').openPopup();
     document.getElementById('lat-hidden').value = lat;
     document.getElementById('lng-hidden').value = lng;
-
-    // Calcular recinto más cercano
     const dep = document.getElementById('departamento').value;
     asignarRecintoMasCercano(lat, lng, dep);
 }
 
 function asignarRecintoMasCercano(lat, lng, dep) {
     let todosBuscar = [];
-
     if (dep && recintos[dep]) {
         todosBuscar = recintos[dep];
     } else {
-        // Si no hay departamento, buscar en todos
         Object.values(recintos).forEach(arr => todosBuscar = todosBuscar.concat(arr));
     }
-
     if (!todosBuscar.length) return;
-
     let menor = Infinity, cercano = null;
     todosBuscar.forEach(r => {
         const dist = Math.sqrt(Math.pow(lat - r.lat, 2) + Math.pow(lng - r.lng, 2));
         if (dist < menor) { menor = dist; cercano = r; }
     });
-
     if (cercano) {
         const distKm = (menor * 111).toFixed(1);
         document.getElementById('recinto-nombre').textContent = cercano.nombre;
@@ -529,113 +462,31 @@ function asignarRecintoMasCercano(lat, lng, dep) {
     }
 }
 
-// Face API
-let modelsLoaded = false;
-
-async function waitForFaceAPI() {
-    return new Promise(resolve => {
-        let checks = 0;
-        const iv = setInterval(() => {
-            checks++;
-            if (typeof faceapi !== 'undefined' && faceapi.nets) { clearInterval(iv); resolve(true); }
-            else if (checks > 30) { clearInterval(iv); resolve(false); }
-        }, 500);
-    });
-}
-
-async function loadFaceModels() {
-    const ok = await waitForFaceAPI();
-    if (!ok) return;
-    try {
-        await tf.setBackend('cpu');
-        await tf.ready();
-        const M = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights';
-        await faceapi.nets.ssdMobilenetv1.loadFromUri(M);
-        await faceapi.nets.faceLandmark68Net.loadFromUri(M);
-        await faceapi.nets.faceRecognitionNet.loadFromUri(M);
-        modelsLoaded = true;
-    } catch(e) { console.error('Error modelos:', e); }
-}
-
-async function procesarFoto(input) {
-    const file = input.files[0];
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { mostrarStatus('❌ La foto es muy grande. Máximo 5MB.', 'error'); return; }
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-        const preview = document.getElementById('foto-preview');
-        preview.src = e.target.result;
-        preview.style.display = 'block';
-        document.getElementById('foto-placeholder').style.display = 'none';
-        document.getElementById('btn-retake').style.display = 'inline-flex';
-        mostrarStatus('<i class="fas fa-spinner fa-spin"></i> Analizando foto...', 'info');
-        if (!modelsLoaded) { await loadFaceModels(); }
-        if (!modelsLoaded) {
-            document.getElementById('face_registered').value = '1';
-            document.getElementById('face_descriptor').value = '[]';
-            document.getElementById('submit-btn').disabled = false;
-            mostrarStatus('✅ Foto cargada.', 'success');
-            return;
-        }
-        try {
-            const img = new Image();
-            img.src = e.target.result;
-            await new Promise(r => img.onload = r);
-            const det = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor();
-            if (!det) { mostrarStatus('❌ No se detectó un rostro. Intente con otra imagen.', 'error'); document.getElementById('submit-btn').disabled = true; return; }
-            document.getElementById('face_registered').value = '1';
-            document.getElementById('face_descriptor').value = JSON.stringify(Array.from(det.descriptor));
-            document.getElementById('submit-btn').disabled = false;
-            mostrarStatus('✅ Rostro detectado correctamente.', 'success');
-        } catch(e) {
-            document.getElementById('face_registered').value = '1';
-            document.getElementById('face_descriptor').value = '[]';
-            document.getElementById('submit-btn').disabled = false;
-            mostrarStatus('✅ Foto guardada correctamente.', 'success');
-        }
-    };
-    reader.readAsDataURL(file);
-}
-
-function retakePhoto() {
-    document.getElementById('foto-input').value = '';
-    document.getElementById('foto-preview').style.display = 'none';
-    document.getElementById('foto-preview').src = '';
-    document.getElementById('foto-placeholder').style.display = 'flex';
-    document.getElementById('btn-retake').style.display = 'none';
-    document.getElementById('face_registered').value = '0';
-    document.getElementById('face_descriptor').value = '';
-    document.getElementById('submit-btn').disabled = true;
-    document.getElementById('foto-status').style.display = 'none';
-}
-
-function mostrarStatus(msg, type) {
-    const s = document.getElementById('foto-status');
-    s.style.display = 'block';
-    s.className = 'foto-status ' + type;
-    s.innerHTML = msg;
-    if (type === 'success') setTimeout(() => s.style.display = 'none', 4000);
-}
-
 document.getElementById('carnet').addEventListener('input', function() {
     this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);
 });
 
-const passInput = document.getElementById('passInput');
+const passInput    = document.getElementById('passInput');
 const confirmInput = document.getElementById('confirmInput');
-const fill = document.getElementById('strengthFill');
-const txt = document.getElementById('strengthText');
-const matchTxt = document.getElementById('matchText');
+const fill         = document.getElementById('strengthFill');
+const txt          = document.getElementById('strengthText');
+const matchTxt     = document.getElementById('matchText');
 
 passInput.addEventListener('input', () => {
     const v = passInput.value;
     let s = 0;
-    if (v.length >= 6) s++;
+    if (v.length >= 6)  s++;
     if (v.length >= 10) s++;
     if (/[A-Z]/.test(v)) s++;
     if (/[0-9]/.test(v)) s++;
     if (/[^A-Za-z0-9]/.test(v)) s++;
-    const levels = [{w:'20%',c:'#E74C3C',l:'Muy débil'},{w:'40%',c:'#E67E22',l:'Débil'},{w:'60%',c:'#F1C40F',l:'Regular'},{w:'80%',c:'#27AE60',l:'Buena'},{w:'100%',c:'#1ABC9C',l:'Muy segura'}];
+    const levels = [
+        {w:'20%',c:'#E74C3C',l:'Muy débil'},
+        {w:'40%',c:'#E67E22',l:'Débil'},
+        {w:'60%',c:'#F1C40F',l:'Regular'},
+        {w:'80%',c:'#27AE60',l:'Buena'},
+        {w:'100%',c:'#1ABC9C',l:'Muy segura'}
+    ];
     const lv = v.length > 0 ? (levels[Math.min(s-1,4)] || levels[0]) : {w:'0%',c:'transparent',l:''};
     fill.style.width = lv.w; fill.style.background = lv.c;
     txt.textContent = lv.l; txt.style.color = lv.c;
@@ -645,16 +496,16 @@ passInput.addEventListener('input', () => {
 confirmInput.addEventListener('input', checkMatch);
 function checkMatch() {
     if (!confirmInput.value) { matchTxt.textContent = ''; return; }
-    if (passInput.value === confirmInput.value) { matchTxt.textContent = '✓ Las contraseñas coinciden'; matchTxt.style.color = '#27AE60'; }
-    else { matchTxt.textContent = '✗ Las contraseñas no coinciden'; matchTxt.style.color = '#E74C3C'; }
+    if (passInput.value === confirmInput.value) {
+        matchTxt.textContent = '✓ Las contraseñas coinciden';
+        matchTxt.style.color = '#27AE60';
+    } else {
+        matchTxt.textContent = '✗ Las contraseñas no coinciden';
+        matchTxt.style.color = '#E74C3C';
+    }
 }
 
 document.getElementById('registroForm').addEventListener('submit', function(e) {
-    if (document.getElementById('face_registered').value !== '1') {
-        e.preventDefault();
-        mostrarStatus('⚠️ Debe subir una foto de su rostro antes de registrarse', 'error');
-        return false;
-    }
     const btn = document.getElementById('submit-btn');
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registrando...';
