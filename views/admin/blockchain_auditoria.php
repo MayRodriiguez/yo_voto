@@ -88,22 +88,19 @@ $cadenaValida = $blockchainVote->verificarIntegridad();
         <a href="/yo_voto/candidatos" class="sidebar-menu-item"><i class="fas fa-users"></i> Candidatos</a>
         <a href="/yo_voto/jurados" class="sidebar-menu-item"><i class="fas fa-gavel"></i> Jurados</a>
         <a href="/yo_voto/admin/resultados" class="sidebar-menu-item"><i class="fas fa-chart-bar"></i> Resultados</a>
-        <a href="/yo_voto/admin/blockchain" class="sidebar-menu-item active"><i class="fas fa-link"></i> Auditoría Blockchain</a>
+        <a href="/yo_voto/admin/blockchain" class="sidebar-menu-item active"><i class="fas fa-vote-yea"></i> Registro de Votaciones</a>
     </div>
 
     <div class="main-content">
         <div class="top-bar">
-            <div class="page-title"><i class="fas fa-link"></i> Auditoría Blockchain</div>
+            <div class="page-title"><i class="fas fa-vote-yea"></i> Registro de Votaciones</div>
             <a href="/yo_voto/admin/dashboard" class="btn-back"><i class="fas fa-arrow-left"></i> Volver</a>
         </div>
 
         <div class="card">
-            <h3><i class="fas fa-chart-line"></i> Estado de la Blockchain</h3>
+            <h3><i class="fas fa-chart-line"></i> Estado de las Votaciones</h3>
             <div class="stat-grid">
-                <div class="stat-card">
-                    <div class="stat-number"><?= $estadisticas['total_bloques'] ?? 0 ?></div>
-                    <div class="stat-label">Total Bloques</div>
-                </div>
+
                 <div class="stat-card">
                     <div class="stat-number"><?= $estadisticas['total_votos'] ?? 0 ?></div>
                     <div class="stat-label">Votos Registrados</div>
@@ -112,21 +109,9 @@ $cadenaValida = $blockchainVote->verificarIntegridad();
                     <div class="stat-number"><?= $totalVotantes ?></div>
                     <div class="stat-label">Ciudadanos que Votaron</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number">
-                        <?php if ($cadenaValida): ?>
-                            <span class="badge-valid"><i class="fas fa-check-circle"></i> Válida</span>
-                        <?php else: ?>
-                            <span class="badge-invalid"><i class="fas fa-exclamation-triangle"></i> Corrupta</span>
-                        <?php endif; ?>
-                    </div>
-                    <div class="stat-label">Integridad de la Cadena</div>
-                </div>
+
             </div>
-            <div class="alert-info">
-                <i class="fas fa-info-circle"></i>
-                <strong>Información:</strong> La blockchain garantiza la inmutabilidad de los votos. Cada bloque contiene un hash único que lo encadena con el anterior.
-            </div>
+
         </div>
 
         <div class="card">
