@@ -11,26 +11,17 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once 'config/database.php';
 
 // =====================================================
-// API - CHATBOT (Debe ir PRIMERO antes que cualquier otra API)
+// API - CHATBOT
 // =====================================================
 
 if (strpos($_SERVER['REQUEST_URI'], '/api/chatbot') !== false) {
     require_once 'controllers/ChatbotController.php';
     $chatbot = new ChatbotController();
-    
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $chatbot->procesarMensaje();
     } else {
         header('Content-Type: application/json');
-        echo json_encode([
-            'opciones' => [
-                'como_votar' => '🗳️ ¿Cómo votar?',
-                'candidatos' => '👥 Ver Candidatos',
-                'blockchain' => '🔒 Seguridad Blockchain',
-                'reconocimiento_facial' => '👤 Reconocimiento Facial',
-                'habilitacion' => '⏳ Mi cuenta no está habilitada'
-            ]
-        ]);
+        echo json_encode(['opciones' => ['como_votar' => '🗳️ ¿Cómo votar?', 'candidatos' => '👥 Ver Candidatos', 'blockchain' => '🔒 Seguridad Blockchain', 'reconocimiento_facial' => '👤 Reconocimiento Facial', 'habilitacion' => '⏳ Mi cuenta no está habilitada']]);
     }
     exit();
 }
@@ -153,8 +144,8 @@ if ($controller == 'resultados') {
     exit();
 }
 
-if ($controller == 'capturar_huella') {
-    require_once 'capturar_huella_ajax.php';
+if ($controller == 'candidatos-publico') {
+    require_once 'views/public/candidatos_publico.php';
     exit();
 }
 
@@ -170,6 +161,10 @@ if ($controller == 'registro-ciudadano') {
     exit();
 }
 
+if ($controller == 'certificado') {
+    require_once 'api/certificado.php';
+    exit();
+}
 if ($controller == 'blockchain-verificar') {
     require_once 'views/public/blockchain_verificar.php';
     exit();
@@ -265,6 +260,8 @@ switch ($controller) {
             $p->editar($param, $param2);
         } elseif ($method == 'eliminar' && $param && $param2) {
             $p->eliminar($param, $param2);
+        } elseif (is_numeric($method)) {
+            $p->index($method);
         } elseif ($param) {
             $p->index($param);
         } else {
@@ -289,6 +286,8 @@ switch ($controller) {
             $eq->eliminar($param, $param2);
         } elseif ($method == 'editar' && $param && $param2) {
             $eq->editar($param, $param2);
+        } elseif (is_numeric($method)) {
+            $eq->index($method);
         } elseif ($param) {
             $eq->index($param);
         } else {

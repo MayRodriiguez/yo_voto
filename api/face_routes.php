@@ -15,6 +15,11 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 $db = new Database();
 $conn = $db->getConnection();
 
@@ -24,7 +29,7 @@ $url = $_SERVER['REQUEST_URI'];
 // RECUPERAR CONTRASEÑA — PASO 1: enviar código
 // ============================================
 if (strpos($url, '/api/recuperar-password') !== false && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $data = json_decode(file_get_contents('php://input'), true);
+    $data   = json_decode(file_get_contents('php://input'), true);
     $carnet = trim($data['carnet'] ?? '');
     $email  = trim($data['email'] ?? '');
 
@@ -33,7 +38,6 @@ if (strpos($url, '/api/recuperar-password') !== false && $_SERVER['REQUEST_METHO
         exit();
     }
 
-    // Buscar usuario
     $stmt = $conn->prepare("SELECT id, nombres, email FROM usuarios WHERE carnet = ? AND activo = 1");
     $stmt->bind_param("s", $carnet);
     $stmt->execute();
@@ -49,18 +53,14 @@ if (strpos($url, '/api/recuperar-password') !== false && $_SERVER['REQUEST_METHO
         exit();
     }
 
-    // Generar código de 6 dígitos
     $codigo = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
-    $expira = date('Y-m-d H:i:s', time() + 600); // 10 minutos
+    $expira = date('Y-m-d H:i:s', time() + 600);
 
-    // Guardar código en BD (necesita columna reset_code y reset_expira en usuarios)
-    // Si no existen, usar sesión como fallback
     $_SESSION['reset_codigo']  = $codigo;
     $_SESSION['reset_expira']  = time() + 600;
     $_SESSION['reset_user_id'] = $user['id'];
     $_SESSION['reset_email']   = $email;
 
-    // Intentar guardar en BD también
     $colCheck = $conn->query("SHOW COLUMNS FROM usuarios LIKE 'reset_code'");
     if ($colCheck && $colCheck->num_rows > 0) {
         $stmt2 = $conn->prepare("UPDATE usuarios SET reset_code = ?, reset_expira = ? WHERE id = ?");
@@ -68,34 +68,45 @@ if (strpos($url, '/api/recuperar-password') !== false && $_SERVER['REQUEST_METHO
         $stmt2->execute();
     }
 
-    // Enviar correo
-    $nombre  = $user['nombres'];
-    $asunto  = "🔐 Código de recuperación - Yo Voto";
-    $mensaje = "
-    <html><body style='font-family:Arial,sans-serif;background:#0a1628;padding:30px;'>
-        <div style='max-width:480px;margin:0 auto;background:#0d2251;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);'>
-            <div style='background:#FF6B00;padding:24px;text-align:center;'>
-                <h1 style='margin:0;font-size:24px;color:#fff;'>🗳️ Yo Voto</h1>
-                <p style='margin:6px 0 0;color:rgba(255,255,255,0.8);font-size:13px;'>Sistema Electoral Bolivia 2026</p>
-            </div>
-            <div style='padding:32px;'>
-                <p style='color:rgba(255,255,255,0.7);margin-bottom:24px;'>Hola <strong style='color:#fff;'>{$nombre}</strong>, usa este código para restablecer tu contraseña:</p>
-                <div style='background:#FF6B00;border-radius:12px;padding:20px;text-align:center;margin-bottom:24px;'>
-                    <div style='font-size:42px;font-weight:900;letter-spacing:12px;color:#fff;font-family:monospace;'>{$codigo}</div>
+    // Enviar con PHPMailer
+    $mail = new PHPMailer(true);
+    try {
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'angelamarianagonzales@gmail.com';
+        $mail->Password   = 'mwew onrj cxpd wvpk';
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
+        $mail->CharSet    = 'UTF-8';
+
+        $mail->setFrom('angelamarianagonzales@gmail.com', 'Yo Voto Bolivia');
+        $mail->addAddress($email, $user['nombres']);
+
+        $mail->isHTML(true);
+        $mail->Subject = '🔐 Código de recuperación - Yo Voto';
+        $mail->Body    = "
+        <html><body style='font-family:Arial,sans-serif;background:#0a1628;padding:30px;'>
+            <div style='max-width:480px;margin:0 auto;background:#0d2251;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);'>
+                <div style='background:#FF6B00;padding:24px;text-align:center;'>
+                    <h1 style='margin:0;font-size:24px;color:#fff;'>🗳️ Yo Voto</h1>
+                    <p style='margin:6px 0 0;color:rgba(255,255,255,0.8);font-size:13px;'>Sistema Electoral Bolivia 2026</p>
                 </div>
-                <p style='color:rgba(255,255,255,0.4);font-size:12px;text-align:center;'>Este código expira en <strong style='color:#FF8C38;'>10 minutos</strong>.<br>Si no solicitaste esto, ignora este mensaje.</p>
+                <div style='padding:32px;'>
+                    <p style='color:rgba(255,255,255,0.7);margin-bottom:24px;'>Hola <strong style='color:#fff;'>{$user['nombres']}</strong>, usa este código para restablecer tu contraseña:</p>
+                    <div style='background:#FF6B00;border-radius:12px;padding:20px;text-align:center;margin-bottom:24px;'>
+                        <div style='font-size:42px;font-weight:900;letter-spacing:12px;color:#fff;font-family:monospace;'>{$codigo}</div>
+                    </div>
+                    <p style='color:rgba(255,255,255,0.4);font-size:12px;text-align:center;'>Este código expira en <strong style='color:#FF8C38;'>10 minutos</strong>.<br>Si no solicitaste esto, ignora este mensaje.</p>
+                </div>
             </div>
-        </div>
-    </body></html>";
+        </body></html>";
 
-    $headers  = "MIME-Version: 1.0\r\n";
-    $headers .= "Content-type: text/html; charset=UTF-8\r\n";
-    $headers .= "From: Yo Voto <no-reply@yovoto.com>\r\n";
-
-    $enviado = mail($email, $asunto, $mensaje, $headers);
-
-    // En desarrollo local el mail() puede fallar, igual retornamos éxito para pruebas
-    echo json_encode(['success' => true, 'message' => 'Código enviado a tu correo.', 'dev_codigo' => (php_uname('s') === 'Windows NT') ? $codigo : null]);
+        $mail->send();
+        echo json_encode(['success' => true, 'message' => 'Código enviado a tu correo.']);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => 'Error al enviar el correo: ' . $mail->ErrorInfo]);
+    }
     exit();
 }
 
@@ -165,24 +176,21 @@ if (strpos($url, '/api/nueva-password') !== false && $_SERVER['REQUEST_METHOD'] 
 }
 
 // ============================================
-// LOGIN CON RECONOCIMIENTO FACIAL
+// LOGIN NORMAL (sin facial)
 // ============================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
     if (!$data) { echo json_encode(['success' => false, 'error' => 'JSON inválido']); exit(); }
 
-    $carnet = $data['carnet'] ?? '';
+    $carnet   = $data['carnet'] ?? '';
     $password = $data['password'] ?? '';
-    $currentDescriptor = $data['descriptor'] ?? null;
 
-    // Validar carnet
     if (empty($carnet) || !ctype_digit($carnet)) {
         echo json_encode(['success' => false, 'error' => 'Carnet inválido']);
         exit();
     }
 
-    // Buscar usuario
-    $sql = "SELECT id, nombres, apellidos, carnet, password, face_descriptor, foto_url, habilitado_voto, ya_voto, rol 
+    $sql = "SELECT id, nombres, apellidos, carnet, password, foto_url, habilitado_voto, ya_voto, rol 
             FROM usuarios WHERE carnet = ? AND rol = 'usuario' AND activo = 1";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $carnet);
@@ -191,31 +199,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$user) { echo json_encode(['success' => false, 'error' => 'Usuario no encontrado']); exit(); }
     if ($user['habilitado_voto'] != 1) { echo json_encode(['success' => false, 'error' => 'Cuenta no habilitada para votar']); exit(); }
-
-    // Verificar contraseña
-    if (!empty($password) && !password_verify($password, $user['password'])) {
+    if (!password_verify($password, $user['password'])) {
         echo json_encode(['success' => false, 'error' => 'Contraseña incorrecta']);
         exit();
     }
 
-    // Verificar descriptor facial si viene
-    if ($currentDescriptor && $user['face_descriptor']) {
-        $storedDescriptor = json_decode($user['face_descriptor'], true);
-        if ($storedDescriptor && count($storedDescriptor) === 128) {
-            $sum = 0;
-            for ($i = 0; $i < 128; $i++) {
-                $diff = ($storedDescriptor[$i] ?? 0) - ($currentDescriptor[$i] ?? 0);
-                $sum += $diff * $diff;
-            }
-            $distance = sqrt($sum);
-            if ($distance >= 0.5) {
-                echo json_encode(['success' => false, 'error' => 'Rostro no coincide. Intente nuevamente.', 'distance' => $distance]);
-                exit();
-            }
-        }
-    }
-
-    // Login exitoso
     $_SESSION['user'] = $user;
     echo json_encode(['success' => true]);
     exit();

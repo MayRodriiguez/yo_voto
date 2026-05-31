@@ -32,17 +32,54 @@ if ($userData) $user = $userData;
 $yaVoto = $userModel->yaVoto($user['id']);
 $candidatos = $candidatoModel->getAllActivos();
 
+// Verificar horario de votación
+$config = [];
+$resConfig = $conn->query("SELECT clave, valor FROM configuracion");
+while ($row = $resConfig->fetch_assoc()) { $config[$row['clave']] = $row['valor']; }
+
+$fechaVotacion = $config['fecha_votacion'] ?? '';
+$horaApertura  = $config['hora_apertura']  ?? '08:00';
+$horaCierre    = $config['hora_cierre']    ?? '16:00';
+
+$votacionAbierta = false;
+$mensajeHorario  = '';
+
+if ($fechaVotacion) {
+    $ahora       = new DateTime();
+    $fechaHoy    = $ahora->format('Y-m-d');
+    $horaActual  = $ahora->format('H:i');
+
+    if ($fechaHoy < $fechaVotacion) {
+        $mensajeHorario = '⏳ La votación aún no ha comenzado. Fecha programada: <strong>' . date('d/m/Y', strtotime($fechaVotacion)) . '</strong> desde las <strong>' . $horaApertura . '</strong>.';
+    } elseif ($fechaHoy > $fechaVotacion) {
+        $mensajeHorario = '🔒 El período de votación ha finalizado.';
+    } elseif ($horaActual < $horaApertura) {
+        $mensajeHorario = '⏳ La votación abre a las <strong>' . $horaApertura . '</strong>. Vuelve más tarde.';
+    } elseif ($horaActual > $horaCierre) {
+        $mensajeHorario = '🔒 La votación cerró a las <strong>' . $horaCierre . '</strong>.';
+    } else {
+        $votacionAbierta = true;
+    }
+} else {
+    $mensajeHorario = '⏳ El administrador aún no ha programado la fecha de votación.';
+}
+
 $mensaje = $_SESSION['mensaje_voto'] ?? '';
 $error = $_SESSION['error_voto'] ?? '';
 unset($_SESSION['mensaje_voto'], $_SESSION['error_voto']);
 
-// Obtener candidato votado si ya votó
+// Obtener candidato votado y fecha/hora exacta del voto
 $candidatoVotado = null;
+$fechaVoto = null;
 if ($yaVoto || $mensaje) {
-    $stmtVoto = $conn->prepare("SELECT c.nombre, c.partido, c.foto_url FROM votos v JOIN candidatos c ON v.id_candidato = c.id_candidato WHERE v.id_usuario = ? ORDER BY v.id DESC LIMIT 1");
+    $stmtVoto = $conn->prepare("SELECT c.nombre, c.partido, c.foto_url, v.fecha_voto FROM votos v JOIN candidatos c ON v.id_candidato = c.id_candidato WHERE v.id_usuario = ? ORDER BY v.id_voto DESC LIMIT 1");
     $stmtVoto->bind_param("i", $user['id']);
     $stmtVoto->execute();
-    $candidatoVotado = $stmtVoto->get_result()->fetch_assoc();
+    $res = $stmtVoto->get_result()->fetch_assoc();
+    if ($res) {
+        $candidatoVotado = $res;
+        $fechaVoto = $res['fecha_voto'];
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -122,18 +159,10 @@ if ($yaVoto || $mensaje) {
         .btn-print { display: inline-flex; align-items: center; gap: 8px; background: #FF6B00; color: #fff; padding: 11px 22px; border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 700; border: none; cursor: pointer; transition: .2s; margin: 6px; font-family: 'Open Sans', sans-serif; }
         .btn-print:hover { background: #FF8C38; }
 
-        /* CERTIFICADO DE SUFRAGIO */
+        /* CERTIFICADO */
         .certificado-wrap { margin: 24px auto; max-width: 680px; }
-        #certificado {
-            background: #fff; border-radius: 12px; padding: 0;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-            overflow: hidden; font-family: Arial, sans-serif;
-            border: 3px solid #1a3a7a;
-        }
-        .cert-header {
-            background: #1a3a7a; color: #fff;
-            padding: 16px 24px; display: flex; align-items: center; justify-content: space-between;
-        }
+        #certificado { background: #fff; border-radius: 12px; padding: 0; box-shadow: 0 8px 32px rgba(0,0,0,0.4); overflow: hidden; font-family: Arial, sans-serif; border: 3px solid #1a3a7a; }
+        .cert-header { background: #1a3a7a; color: #fff; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
         .cert-header-left { display: flex; align-items: center; gap: 14px; }
         .cert-ted-logo { background: #fff; color: #1a3a7a; font-weight: 900; font-size: 14px; padding: 6px 10px; border-radius: 4px; letter-spacing: 1px; }
         .cert-header-title { text-align: right; }
@@ -147,9 +176,8 @@ if ($yaVoto || $mensaje) {
         .cert-datos { flex: 1; }
         .cert-row { display: flex; gap: 8px; padding: 7px 0; border-bottom: 1px solid #e8e8e8; font-size: 13px; }
         .cert-row:last-child { border-bottom: none; }
-        .cert-label { color: #555; font-weight: 700; min-width: 110px; flex-shrink: 0; }
+        .cert-label { color: #555; font-weight: 700; min-width: 120px; flex-shrink: 0; }
         .cert-valor { color: #111; font-weight: 600; }
-        .cert-num-grande { font-size: 52px; font-weight: 900; color: #1a3a7a; text-align: center; margin: 4px 0; line-height: 1; }
         .cert-qr-col { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
         .cert-footer { background: #f5f5f5; border-top: 2px solid #1a3a7a; padding: 10px 24px; display: flex; justify-content: space-between; align-items: center; }
         .cert-footer-text { font-size: 10px; color: #777; }
@@ -163,16 +191,13 @@ if ($yaVoto || $mensaje) {
             #certificado, #certificado * { visibility: visible; }
             #certificado { position: fixed; top: 0; left: 0; width: 100%; box-shadow: none; border: 2px solid #1a3a7a; }
         }
-
         @media (max-width: 768px) {
             .navbar { padding: 0 16px; }
             .candidatos-grid { grid-template-columns: 1fr 1fr; }
             .card-body { padding: 20px 16px; }
             .cert-body { flex-direction: column; align-items: center; }
         }
-        @media (max-width: 480px) {
-            .candidatos-grid { grid-template-columns: 1fr; }
-        }
+        @media (max-width: 480px) { .candidatos-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -187,7 +212,6 @@ if ($yaVoto || $mensaje) {
 </header>
 
 <main class="main">
-
     <div class="hero-text">
         <div class="hero-badge"><i class="fas fa-vote-yea"></i> Elecciones Generales Bolivia 2026</div>
         <h1>Emitir tu <span>Voto</span></h1>
@@ -204,23 +228,28 @@ if ($yaVoto || $mensaje) {
         </div>
         <div class="card-body">
 
-            <?php if ($mensaje || ($yaVoto && $candidatoVotado)): ?>
-            <!-- ÉXITO / YA VOTÓ -->
+            <?php if (!$votacionAbierta && !$yaVoto && !$mensaje): ?>
+            <div class="estado-box vacio" style="text-align:center;padding:36px;">
+                <i class="fas fa-clock icono" style="color:#FF8C38;font-size:48px;margin-bottom:16px;display:block;"></i>
+                <h3 style="color:#fff;margin-bottom:10px;">Votación no disponible</h3>
+                <p style="color:rgba(255,255,255,0.45);"><?= $mensajeHorario ?></p>
+                <a href="/yo_voto/mi-perfil" class="btn-outline-secondary" style="margin-top:16px;"><i class="fas fa-arrow-left"></i> Volver a mi Perfil</a>
+            </div>
+
+            <?php elseif ($mensaje || ($yaVoto && $candidatoVotado)): ?>
             <div class="estado-box exito" style="margin-bottom:24px;">
                 <i class="fas fa-check-circle icono"></i>
                 <h3>¡Voto Registrado Exitosamente!</h3>
                 <p>Tu participación fortalece la democracia boliviana.<br>A continuación tu Certificado de Sufragio.</p>
                 <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-top:16px;">
-                    <button class="btn-print" onclick="window.print()"><i class="fas fa-print"></i> Imprimir Certificado</button>
-                    <button class="btn-print" style="background:#27AE60;" onclick="descargarCertificado()"><i class="fas fa-download"></i> Guardar PDF</button>
+                    <a href="/yo_voto/certificado" style="background:#27AE60;color:#fff;padding:11px 22px;border-radius:10px;font-weight:800;font-size:14px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;"><i class="fas fa-download"></i> Descargar PDF</a>
                     <a href="/yo_voto/mi-perfil" class="btn-outline-secondary"><i class="fas fa-home"></i> Mi Perfil</a>
                 </div>
             </div>
 
-            <!-- CERTIFICADO DE SUFRAGIO -->
+            <!-- CERTIFICADO -->
             <div class="certificado-wrap">
                 <div id="certificado">
-                    <!-- HEADER -->
                     <div class="cert-header">
                         <div class="cert-header-left">
                             <div class="cert-ted-logo">TED</div>
@@ -236,19 +265,14 @@ if ($yaVoto || $mensaje) {
                         </div>
                     </div>
 
-                    <!-- BODY -->
                     <div class="cert-body">
                         <!-- FOTO -->
                         <div class="cert-foto-col">
                             <img src="/yo_voto/<?= htmlspecialchars($user['foto_url'] ?? 'uploads/img/sin_foto.jpg') ?>"
-                                 class="cert-foto"
-                                 onerror="this.src='/yo_voto/uploads/img/sin_foto.jpg'">
+                                 class="cert-foto" onerror="this.src='/yo_voto/uploads/img/sin_foto.jpg'">
                             <div class="cert-ci-label">C.I.</div>
                             <div class="cert-ci-num"><?= htmlspecialchars($user['carnet']) ?></div>
-                            <?php
-                                $ext = $user['extension'] ?? '';
-                                if ($ext) echo '<div class="cert-ci-num" style="font-size:11px;">' . htmlspecialchars($ext) . '</div>';
-                            ?>
+                            <?php $ext = $user['extension'] ?? ''; if ($ext) echo '<div class="cert-ci-num" style="font-size:11px;">' . htmlspecialchars($ext) . '</div>'; ?>
                         </div>
 
                         <!-- DATOS -->
@@ -263,22 +287,20 @@ if ($yaVoto || $mensaje) {
                             </div>
                             <div class="cert-row">
                                 <span class="cert-label">Fecha Nac.:</span>
-                                <span class="cert-valor">
-                                    <?php
-                                        $fn = $user['fecha_nacimiento'] ?? '';
-                                        echo $fn ? date('d/m/Y', strtotime($fn)) : '—';
-                                    ?>
-                                </span>
+                                <span class="cert-valor"><?php $fn = $user['fecha_nacimiento'] ?? ''; echo $fn ? date('d/m/Y', strtotime($fn)) : '—'; ?></span>
                             </div>
                             <div class="cert-row">
-                                <span class="cert-label">Recinto:</span>
-                                <span class="cert-valor"><?= htmlspecialchars($user['recinto'] ?? 'U.E. Bolivia') ?></span>
+                                <span class="cert-label">Celular:</span>
+                                <span class="cert-valor"><?= htmlspecialchars($user['telefono'] ?? '—') ?></span>
                             </div>
                             <div class="cert-row">
-                                <span class="cert-label">N° Mesa:</span>
-                                <span class="cert-valor"><?= htmlspecialchars($user['numero_mesa'] ?? '1') ?></span>
+                                <span class="cert-label">Fecha de Voto:</span>
+                                <span class="cert-valor"><?= $fechaVoto ? date('d/m/Y', strtotime($fechaVoto)) : date('d/m/Y') ?></span>
                             </div>
-                            <div class="cert-num-grande"><?= htmlspecialchars($user['numero_mesa'] ?? '1') ?></div>
+                            <div class="cert-row">
+                                <span class="cert-label">Hora de Voto:</span>
+                                <span class="cert-valor"><?= $fechaVoto ? date('H:i:s', strtotime($fechaVoto)) : date('H:i:s') ?></span>
+                            </div>
                         </div>
 
                         <!-- QR -->
@@ -289,11 +311,10 @@ if ($yaVoto || $mensaje) {
                         </div>
                     </div>
 
-                    <!-- FOOTER -->
                     <div class="cert-footer">
                         <div class="cert-footer-text">
                             Reg: <?= htmlspecialchars($user['numero_registro'] ?? '') ?><br>
-                            Generado: <?= date('d/m/Y H:i') ?>
+                            Generado: <?= date('d/m/Y H:i:s') ?>
                         </div>
                         <div class="cert-sello">
                             ✓ SUFRAGIO VÁLIDO<br>
@@ -304,11 +325,56 @@ if ($yaVoto || $mensaje) {
             </div>
 
             <?php elseif ($yaVoto): ?>
-            <div class="estado-box ya-voto">
-                <i class="fas fa-exclamation-circle icono"></i>
-                <h3>Ya Has Emitido tu Voto</h3>
-                <p>Cada ciudadano puede votar una sola vez.</p>
-                <a href="/yo_voto/mi-perfil" class="btn-outline-secondary"><i class="fas fa-arrow-left"></i> Volver a mi Perfil</a>
+            <div class="estado-box exito" style="margin-bottom:24px;">
+                <i class="fas fa-check-circle icono"></i>
+                <h3>Ya Emitiste tu Voto</h3>
+                <p>A continuación tu Certificado de Sufragio.</p>
+                <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-top:16px;">
+                    <a href="/yo_voto/certificado" style="background:#27AE60;color:#fff;padding:11px 22px;border-radius:10px;font-weight:800;font-size:14px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;"><i class="fas fa-download"></i> Descargar PDF</a>
+                    <a href="/yo_voto/mi-perfil" class="btn-outline-secondary"><i class="fas fa-home"></i> Mi Perfil</a>
+                </div>
+            </div>
+
+            <div class="certificado-wrap">
+                <div id="certificado">
+                    <div class="cert-header">
+                        <div class="cert-header-left">
+                            <div class="cert-ted-logo">TED</div>
+                            <div>
+                                <div style="font-size:11px;color:rgba(255,255,255,0.7);">Tribunal Electoral</div>
+                                <div style="font-size:11px;color:rgba(255,255,255,0.7);">Departamental</div>
+                            </div>
+                        </div>
+                        <div class="cert-header-title">
+                            <h2>CERTIFICADO DE SUFRAGIO</h2>
+                            <p>Elecciones Generales Bolivia 2026</p>
+                            <p><?= date('d \d\e F \d\e Y') ?></p>
+                        </div>
+                    </div>
+                    <div class="cert-body">
+                        <div class="cert-foto-col">
+                            <img src="/yo_voto/<?= htmlspecialchars($user['foto_url'] ?? 'uploads/img/sin_foto.jpg') ?>" class="cert-foto" onerror="this.src='/yo_voto/uploads/img/sin_foto.jpg'">
+                            <div class="cert-ci-label">C.I.</div>
+                            <div class="cert-ci-num"><?= htmlspecialchars($user['carnet']) ?></div>
+                        </div>
+                        <div class="cert-datos">
+                            <div class="cert-row"><span class="cert-label">Nombres:</span><span class="cert-valor"><?= htmlspecialchars($user['nombres']) ?></span></div>
+                            <div class="cert-row"><span class="cert-label">Apellidos:</span><span class="cert-valor"><?= htmlspecialchars($user['apellidos']) ?></span></div>
+                            <div class="cert-row"><span class="cert-label">Fecha Nac.:</span><span class="cert-valor"><?= $user['fecha_nacimiento'] ? date('d/m/Y', strtotime($user['fecha_nacimiento'])) : '—' ?></span></div>
+                            <div class="cert-row"><span class="cert-label">Celular:</span><span class="cert-valor"><?= htmlspecialchars($user['telefono'] ?? '—') ?></span></div>
+                            <div class="cert-row"><span class="cert-label">Fecha de Voto:</span><span class="cert-valor"><?= $fechaVoto ? date('d/m/Y', strtotime($fechaVoto)) : date('d/m/Y') ?></span></div>
+                            <div class="cert-row"><span class="cert-label">Hora de Voto:</span><span class="cert-valor"><?= $fechaVoto ? date('H:i:s', strtotime($fechaVoto)) : '—' ?></span></div>
+                        </div>
+                        <div class="cert-qr-col">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=YOVOTO-<?= $user['carnet'] ?>-<?= date('Y') ?>" width="80" height="80" alt="QR" style="border:1px solid #ddd;">
+                            <div style="font-size:9px;color:#999;margin-top:4px;text-align:center;">Verificación<br>Digital</div>
+                        </div>
+                    </div>
+                    <div class="cert-footer">
+                        <div class="cert-footer-text">Reg: <?= htmlspecialchars($user['numero_registro'] ?? '') ?><br>Generado: <?= date('d/m/Y H:i:s') ?></div>
+                        <div class="cert-sello">✓ SUFRAGIO VÁLIDO<br>Sistema Electoral Bolivia 2026</div>
+                    </div>
+                </div>
             </div>
 
             <?php elseif (empty($candidatos)): ?>
@@ -350,7 +416,6 @@ if ($yaVoto || $mensaje) {
 
         </div>
     </div>
-
 </main>
 
 <footer>
@@ -382,11 +447,6 @@ if ($yaVoto || $mensaje) {
                 e.preventDefault();
             }
         });
-    }
-
-    async function descargarCertificado() {
-        // Usar html2canvas si está disponible, sino imprimir
-        window.print();
     }
 </script>
 </body>

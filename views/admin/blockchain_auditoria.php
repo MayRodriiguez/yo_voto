@@ -17,15 +17,7 @@ $blockchainVote = new BlockchainVote($conn);
 
 $estadisticas = $blockchainVote->getEstadisticas();
 
-$sql = "SELECT u.id, u.numero_registro, u.nombres, u.apellidos, u.carnet,
-            v.fecha_voto, b.indice as bloque_indice, b.hash_bloque
-        FROM usuarios u
-        INNER JOIN votos v ON u.id = v.id_usuario
-        LEFT JOIN blockchain_votos b ON b.indice = (
-            SELECT MAX(indice) FROM blockchain_votos WHERE JSON_EXTRACT(datos_voto, '$.carnet_hash') = SHA2(CONCAT(u.carnet, 'SALT_SECRETO_VOTO'), 256)
-        )
-        WHERE u.rol = 'usuario' AND u.ya_voto = 1
-        ORDER BY v.fecha_voto DESC";
+$sql = "SELECT u.carnet, u.departamento, v.fecha_voto FROM usuarios u INNER JOIN votos v ON u.id = v.id_usuario WHERE u.rol = 'usuario' AND u.ya_voto = 1 ORDER BY v.fecha_voto DESC";
 
 $votantes = $conn->query($sql);
 $totalVotantes = $votantes ? $votantes->num_rows : 0;
@@ -83,10 +75,8 @@ $cadenaValida = $blockchainVote->verificarIntegridad();
             <h3><i class="fas fa-vote-yea"></i> Yo Voto</h3>
             <p>Sistema Electoral Bolivia</p>
         </div>
-        <a href="/yo_voto/admin/dashboard" class="sidebar-menu-item"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-        <a href="/yo_voto/admin/registro" class="sidebar-menu-item"><i class="fas fa-user-check"></i> Gestionar Ciudadanos</a>
+        <a href="/yo_voto/admin/dashboard" class="sidebar-menu-item"><i class="fas fa-tachometer-alt"></i> Panel Principal</a>
         <a href="/yo_voto/candidatos" class="sidebar-menu-item"><i class="fas fa-users"></i> Candidatos</a>
-        <a href="/yo_voto/jurados" class="sidebar-menu-item"><i class="fas fa-gavel"></i> Jurados</a>
         <a href="/yo_voto/admin/resultados" class="sidebar-menu-item"><i class="fas fa-chart-bar"></i> Resultados</a>
         <a href="/yo_voto/admin/blockchain" class="sidebar-menu-item active"><i class="fas fa-vote-yea"></i> Registro de Votaciones</a>
     </div>
@@ -116,32 +106,25 @@ $cadenaValida = $blockchainVote->verificarIntegridad();
 
         <div class="card">
             <h3><i class="fas fa-users"></i> Ciudadanos que ya emitieron su voto</h3>
-            <div class="alert-info" style="margin-bottom:18px;">
-                <i class="fas fa-shield-alt"></i>
-                <strong>Voto Secreto:</strong> Se muestra quién votó, pero NO por quién votó. El voto es anónimo y seguro.
-            </div>
+
             <?php if ($totalVotantes > 0): ?>
             <div class="table-responsive">
                 <table>
                     <thead>
                         <tr>
-                            <th><i class="fas fa-qrcode"></i> N° Registro</th>
-                            <th><i class="fas fa-user"></i> Nombre Completo</th>
                             <th><i class="fas fa-id-card"></i> Carnet</th>
                             <th><i class="fas fa-calendar"></i> Fecha de Voto</th>
-                            <th><i class="fas fa-link"></i> Hash Blockchain</th>
-                            <th><i class="fas fa-cube"></i> Bloque</th>
+                            <th><i class="fas fa-clock"></i> Hora de Voto</th>
+                            <th><i class="fas fa-map-marker-alt"></i> Departamento</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php while ($votante = $votantes->fetch_assoc()): ?>
                         <tr>
-                            <td><strong><?= htmlspecialchars($votante['numero_registro'] ?? 'N/A') ?></strong></td>
-                            <td><?= htmlspecialchars($votante['nombres'] . ' ' . $votante['apellidos']) ?></td>
                             <td><?= htmlspecialchars($votante['carnet']) ?></td>
-                            <td><?= date('d/m/Y H:i:s', strtotime($votante['fecha_voto'])) ?></td>
-                            <td><span class="hash-text" title="<?= htmlspecialchars($votante['hash_bloque'] ?? '') ?>"><?= substr($votante['hash_bloque'] ?? 'N/A', 0, 16) ?>...</span></td>
-                            <td>#<?= $votante['bloque_indice'] ?? 'N/A' ?></td>
+                            <td><?= date('d/m/Y', strtotime($votante['fecha_voto'])) ?></td>
+                            <td><?= date('H:i:s', strtotime($votante['fecha_voto'])) ?></td>
+                            <td><?= htmlspecialchars($votante['departamento'] ?? '—') ?></td>
                         </tr>
                         <?php endwhile; ?>
                     </tbody>
@@ -152,12 +135,7 @@ $cadenaValida = $blockchainVote->verificarIntegridad();
             <?php endif; ?>
         </div>
 
-        <div class="card">
-            <h3><i class="fas fa-cubes"></i> Últimos Bloques Registrados</h3>
-            <div id="ultimos-bloques" style="text-align:center;color:rgba(255,255,255,0.3);padding:20px;">
-                <i class="fas fa-spinner fa-spin"></i> Cargando...
-            </div>
-        </div>
+
     </div>
 
     <footer><p>🗳️ <span>Yo Voto</span> — Sistema Electoral Bolivia 2026 · Blockchain verificable · Voto secreto garantizado</p></footer>
