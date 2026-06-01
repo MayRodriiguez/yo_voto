@@ -60,11 +60,11 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['rol'] != 'admin') {
             <p>Sistema Electoral Bolivia</p>
         </div>
         <a href="/yo_voto/admin/dashboard" class="sidebar-menu-item"><i class="fas fa-tachometer-alt"></i> Panel Principal</a>
+        <a href="/yo_voto/admin/ciudadanos" class="sidebar-menu-item"><i class="fas fa-user-check"></i> Gestionar Ciudadanos</a>
         <a href="/yo_voto/candidatos" class="sidebar-menu-item active"><i class="fas fa-users"></i> Candidatos</a>
         <a href="/yo_voto/admin/resultados" class="sidebar-menu-item"><i class="fas fa-chart-bar"></i> Resultados</a>
         <a href="/yo_voto/admin/blockchain" class="sidebar-menu-item"><i class="fas fa-vote-yea"></i> Registro de Votaciones</a>
     </div>
-
     <div class="main-content">
         <div class="top-bar">
             <div class="page-title"><i class="fas fa-users"></i> Gestión de Candidatos</div>

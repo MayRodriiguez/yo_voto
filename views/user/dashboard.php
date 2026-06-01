@@ -96,7 +96,7 @@ $user = $_SESSION['user'];
     <div class="hero-text">
         <div class="hero-badge"><i class="fas fa-shield-alt"></i> Panel del Ciudadano</div>
         <h1>Bienvenido, <span><?= htmlspecialchars($user['nombres']) ?></span></h1>
-        <p>Tu voto es importante para nuestra Bolivia </p>
+        <p>Tu voz es importante para la democracia de Bolivia</p>
     </div>
 
     <div class="card">
@@ -167,7 +167,7 @@ $user = $_SESSION['user'];
             <div style="margin-top:8px;background:rgba(39,174,96,0.08);border:1px solid rgba(39,174,96,0.2);border-radius:16px;padding:28px;text-align:center;">
                 <i class="fas fa-check-circle" style="font-size:44px;color:#5cdb95;display:block;margin-bottom:14px;"></i>
                 <h3 style="font-family:'Montserrat',sans-serif;font-weight:800;color:#fff;font-size:18px;margin-bottom:8px;">Gracias por participar</h3>
-                <p style="color:rgba(255,255,255,0.45);font-size:14px;margin-bottom:20px;">Ya has emitido tu voto</p>
+                <p style="color:rgba(255,255,255,0.45);font-size:14px;margin-bottom:20px;">Ya has emitido tu voto en este proceso electoral. Tu participación fortalece la democracia boliviana.</p>
                 <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
                     <a href="/yo_voto/certificado" style="background:#FF6B00;color:#fff;padding:11px 22px;border-radius:10px;font-weight:800;font-size:14px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;">
                         <i class="fas fa-download"></i> Descargar Certificado
@@ -198,5 +198,66 @@ $user = $_SESSION['user'];
     <p>🗳️ <span>Yo Voto</span> — Sistema Electoral Bolivia 2026 · Democracia y Transparencia</p>
 </footer>
 
+
+<!-- CHATBOT CON FIREBASE -->
+<style>
+    #chatbot-widget { position: fixed; bottom: 20px; right: 20px; z-index: 9999; font-family: "Open Sans", sans-serif; }
+    #chatbot-toggle { background: #FF6B00; color: white; border: none; border-radius: 50%; width: 60px; height: 60px; font-size: 24px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: transform 0.3s; }
+    #chatbot-toggle:hover { transform: scale(1.1); }
+    #chatbot-window { display: none; width: 360px; height: 500px; background: #0d2251; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.3); flex-direction: column; overflow: hidden; position: absolute; bottom: 80px; right: 0; border: 1px solid rgba(255,255,255,0.1); }
+    #chatbot-header { background: #FF6B00; color: white; padding: 15px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+    #chatbot-close { background: none; border: none; color: white; cursor: pointer; font-size: 18px; }
+    #chatbot-messages { flex: 1; padding: 15px; overflow-y: auto; background: #0a1628; display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth; }
+    .msg-bubble { padding: 10px 14px; border-radius: 15px; max-width: 85%; font-size: 13px; line-height: 1.5; word-wrap: break-word; }
+    .msg-user { background: #FF6B00; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+    .msg-bot { background: #1a2a4a; color: #e2e8f0; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid rgba(255,107,0,0.3); }
+    .quick-buttons { padding: 12px; background: #0d2251; border-top: 1px solid rgba(255,255,255,0.1); display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .chat-btn-option { background: rgba(255,107,0,0.1); border: 1px solid rgba(255,107,0,0.3); color: #FF8C38; padding: 8px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+    .chat-btn-option:hover { background: #FF6B00; color: white; }
+</style>
+<div id="chatbot-widget">
+    <button id="chatbot-toggle"><i class="fas fa-headset"></i></button>
+    <div id="chatbot-window">
+        <div id="chatbot-header"><span>🤖 Soporte Yo Voto</span><button id="chatbot-close"><i class="fas fa-times"></i></button></div>
+        <div id="chatbot-messages"><div class="msg-bubble msg-bot">👋 ¡Hola! Soy el asistente virtual de Yo Voto. ¿En qué puedo ayudarte?</div></div>
+        <div class="quick-buttons">
+            <button class="chat-btn-option" data-opcion="como_votar">🗳️ ¿Cómo votar?</button>
+            <button class="chat-btn-option" data-opcion="candidatos">👥 Candidatos</button>
+            <button class="chat-btn-option" data-opcion="habilitacion">⏳ Habilitación</button>
+        </div>
+    </div>
+</div>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const windowEl = document.getElementById("chatbot-window");
+    const toggleBtn = document.getElementById("chatbot-toggle");
+    const closeBtn = document.getElementById("chatbot-close");
+    const messagesEl = document.getElementById("chatbot-messages");
+    const firebaseConfig = { apiKey: "AIzaSyC_0G2wLZF_m0bYRpuBXVsMNbbwr_F1rPw", authDomain: "yo-voto-chat.firebaseapp.com", projectId: "yo-voto-chat", storageBucket: "yo-voto-chat.firebasestorage.app", messagingSenderId: "840603390342", appId: "1:840603390342:web:b2ca302b5e78f4995edc07", databaseURL: "https://yo-voto-chat-default-rtdb.firebaseio.com/" };
+    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+    const database = firebase.database();
+    const chatUserId = "guest_" + Math.random().toString(36).substr(2, 9);
+    const chatRef = database.ref("chats/" + chatUserId);
+    chatRef.on("child_added", (snapshot) => { const msg = snapshot.val(); if (!msg.temporal) { const div = document.createElement("div"); div.className = "msg-bubble " + (msg.emisor === "user" ? "msg-user" : "msg-bot"); div.innerHTML = msg.texto; messagesEl.appendChild(div); messagesEl.scrollTop = messagesEl.scrollHeight; } });
+    async function askBot(opcion) {
+        const btn = document.querySelector(".chat-btn-option[data-opcion='" + opcion + "']");
+        const displayText = btn ? btn.innerText : opcion;
+        await chatRef.push().set({ texto: displayText, emisor: "user", timestamp: firebase.database.ServerValue.TIMESTAMP });
+        const tempRef = chatRef.push();
+        await tempRef.set({ texto: "Pensando...", emisor: "bot", temporal: true });
+        try {
+            const response = await fetch("/yo_voto/api/chatbot", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ opcion: opcion }) });
+            const data = await response.json();
+            await tempRef.remove();
+            await chatRef.push().set({ texto: data.respuesta || "Sin respuesta.", emisor: "bot", timestamp: firebase.database.ServerValue.TIMESTAMP });
+        } catch(e) { await tempRef.remove(); await chatRef.push().set({ texto: "Error de conexion.", emisor: "bot", timestamp: firebase.database.ServerValue.TIMESTAMP }); }
+    }
+    document.querySelectorAll(".chat-btn-option").forEach(btn => { btn.addEventListener("click", function(e) { e.preventDefault(); askBot(this.getAttribute("data-opcion")); }); });
+    toggleBtn.addEventListener("click", () => { windowEl.style.display = windowEl.style.display === "flex" ? "none" : "flex"; });
+    closeBtn.addEventListener("click", () => { windowEl.style.display = "none"; });
+});
+</script>
 </body>
 </html>

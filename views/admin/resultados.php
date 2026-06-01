@@ -80,7 +80,8 @@ while ($row = $result->fetch_assoc()) { $candidatos[] = $row; }
         <p>Sistema Electoral Bolivia 2026</p>
     </div>
     <a href="/yo_voto/admin/dashboard" class="sidebar-menu-item"><i class="fas fa-tachometer-alt"></i> Panel Principal</a>
-    <a href="/yo_voto/candidatos" class="sidebar-menu-item"><i class="fas fa-users"></i> Candidatos</a>
+    <a href="/yo_voto/admin/ciudadanos" class="sidebar-menu-item"><i class="fas fa-user-check"></i> Gestionar Ciudadanos</a>
+        <a href="/yo_voto/candidatos" class="sidebar-menu-item"><i class="fas fa-users"></i> Candidatos</a>
     <a href="/yo_voto/admin/resultados" class="sidebar-menu-item active"><i class="fas fa-chart-bar"></i> Resultados</a>
     <a href="/yo_voto/admin/blockchain" class="sidebar-menu-item"><i class="fas fa-vote-yea"></i> Registro de Votaciones</a>
 </div>
@@ -156,6 +157,25 @@ while ($row = $result->fetch_assoc()) { $candidatos[] = $row; }
     ");
     $datosDepto = [];
     while ($r = $depVotos->fetch_assoc()) { $datosDepto[] = $r; }
+
+    // Ganador por departamento
+    $ganadoresPorDepto = [];
+    $queryGanadores = $conn->query("
+        SELECT u.departamento, c.nombre as candidato, COUNT(v.id_voto) as votos
+        FROM usuarios u
+        INNER JOIN votos v ON u.id = v.id_usuario
+        INNER JOIN candidatos c ON v.id_candidato = c.id_candidato
+        WHERE u.rol = 'usuario' AND u.departamento IS NOT NULL AND u.departamento != ''
+        GROUP BY u.departamento, c.id_candidato
+        ORDER BY u.departamento, votos DESC
+    ");
+    $deptoActual = '';
+    while ($r = $queryGanadores->fetch_assoc()) {
+        if ($r['departamento'] !== $deptoActual) {
+            $ganadoresPorDepto[$r['departamento']] = $r;
+            $deptoActual = $r['departamento'];
+        }
+    }
     ?>
     <div class="card-box">
         <h3><i class="fas fa-chart-pie"></i> Votos por Departamento</h3>
@@ -184,14 +204,18 @@ while ($row = $result->fetch_assoc()) { $candidatos[] = $row; }
                 cutout: '65%'
             }
         });
+        const ganadoresPorDepto = <?= json_encode($ganadoresPorDepto) ?>;
         let leyenda = '';
         datosDepto.forEach((d, i) => {
             const pct = Math.round((d.total_votos / totalDep) * 100);
+            const ganador = ganadoresPorDepto[d.departamento];
+            const ganadorText = ganador ? `<div style="color:#FF8C38;font-size:12px;margin-top:2px;"><i class="fas fa-trophy" style="font-size:10px;"></i> ${ganador.candidato}</div>` : '';
             leyenda += `<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
                 <div style="width:16px;height:16px;border-radius:50%;background:${colores[i]};flex-shrink:0;"></div>
                 <div>
                     <div style="color:#fff;font-weight:700;font-size:15px;">${d.departamento}</div>
                     <div style="color:rgba(255,255,255,0.4);font-size:13px;">${d.total_votos} votos · ${pct}%</div>
+                    ${ganadorText}
                 </div>
             </div>`;
         });

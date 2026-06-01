@@ -161,10 +161,6 @@ if ($controller == 'registro-ciudadano') {
     exit();
 }
 
-if ($controller == 'certificado') {
-    require_once 'api/certificado.php';
-    exit();
-}
 if ($controller == 'blockchain-verificar') {
     require_once 'views/public/blockchain_verificar.php';
     exit();
@@ -196,6 +192,10 @@ if ($controller == 'admin' && $method == 'editar-ciudadano' && $param) {
     exit();
 }
 
+if ($controller == 'admin' && $method == 'ciudadanos') {
+    require_once 'views/admin/gestionar_ciudadanos.php';
+    exit();
+}
 if ($controller == 'admin' && $method == 'blockchain') {
     require_once 'views/admin/blockchain_auditoria.php';
     exit();

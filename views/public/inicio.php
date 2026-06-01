@@ -136,7 +136,7 @@ unset($_SESSION['error_login']);
         <div>
             <div class="hero-badge"><i class="fas fa-shield-alt"></i> Elecciones Generales Bolivia 2026</div>
             <h1 style="font-family:'Montserrat',sans-serif;font-weight:900;font-size:clamp(42px,5vw,70px);color:#fff;line-height:1.05;margin-bottom:18px;position:relative;z-index:1;">Tu Voto es<span style="color:#FF6B00;display:block;">tu Voz</span></h1>
-            <p style="font-size:17px;color:rgba(255,255,255,0.55);margin-bottom:36px;line-height:1.6;position:relative;z-index:1;">Participa en este cambio para Boliviaa</p>
+            <p style="font-size:17px;color:rgba(255,255,255,0.55);margin-bottom:36px;line-height:1.6;position:relative;z-index:1;">Participa en estas votaciones, es un cambio para Bolivia</p>
             <div style="display:flex;gap:14px;flex-wrap:wrap;position:relative;z-index:1;">
                 <?php if (!isset($_SESSION['user']) || $_SESSION['user']['rol'] != 'usuario'): ?>
                     <button class="btn-votar" onclick="mostrarModalLogin()"><i class="fas fa-vote-yea"></i> Votar Ahora</button>
@@ -146,6 +146,7 @@ unset($_SESSION['error_login']);
                     <span class="btn-votar" style="background:#27AE60;cursor:default;"><i class="fas fa-check"></i> Ya Votaste</span>
                 <?php endif; ?>
                 <a href="/yo_voto/registro" class="btn-outline"><i class="fas fa-user-plus"></i> Registrarse</a>
+                <a href="/yo_voto/login" class="btn-outline"><i class="fas fa-lock"></i> Panel Admin</a>
             </div>
         </div>
         <div>
@@ -314,7 +315,7 @@ unset($_SESSION['error_login']);
             </div>
         </div>
         <div style="text-align:center;">
-            <h3 style="font-family:'Montserrat',sans-serif;font-size:26px;font-weight:900;color:#fff;margin-bottom:12px;">Listo para participar?</h3>
+            <h3 style="font-family:'Montserrat',sans-serif;font-size:26px;font-weight:900;color:#fff;margin-bottom:12px;">¿Listo para participar?</h3>
             <p style="color:rgba(255,255,255,0.45);margin-bottom:28px;">Únete a Yo Voto y participa en las elecciones</p>
             <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
                 <a href="/yo_voto/registro" style="background:#FF6B00;color:#fff;padding:14px 32px;border-radius:10px;font-family:'Montserrat',sans-serif;font-weight:800;font-size:15px;text-decoration:none;display:inline-flex;align-items:center;gap:9px;box-shadow:0 6px 24px rgba(255,107,0,0.35);"><i class="fas fa-user-plus"></i> Crear mi cuenta</a>
@@ -474,5 +475,107 @@ unset($_SESSION['error_login']);
     });
     <?php endif; ?>
 </script>
+<!-- CHATBOT CON FIREBASE -->
+<style>
+    #chatbot-widget { position: fixed; bottom: 20px; right: 20px; z-index: 9999; font-family: "Open Sans", sans-serif; }
+    #chatbot-toggle { background: #FF6B00; color: white; border: none; border-radius: 50%; width: 60px; height: 60px; font-size: 24px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: transform 0.3s; }
+    #chatbot-toggle:hover { transform: scale(1.1); }
+    #chatbot-window { display: none; width: 360px; height: 500px; background: #0d2251; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.3); flex-direction: column; overflow: hidden; position: absolute; bottom: 80px; right: 0; border: 1px solid rgba(255,255,255,0.1); }
+    #chatbot-header { background: #FF6B00; color: white; padding: 15px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+    #chatbot-close { background: none; border: none; color: white; cursor: pointer; font-size: 18px; }
+    #chatbot-messages { flex: 1; padding: 15px; overflow-y: auto; background: #0a1628; display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth; }
+    .msg-bubble { padding: 10px 14px; border-radius: 15px; max-width: 85%; font-size: 13px; line-height: 1.5; word-wrap: break-word; }
+    .msg-user { background: #FF6B00; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+    .msg-bot { background: #1a2a4a; color: #e2e8f0; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid rgba(255,107,0,0.3); }
+    .quick-buttons { padding: 12px; background: #0d2251; border-top: 1px solid rgba(255,255,255,0.1); display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .chat-btn-option { background: rgba(255,107,0,0.1); border: 1px solid rgba(255,107,0,0.3); color: #FF8C38; padding: 8px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+    .chat-btn-option:hover { background: #FF6B00; color: white; transform: translateY(-2px); }
+</style>
+
+<div id="chatbot-widget">
+    <button id="chatbot-toggle"><i class="fas fa-headset"></i></button>
+    <div id="chatbot-window">
+        <div id="chatbot-header">
+            <span>🤖 Soporte Yo Voto</span>
+            <button id="chatbot-close"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="chatbot-messages">
+            <div class="msg-bubble msg-bot">👋 ¡Hola! Soy el asistente virtual de Yo Voto. ¿En qué puedo ayudarte?</div>
+        </div>
+        <div class="quick-buttons">
+            <button class="chat-btn-option" data-opcion="como_votar">🗳️ ¿Cómo votar?</button>
+            <button class="chat-btn-option" data-opcion="candidatos">👥 Candidatos</button>
+            <button class="chat-btn-option" data-opcion="habilitacion">⏳ Habilitación</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const windowEl = document.getElementById("chatbot-window");
+    const toggleBtn = document.getElementById("chatbot-toggle");
+    const closeBtn = document.getElementById("chatbot-close");
+    const messagesEl = document.getElementById("chatbot-messages");
+    const optionButtons = document.querySelectorAll(".chat-btn-option");
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyC_0G2wLZF_m0bYRpuBXVsMNbbwr_F1rPw",
+        authDomain: "yo-voto-chat.firebaseapp.com",
+        projectId: "yo-voto-chat",
+        storageBucket: "yo-voto-chat.firebasestorage.app",
+        messagingSenderId: "840603390342",
+        appId: "1:840603390342:web:b2ca302b5e78f4995edc07",
+        databaseURL: "https://yo-voto-chat-default-rtdb.firebaseio.com/"
+    };
+
+    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+    const database = firebase.database();
+    const chatUserId = "guest_" + Math.random().toString(36).substr(2, 9);
+    const chatRef = database.ref("chats/" + chatUserId);
+
+    chatRef.on("child_added", (snapshot) => {
+        const msg = snapshot.val();
+        if (!msg.temporal) { appendMessageUI(msg.texto, msg.emisor); scrollToBottom(); }
+    });
+
+    function appendMessageUI(text, emisor) {
+        const div = document.createElement("div");
+        div.className = "msg-bubble " + (emisor === "user" ? "msg-user" : "msg-bot");
+        div.innerHTML = text;
+        messagesEl.appendChild(div);
+    }
+
+    function scrollToBottom() { messagesEl.scrollTop = messagesEl.scrollHeight; }
+
+    async function saveMessage(text, emisor) {
+        const ref = chatRef.push();
+        await ref.set({ texto: text, emisor: emisor, timestamp: firebase.database.ServerValue.TIMESTAMP });
+    }
+
+    async function askBot(opcion) {
+        const btn = document.querySelector(".chat-btn-option[data-opcion=\"" + opcion + "\"]");
+        const displayText = btn ? btn.innerText : opcion;
+        await saveMessage(displayText, "user");
+        const tempRef = chatRef.push();
+        await tempRef.set({ texto: "<i class=\"fas fa-spinner fa-spin\"></i> Pensando...", emisor: "bot", temporal: true });
+        try {
+            const response = await fetch("/yo_voto/api/chatbot", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ opcion: opcion }) });
+            const data = await response.json();
+            await tempRef.remove();
+            await saveMessage(data.respuesta || "No se pudo obtener respuesta.", "bot");
+        } catch(error) {
+            await tempRef.remove();
+            await saveMessage("Error de conexión.", "bot");
+        }
+    }
+
+    optionButtons.forEach(btn => { btn.addEventListener("click", function(e) { e.preventDefault(); askBot(this.getAttribute("data-opcion")); }); });
+    toggleBtn.addEventListener("click", () => { windowEl.style.display = windowEl.style.display === "flex" ? "none" : "flex"; });
+    closeBtn.addEventListener("click", () => { windowEl.style.display = "none"; });
+});
+</script>
+
 </body>
 </html>
