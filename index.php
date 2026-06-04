@@ -63,15 +63,12 @@ if (strpos($_SERVER['REQUEST_URI'], '/api/') !== false) {
     } elseif (strpos($url, '/api/admin/habilitar') !== false) {
         require_once 'api/admin.php';
         exit();
-    } elseif (strpos($url, '/api/face/register') !== false || strpos($url, '/api/face/login') !== false) {
-        require_once 'api/face_routes.php';
-        exit();
     } elseif (strpos($url, '/api/blockchain') !== false) {
         require_once 'api/blockchain_api.php';
         exit();
     } elseif (strpos($url, '/api/recuperar-password') !== false || 
-              strpos($url, '/api/verificar-reset') !== false || 
-              strpos($url, '/api/nueva-password') !== false) {
+            strpos($url, '/api/verificar-reset') !== false || 
+            strpos($url, '/api/nueva-password') !== false) {
         require_once 'api/face_routes.php';
         exit();
     }

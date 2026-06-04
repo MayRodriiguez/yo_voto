@@ -174,40 +174,4 @@ if (strpos($url, '/api/nueva-password') !== false && $_SERVER['REQUEST_METHOD'] 
     }
     exit();
 }
-
-// ============================================
-// LOGIN NORMAL (sin facial)
-// ============================================
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $data = json_decode(file_get_contents('php://input'), true);
-    if (!$data) { echo json_encode(['success' => false, 'error' => 'JSON inválido']); exit(); }
-
-    $carnet   = $data['carnet'] ?? '';
-    $password = $data['password'] ?? '';
-
-    if (empty($carnet) || !ctype_digit($carnet)) {
-        echo json_encode(['success' => false, 'error' => 'Carnet inválido']);
-        exit();
-    }
-
-    $sql = "SELECT id, nombres, apellidos, carnet, password, foto_url, habilitado_voto, ya_voto, rol 
-            FROM usuarios WHERE carnet = ? AND rol = 'usuario' AND activo = 1";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $carnet);
-    $stmt->execute();
-    $user = $stmt->get_result()->fetch_assoc();
-
-    if (!$user) { echo json_encode(['success' => false, 'error' => 'Usuario no encontrado']); exit(); }
-    if ($user['habilitado_voto'] != 1) { echo json_encode(['success' => false, 'error' => 'Cuenta no habilitada para votar']); exit(); }
-    if (!password_verify($password, $user['password'])) {
-        echo json_encode(['success' => false, 'error' => 'Contraseña incorrecta']);
-        exit();
-    }
-
-    $_SESSION['user'] = $user;
-    echo json_encode(['success' => true]);
-    exit();
-}
-
-echo json_encode(['success' => false, 'error' => 'Método no permitido']);
 ?>
