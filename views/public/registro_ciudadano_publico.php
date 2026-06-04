@@ -198,9 +198,6 @@ $recintos = [
 
                 <!-- TOKEN CSRF — SEGURIDAD -->
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-                <!-- Campos requeridos por el controlador (sin facial) -->
-                <input type="hidden" name="face_registered" value="1">
-                <input type="hidden" name="face_descriptor" value="[]">
 
                 <!-- DATOS PERSONALES -->
                 <div class="sec-title"><i class="fas fa-user"></i> Datos Personales</div>
