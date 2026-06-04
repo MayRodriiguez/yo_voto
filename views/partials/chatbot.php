@@ -65,7 +65,6 @@ $chatUserId = isset($_SESSION['user']['id']) ? 'user_' . $_SESSION['user']['id']
             <button class="chat-btn-option" data-opcion="como_votar">🗳️ ¿Cómo votar?</button>
             <button class="chat-btn-option" data-opcion="candidatos">👥 Ver Candidatos</button>
             <button class="chat-btn-option" data-opcion="blockchain">🔒 Seguridad Blockchain</button>
-            <button class="chat-btn-option" data-opcion="reconocimiento_facial">👤 Reconocimiento Facial</button>
             <button class="chat-btn-option" data-opcion="habilitacion">⏳ Mi cuenta no está habilitada</button>
         </div>
     </div>

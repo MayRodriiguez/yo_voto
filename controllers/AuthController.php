@@ -19,7 +19,7 @@ class AuthController {
     }
 
     // ============================================
-    // LOGIN DE VOTANTE (con CSRF)
+    // LOGIN DE VOTANTE
     // ============================================
     public function loginVotante() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -27,7 +27,6 @@ class AuthController {
             exit();
         }
 
-        // Validar token CSRF
         $tokenEnviado = $_POST['csrf_token'] ?? '';
         $tokenSesion  = $_SESSION['csrf_token'] ?? '';
         if (empty($tokenEnviado) || $tokenEnviado !== $tokenSesion) {
@@ -35,8 +34,6 @@ class AuthController {
             header("Location: /yo_voto/");
             exit();
         }
-
-        // Regenerar token CSRF tras uso
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 
         $carnet   = trim($_POST['carnet'] ?? '');
@@ -48,8 +45,7 @@ class AuthController {
             exit();
         }
 
-        $sql  = "SELECT * FROM usuarios WHERE carnet = ? AND rol = 'usuario' AND activo = 1";
-        $stmt = $this->conn->prepare($sql);
+        $stmt = $this->conn->prepare("SELECT * FROM usuarios WHERE carnet = ? AND rol = 'usuario' AND activo = 1");
         $stmt->bind_param("s", $carnet);
         $stmt->execute();
         $user = $stmt->get_result()->fetch_assoc();
@@ -67,7 +63,7 @@ class AuthController {
         }
 
         if ($user['habilitado_voto'] != 1) {
-            $_SESSION['error_login'] = "⏳ Tu cuenta aún no está habilitada para votar. Espera la aprobación del administrador.";
+            $_SESSION['error_login'] = "⏳ Tu cuenta aún no está habilitada para votar.";
             header("Location: /yo_voto/");
             exit();
         }
@@ -78,7 +74,7 @@ class AuthController {
     }
 
     // ============================================
-    // REGISTRO DE CIUDADANO (PÚBLICO) — con CSRF
+    // REGISTRO DE CIUDADANO (PÚBLICO)
     // ============================================
     public function registroCiudadano() {
         if ($_SERVER['REQUEST_METHOD'] != 'POST') {
@@ -86,30 +82,21 @@ class AuthController {
             exit();
         }
 
-        // ── 1. Validar token CSRF ──────────────────────────────────────
         $tokenEnviado = $_POST['csrf_token'] ?? '';
         $tokenSesion  = $_SESSION['csrf_token'] ?? '';
         if (empty($tokenEnviado) || $tokenEnviado !== $tokenSesion) {
-            $_SESSION['error_registro'] = "❌ Token de seguridad inválido. Recarga la página e intenta de nuevo.";
+            $_SESSION['error_registro'] = "❌ Token de seguridad inválido.";
             header("Location: /yo_voto/registro");
             exit();
         }
-        // Regenerar token CSRF tras uso
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 
-        // ── 2. Campos obligatorios ─────────────────────────────────────
-        if (
-            empty($_POST['nombres'])   ||
-            empty($_POST['apellidos']) ||
-            empty($_POST['carnet'])    ||
-            empty($_POST['fecha_nac'])
-        ) {
+        if (empty($_POST['nombres']) || empty($_POST['apellidos']) || empty($_POST['carnet']) || empty($_POST['fecha_nac'])) {
             $_SESSION['error_registro'] = "Todos los campos obligatorios deben ser llenados";
             header("Location: /yo_voto/registro");
             exit();
         }
 
-        // ── 3. Validar carnet ─────────────────────────────────────────
         $carnet = trim($_POST['carnet']);
         if (strlen($carnet) < 5 || strlen($carnet) > 10 || !ctype_digit($carnet)) {
             $_SESSION['error_registro'] = "El carnet debe tener entre 5 y 10 dígitos numéricos";
@@ -121,21 +108,19 @@ class AuthController {
         $checkStmt->bind_param("s", $carnet);
         $checkStmt->execute();
         if ($checkStmt->get_result()->num_rows > 0) {
-            $_SESSION['error_registro'] = "El carnet {$carnet} ya está registrado en el sistema";
+            $_SESSION['error_registro'] = "El carnet {$carnet} ya está registrado";
             header("Location: /yo_voto/registro");
             exit();
         }
 
-        // ── 4. Validar edad ───────────────────────────────────────────
         $fechaNac = new DateTime($_POST['fecha_nac']);
         $edad = (new DateTime())->diff($fechaNac)->y;
         if ($edad < 18) {
-            $_SESSION['error_registro'] = "Debe ser mayor de 18 años para registrarse";
+            $_SESSION['error_registro'] = "Debe ser mayor de 18 años";
             header("Location: /yo_voto/registro");
             exit();
         }
 
-        // ── 5. Validar contraseña ─────────────────────────────────────
         $password = $_POST['password'] ?? '';
         $confirm  = $_POST['confirm_password'] ?? '';
         if (strlen($password) < 6) {
@@ -149,10 +134,6 @@ class AuthController {
             exit();
         }
 
-        // ── 6. face_descriptor vacío (facial desactivado) ─────────────
-        $face_descriptor = '[]';
-
-        // ── 7. Procesar foto si se subió (opcional) ───────────────────
         $foto_url = 'uploads/img/sin_foto.jpg';
         if (isset($_FILES['foto_rostro']) && $_FILES['foto_rostro']['error'] === 0) {
             $allowed = ['jpg', 'jpeg', 'png'];
@@ -167,56 +148,51 @@ class AuthController {
             }
         }
 
-        // ── 8. Preparar datos ─────────────────────────────────────────
-        $nombres          = trim($_POST['nombres']);
-        $apellidos        = trim($_POST['apellidos']);
+        $nombres         = trim($_POST['nombres']);
+        $apellidos       = trim($_POST['apellidos']);
         $fecha_nacimiento = $_POST['fecha_nac'];
-        $direccion        = trim($_POST['direccion'] ?? '');
-        $telefono         = trim($_POST['telefono'] ?? '');
-        $email            = !empty($_POST['email']) ? trim($_POST['email']) : $carnet . '@yovoto.com';
-        $recinto          = trim($_POST['recinto'] ?? 'U.E. Bolivia');
-        $numero_mesa      = intval($_POST['numero_mesa'] ?? 1);
+        $direccion       = trim($_POST['direccion'] ?? '');
+        $telefono        = trim($_POST['telefono'] ?? '');
+        $email           = !empty($_POST['email']) ? trim($_POST['email']) : $carnet . '@yovoto.com';
+        $recinto         = trim($_POST['recinto'] ?? 'U.E. Bolivia');
+        $numero_mesa     = intval($_POST['numero_mesa'] ?? 1);
+        $hashedPassword  = password_hash($password, PASSWORD_DEFAULT);
+        $numeroRegistro  = $this->generarNumeroRegistroUnico();
 
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-        $numeroRegistro = $this->generarNumeroRegistroUnico();
-
-        // ── 9. Insertar según columnas disponibles ────────────────────
         $colFoto    = $this->conn->query("SHOW COLUMNS FROM usuarios LIKE 'foto_url'");
         $colRecinto = $this->conn->query("SHOW COLUMNS FROM usuarios LIKE 'recinto'");
 
         if ($colFoto && $colFoto->num_rows > 0 && $colRecinto && $colRecinto->num_rows > 0) {
-            $sql  = "INSERT INTO usuarios (numero_registro, nombres, apellidos, carnet, fecha_nacimiento, direccion, telefono, email, password, face_descriptor, foto_url, recinto, numero_mesa, rol, habilitado_voto, ya_voto, activo)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'usuario', 0, 0, 1)";
+            $sql  = "INSERT INTO usuarios (numero_registro, nombres, apellidos, carnet, fecha_nacimiento, direccion, telefono, email, password, foto_url, recinto, numero_mesa, rol, habilitado_voto, ya_voto, activo)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'usuario', 0, 0, 1)";
             $stmt = $this->conn->prepare($sql);
-            $stmt->bind_param("ssssssssssssi",
+            $stmt->bind_param("sssssssssssi",
                 $numeroRegistro, $nombres, $apellidos, $carnet,
                 $fecha_nacimiento, $direccion, $telefono, $email,
-                $hashedPassword, $face_descriptor, $foto_url, $recinto, $numero_mesa
+                $hashedPassword, $foto_url, $recinto, $numero_mesa
             );
         } elseif ($colFoto && $colFoto->num_rows > 0) {
-            $sql  = "INSERT INTO usuarios (numero_registro, nombres, apellidos, carnet, fecha_nacimiento, direccion, telefono, email, password, face_descriptor, foto_url, rol, habilitado_voto, ya_voto, activo)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'usuario', 0, 0, 1)";
-            $stmt = $this->conn->prepare($sql);
-            $stmt->bind_param("sssssssssss",
-                $numeroRegistro, $nombres, $apellidos, $carnet,
-                $fecha_nacimiento, $direccion, $telefono, $email,
-                $hashedPassword, $face_descriptor, $foto_url
-            );
-        } else {
-            $sql  = "INSERT INTO usuarios (numero_registro, nombres, apellidos, carnet, fecha_nacimiento, direccion, telefono, email, password, face_descriptor, rol, habilitado_voto, ya_voto, activo)
+            $sql  = "INSERT INTO usuarios (numero_registro, nombres, apellidos, carnet, fecha_nacimiento, direccion, telefono, email, password, foto_url, rol, habilitado_voto, ya_voto, activo)
                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'usuario', 0, 0, 1)";
             $stmt = $this->conn->prepare($sql);
             $stmt->bind_param("ssssssssss",
                 $numeroRegistro, $nombres, $apellidos, $carnet,
                 $fecha_nacimiento, $direccion, $telefono, $email,
-                $hashedPassword, $face_descriptor
+                $hashedPassword, $foto_url
+            );
+        } else {
+            $sql  = "INSERT INTO usuarios (numero_registro, nombres, apellidos, carnet, fecha_nacimiento, direccion, telefono, email, password, rol, habilitado_voto, ya_voto, activo)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'usuario', 0, 0, 1)";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bind_param("sssssssss",
+                $numeroRegistro, $nombres, $apellidos, $carnet,
+                $fecha_nacimiento, $direccion, $telefono, $email,
+                $hashedPassword
             );
         }
 
         if ($stmt->execute()) {
-            $_SESSION['success_registro'] = "✅ ¡Registro exitoso!<br>
-                📝 Número de registro: <strong>{$numeroRegistro}</strong><br>
-                ⚠️ Su cuenta será habilitada por el administrador electoral.";
+            $_SESSION['success_registro'] = "✅ ¡Registro exitoso!<br>📝 Número de registro: <strong>{$numeroRegistro}</strong><br>⚠️ Su cuenta será habilitada por el administrador.";
         } else {
             $_SESSION['error_registro'] = "❌ Error al registrar: " . $this->conn->error;
         }
@@ -277,7 +253,7 @@ class AuthController {
         $expira          = $_SESSION['admin_codigo_expira'] ?? 0;
 
         if (time() > $expira) {
-            $error = "❌ El código ha expirado. Inicie sesión nuevamente.";
+            $error = "❌ El código ha expirado.";
             unset($_SESSION['admin_codigo_email'], $_SESSION['admin_codigo_expira'], $_SESSION['admin_user_temp']);
             require_once 'views/auth/login.php';
             return;
@@ -289,7 +265,7 @@ class AuthController {
             header("Location: /yo_voto/admin/dashboard");
             exit();
         } else {
-            $error = "❌ Código incorrecto. Intente de nuevo.";
+            $error = "❌ Código incorrecto.";
             require_once 'views/auth/verificar_codigo.php';
         }
     }
@@ -321,9 +297,6 @@ class AuthController {
         return mail($email, $asunto, $mensaje, $headers);
     }
 
-    // ============================================
-    // MÉTODOS AUXILIARES
-    // ============================================
     private function generarNumeroRegistroUnico() {
         for ($i = 0; $i < 100; $i++) {
             $numero = 'REG-' . str_pad(rand(1, 999999), 6, '0', STR_PAD_LEFT);

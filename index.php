@@ -21,7 +21,12 @@ if (strpos($_SERVER['REQUEST_URI'], '/api/chatbot') !== false) {
         $chatbot->procesarMensaje();
     } else {
         header('Content-Type: application/json');
-        echo json_encode(['opciones' => ['como_votar' => '🗳️ ¿Cómo votar?', 'candidatos' => '👥 Ver Candidatos', 'blockchain' => '🔒 Seguridad Blockchain', 'reconocimiento_facial' => '👤 Reconocimiento Facial', 'habilitacion' => '⏳ Mi cuenta no está habilitada']]);
+        echo json_encode(['opciones' => [
+            'como_votar'  => '🗳️ ¿Cómo votar?',
+            'candidatos'  => '👥 Ver Candidatos',
+            'blockchain'  => '🔒 Seguridad Blockchain',
+            'habilitacion'=> '⏳ Mi cuenta no está habilitada'
+        ]]);
     }
     exit();
 }
@@ -54,8 +59,6 @@ if (strpos($_SERVER['REQUEST_URI'], '/api/') !== false) {
         exit();
     } elseif (strpos($url, '/api/captcha') !== false) {
         $api->getCaptcha();
-    } elseif (strpos($url, '/api/verificar-jurado') !== false) {
-        $api->verificarJurado();
     } elseif (strpos($url, '/api/registrar-voto') !== false) {
         $api->registrarVoto();
     } elseif (strpos($url, '/api/estadisticas') !== false) {
@@ -66,9 +69,11 @@ if (strpos($_SERVER['REQUEST_URI'], '/api/') !== false) {
     } elseif (strpos($url, '/api/blockchain') !== false) {
         require_once 'api/blockchain_api.php';
         exit();
-    } elseif (strpos($url, '/api/recuperar-password') !== false || 
-            strpos($url, '/api/verificar-reset') !== false || 
-            strpos($url, '/api/nueva-password') !== false) {
+    } elseif (
+        strpos($url, '/api/recuperar-password') !== false ||
+        strpos($url, '/api/verificar-reset') !== false ||
+        strpos($url, '/api/nueva-password') !== false
+    ) {
         require_once 'api/face_routes.php';
         exit();
     }
@@ -85,9 +90,9 @@ $urlPath = rtrim($urlPath, '/');
 $parts = explode('/', $urlPath);
 
 $controller = isset($parts[0]) && !empty($parts[0]) ? $parts[0] : 'public';
-$method = isset($parts[1]) ? $parts[1] : 'index';
-$param = isset($parts[2]) ? $parts[2] : null;
-$param2 = isset($parts[3]) ? $parts[3] : null;
+$method  = isset($parts[1]) ? $parts[1] : 'index';
+$param   = isset($parts[2]) ? $parts[2] : null;
+$param2  = isset($parts[3]) ? $parts[3] : null;
 
 // =====================================================
 // PÚBLICO
@@ -193,6 +198,7 @@ if ($controller == 'admin' && $method == 'ciudadanos') {
     require_once 'views/admin/gestionar_ciudadanos.php';
     exit();
 }
+
 if ($controller == 'admin' && $method == 'blockchain') {
     require_once 'views/admin/blockchain_auditoria.php';
     exit();
@@ -263,16 +269,6 @@ switch ($controller) {
             $p->index($param);
         } else {
             header("Location: /yo_voto/candidatos");
-        }
-        break;
-
-    case 'jurados':
-        require_once 'controllers/JuradoController.php';
-        $j = new JuradoController();
-        if ($method == 'eliminar' && $param) {
-            $j->eliminar($param);
-        } else {
-            $j->index();
         }
         break;
 
