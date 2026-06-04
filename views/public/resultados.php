@@ -11,35 +11,6 @@ $totalVotos = $conn->query("SELECT COUNT(*) as total FROM votos")->fetch_assoc()
 $result = $conn->query("SELECT * FROM candidatos WHERE estado = 'activo' ORDER BY votos_recibidos DESC");
 $candidatos = [];
 while ($row = $result->fetch_assoc()) { $candidatos[] = $row; }
-
-// Votos por departamento
-$depVotos = $conn->query("
-    SELECT u.departamento, COUNT(v.id_voto) as total_votos
-    FROM usuarios u INNER JOIN votos v ON u.id = v.id_usuario
-    WHERE u.rol = 'usuario' AND u.departamento IS NOT NULL AND u.departamento != ''
-    GROUP BY u.departamento ORDER BY total_votos DESC
-");
-$datosDepto = [];
-while ($r = $depVotos->fetch_assoc()) { $datosDepto[] = $r; }
-
-// Candidato ganador por departamento
-$ganadoresPorDepto = [];
-$queryGanadores = $conn->query("
-    SELECT u.departamento, c.nombre as candidato, c.partido, COUNT(v.id_voto) as votos
-    FROM usuarios u
-    INNER JOIN votos v ON u.id = v.id_usuario
-    INNER JOIN candidatos c ON v.id_candidato = c.id_candidato
-    WHERE u.rol = 'usuario' AND u.departamento IS NOT NULL AND u.departamento != ''
-    GROUP BY u.departamento, c.id_candidato
-    ORDER BY u.departamento, votos DESC
-");
-$deptoActual = '';
-while ($r = $queryGanadores->fetch_assoc()) {
-    if ($r['departamento'] !== $deptoActual) {
-        $ganadoresPorDepto[$r['departamento']] = $r;
-        $deptoActual = $r['departamento'];
-    }
-}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -49,7 +20,6 @@ while ($r = $queryGanadores->fetch_assoc()) {
     <title>Resultados - Yo Voto Bolivia 2026</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family:'Open Sans',sans-serif; min-height:100vh; background:#0a1628; color:#e2e8f0; }
@@ -139,58 +109,6 @@ while ($r = $queryGanadores->fetch_assoc()) {
                             </div>
                         </div>
                     <?php endforeach; ?>
-                <?php endif; ?>
-            </div>
-        </div>
-
-        <!-- Gráfica por departamento -->
-        <div class="card">
-            <div class="card-head">
-                <div class="card-head-icon"><i class="fas fa-chart-pie"></i></div>
-                <div><h2>Votos por Departamento</h2><p>Distribución geográfica</p></div>
-            </div>
-            <div class="card-body">
-                <?php if (empty($datosDepto)): ?>
-                    <div class="no-data"><i class="fas fa-map-marker-alt"></i>Aún no hay votos con departamento registrado.</div>
-                <?php else: ?>
-                    <div style="display:flex;align-items:center;gap:40px;flex-wrap:wrap;">
-                        <canvas id="graficoDona" width="240" height="240" style="max-width:240px;max-height:240px;flex-shrink:0;"></canvas>
-                        <div id="leyenda-depto" style="flex:1;"></div>
-                    </div>
-                    <script>
-                    const datosDepto = <?= json_encode($datosDepto) ?>;
-                    const colores = ['#FF6B00','#1976D2','#27AE60','#9B59B6','#E74C3C','#F39C12','#1ABC9C','#E67E22','#3498DB'];
-                    const totalDep = datosDepto.reduce((s,d) => s + parseInt(d.total_votos), 0);
-                    const ctx = document.getElementById('graficoDona').getContext('2d');
-                    new Chart(ctx, {
-                        type: 'doughnut',
-                        data: {
-                            labels: datosDepto.map(d => d.departamento),
-                            datasets: [{ data: datosDepto.map(d => d.total_votos), backgroundColor: colores, borderWidth:0, hoverOffset:8 }]
-                        },
-                        options: {
-                            responsive: false,
-                            plugins: { legend: { display:false }, tooltip: { callbacks: { label: ctx => ` ${ctx.parsed} votos (${Math.round(ctx.parsed/totalDep*100)}%)` } } },
-                            cutout: '65%'
-                        }
-                    });
-                    const ganadoresPorDepto = <?= json_encode($ganadoresPorDepto) ?>;
-                    let leyenda = '';
-                    datosDepto.forEach((d,i) => {
-                        const pct = Math.round((d.total_votos/totalDep)*100);
-                        const ganador = ganadoresPorDepto[d.departamento];
-                        const ganadorText = ganador ? `<div style="color:#FF8C38;font-size:12px;margin-top:2px;"><i class="fas fa-trophy" style="font-size:10px;"></i> ${ganador.candidato}</div>` : '';
-                        leyenda += `<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
-                            <div style="width:16px;height:16px;border-radius:50%;background:${colores[i]};flex-shrink:0;"></div>
-                            <div>
-                                <div style="color:#fff;font-weight:700;font-size:15px;">${d.departamento}</div>
-                                <div style="color:rgba(255,255,255,0.4);font-size:13px;">${d.total_votos} votos · ${pct}%</div>
-                                ${ganadorText}
-                            </div>
-                        </div>`;
-                    });
-                    document.getElementById('leyenda-depto').innerHTML = leyenda;
-                    </script>
                 <?php endif; ?>
             </div>
         </div>
