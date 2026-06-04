@@ -77,129 +77,99 @@ class AuthController {
     // REGISTRO DE CIUDADANO (PÚBLICO)
     // ============================================
     public function registroCiudadano() {
-        if ($_SERVER['REQUEST_METHOD'] != 'POST') {
-            header("Location: /yo_voto/registro");
-            exit();
-        }
-
-        $tokenEnviado = $_POST['csrf_token'] ?? '';
-        $tokenSesion  = $_SESSION['csrf_token'] ?? '';
-        if (empty($tokenEnviado) || $tokenEnviado !== $tokenSesion) {
-            $_SESSION['error_registro'] = "❌ Token de seguridad inválido.";
-            header("Location: /yo_voto/registro");
-            exit();
-        }
-        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-
-        if (empty($_POST['nombres']) || empty($_POST['apellidos']) || empty($_POST['carnet']) || empty($_POST['fecha_nac'])) {
-            $_SESSION['error_registro'] = "Todos los campos obligatorios deben ser llenados";
-            header("Location: /yo_voto/registro");
-            exit();
-        }
-
-        $carnet = trim($_POST['carnet']);
-        if (strlen($carnet) < 5 || strlen($carnet) > 10 || !ctype_digit($carnet)) {
-            $_SESSION['error_registro'] = "El carnet debe tener entre 5 y 10 dígitos numéricos";
-            header("Location: /yo_voto/registro");
-            exit();
-        }
-
-        $checkStmt = $this->conn->prepare("SELECT id FROM usuarios WHERE carnet = ?");
-        $checkStmt->bind_param("s", $carnet);
-        $checkStmt->execute();
-        if ($checkStmt->get_result()->num_rows > 0) {
-            $_SESSION['error_registro'] = "El carnet {$carnet} ya está registrado";
-            header("Location: /yo_voto/registro");
-            exit();
-        }
-
-        $fechaNac = new DateTime($_POST['fecha_nac']);
-        $edad = (new DateTime())->diff($fechaNac)->y;
-        if ($edad < 18) {
-            $_SESSION['error_registro'] = "Debe ser mayor de 18 años";
-            header("Location: /yo_voto/registro");
-            exit();
-        }
-
-        $password = $_POST['password'] ?? '';
-        $confirm  = $_POST['confirm_password'] ?? '';
-        if (strlen($password) < 6) {
-            $_SESSION['error_registro'] = "La contraseña debe tener al menos 6 caracteres";
-            header("Location: /yo_voto/registro");
-            exit();
-        }
-        if ($password !== $confirm) {
-            $_SESSION['error_registro'] = "Las contraseñas no coinciden";
-            header("Location: /yo_voto/registro");
-            exit();
-        }
-
-        $foto_url = 'uploads/img/sin_foto.jpg';
-        if (isset($_FILES['foto_rostro']) && $_FILES['foto_rostro']['error'] === 0) {
-            $allowed = ['jpg', 'jpeg', 'png'];
-            $ext = strtolower(pathinfo($_FILES['foto_rostro']['name'], PATHINFO_EXTENSION));
-            if (in_array($ext, $allowed) && $_FILES['foto_rostro']['size'] <= 5 * 1024 * 1024) {
-                $uploadDir = 'uploads/img/';
-                if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
-                $nombreFoto = 'rostro_' . $carnet . '_' . time() . '.' . $ext;
-                if (move_uploaded_file($_FILES['foto_rostro']['tmp_name'], $uploadDir . $nombreFoto)) {
-                    $foto_url = $uploadDir . $nombreFoto;
-                }
-            }
-        }
-
-        $nombres         = trim($_POST['nombres']);
-        $apellidos       = trim($_POST['apellidos']);
-        $fecha_nacimiento = $_POST['fecha_nac'];
-        $direccion       = trim($_POST['direccion'] ?? '');
-        $telefono        = trim($_POST['telefono'] ?? '');
-        $email           = !empty($_POST['email']) ? trim($_POST['email']) : $carnet . '@yovoto.com';
-        $recinto         = trim($_POST['recinto'] ?? 'U.E. Bolivia');
-        $numero_mesa     = intval($_POST['numero_mesa'] ?? 1);
-        $hashedPassword  = password_hash($password, PASSWORD_DEFAULT);
-        $numeroRegistro  = $this->generarNumeroRegistroUnico();
-
-        $colFoto    = $this->conn->query("SHOW COLUMNS FROM usuarios LIKE 'foto_url'");
-        $colRecinto = $this->conn->query("SHOW COLUMNS FROM usuarios LIKE 'recinto'");
-
-        if ($colFoto && $colFoto->num_rows > 0 && $colRecinto && $colRecinto->num_rows > 0) {
-            $sql  = "INSERT INTO usuarios (numero_registro, nombres, apellidos, carnet, fecha_nacimiento, direccion, telefono, email, password, foto_url, recinto, numero_mesa, rol, habilitado_voto, ya_voto, activo)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'usuario', 0, 0, 1)";
-            $stmt = $this->conn->prepare($sql);
-            $stmt->bind_param("sssssssssssi",
-                $numeroRegistro, $nombres, $apellidos, $carnet,
-                $fecha_nacimiento, $direccion, $telefono, $email,
-                $hashedPassword, $foto_url, $recinto, $numero_mesa
-            );
-        } elseif ($colFoto && $colFoto->num_rows > 0) {
-            $sql  = "INSERT INTO usuarios (numero_registro, nombres, apellidos, carnet, fecha_nacimiento, direccion, telefono, email, password, foto_url, rol, habilitado_voto, ya_voto, activo)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'usuario', 0, 0, 1)";
-            $stmt = $this->conn->prepare($sql);
-            $stmt->bind_param("ssssssssss",
-                $numeroRegistro, $nombres, $apellidos, $carnet,
-                $fecha_nacimiento, $direccion, $telefono, $email,
-                $hashedPassword, $foto_url
-            );
-        } else {
-            $sql  = "INSERT INTO usuarios (numero_registro, nombres, apellidos, carnet, fecha_nacimiento, direccion, telefono, email, password, rol, habilitado_voto, ya_voto, activo)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'usuario', 0, 0, 1)";
-            $stmt = $this->conn->prepare($sql);
-            $stmt->bind_param("sssssssss",
-                $numeroRegistro, $nombres, $apellidos, $carnet,
-                $fecha_nacimiento, $direccion, $telefono, $email,
-                $hashedPassword
-            );
-        }
-
-        if ($stmt->execute()) {
-            $_SESSION['success_registro'] = "✅ ¡Registro exitoso!<br>📝 Número de registro: <strong>{$numeroRegistro}</strong><br>⚠️ Su cuenta será habilitada por el administrador.";
-        } else {
-            $_SESSION['error_registro'] = "❌ Error al registrar: " . $this->conn->error;
-        }
-
+    if ($_SERVER['REQUEST_METHOD'] != 'POST') {
         header("Location: /yo_voto/registro");
         exit();
     }
+
+    // Verificar votación activa
+    $resVotacion = $this->conn->query("SELECT valor FROM configuracion WHERE clave = 'votacion_activa'");
+    $votacionActiva = $resVotacion ? ($resVotacion->fetch_assoc()['valor'] ?? '0') : '0';
+    if ($votacionActiva != '1') {
+        $_SESSION['error_registro'] = "❌ El registro no está disponible. Las votaciones aún no han sido habilitadas.";
+        header("Location: /yo_voto/registro");
+        exit();
+    }
+
+    $tokenEnviado = $_POST['csrf_token'] ?? '';
+    $tokenSesion  = $_SESSION['csrf_token'] ?? '';
+    if (empty($tokenEnviado) || $tokenEnviado !== $tokenSesion) {
+        $_SESSION['error_registro'] = "❌ Token de seguridad inválido.";
+        header("Location: /yo_voto/registro");
+        exit();
+    }
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+
+    if (empty($_POST['nombres']) || empty($_POST['apellidos']) || empty($_POST['carnet']) || empty($_POST['fecha_nac'])) {
+        $_SESSION['error_registro'] = "Todos los campos obligatorios deben ser llenados";
+        header("Location: /yo_voto/registro");
+        exit();
+    }
+
+    $carnet = trim($_POST['carnet']);
+    if (strlen($carnet) < 5 || strlen($carnet) > 10 || !ctype_digit($carnet)) {
+        $_SESSION['error_registro'] = "El carnet debe tener entre 5 y 10 dígitos numéricos";
+        header("Location: /yo_voto/registro");
+        exit();
+    }
+
+    $checkStmt = $this->conn->prepare("SELECT id FROM usuarios WHERE carnet = ?");
+    $checkStmt->bind_param("s", $carnet);
+    $checkStmt->execute();
+    if ($checkStmt->get_result()->num_rows > 0) {
+        $_SESSION['error_registro'] = "El carnet {$carnet} ya está registrado";
+        header("Location: /yo_voto/registro");
+        exit();
+    }
+
+    $fechaNac = new DateTime($_POST['fecha_nac']);
+    $edad = (new DateTime())->diff($fechaNac)->y;
+    if ($edad < 18) {
+        $_SESSION['error_registro'] = "Debe ser mayor de 18 años";
+        header("Location: /yo_voto/registro");
+        exit();
+    }
+
+    $password = $_POST['password'] ?? '';
+    $confirm  = $_POST['confirm_password'] ?? '';
+    if (strlen($password) < 6) {
+        $_SESSION['error_registro'] = "La contraseña debe tener al menos 6 caracteres";
+        header("Location: /yo_voto/registro");
+        exit();
+    }
+    if ($password !== $confirm) {
+        $_SESSION['error_registro'] = "Las contraseñas no coinciden";
+        header("Location: /yo_voto/registro");
+        exit();
+    }
+
+    $nombres          = trim($_POST['nombres']);
+    $apellidos        = trim($_POST['apellidos']);
+    $fecha_nacimiento = $_POST['fecha_nac'];
+    $direccion        = trim($_POST['direccion'] ?? '');
+    $telefono         = trim($_POST['telefono'] ?? '');
+    $email            = !empty($_POST['email']) ? trim($_POST['email']) : $carnet . '@yovoto.com';
+    $hashedPassword   = password_hash($password, PASSWORD_DEFAULT);
+    $numeroRegistro   = $this->generarNumeroRegistroUnico();
+
+    $sql  = "INSERT INTO usuarios (numero_registro, nombres, apellidos, carnet, fecha_nacimiento, direccion, telefono, email, password, rol, habilitado_voto, ya_voto, activo)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'usuario', 0, 0, 1)";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bind_param("sssssssss",
+        $numeroRegistro, $nombres, $apellidos, $carnet,
+        $fecha_nacimiento, $direccion, $telefono, $email,
+        $hashedPassword
+    );
+
+    if ($stmt->execute()) {
+        $_SESSION['success_registro'] = "✅ ¡Registro exitoso! Tu número de registro es: <strong>{$numeroRegistro}</strong>. El administrador habilitará tu cuenta pronto.";
+    } else {
+        $_SESSION['error_registro'] = "❌ Error al registrar: " . $this->conn->error;
+    }
+
+    header("Location: /yo_voto/registro");
+    exit();
+}
 
     // ============================================
     // LOGIN DE ADMIN — PASO 1
