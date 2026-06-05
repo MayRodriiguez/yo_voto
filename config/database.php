@@ -2,6 +2,8 @@
 // config/database.php
 // NO configures sesión aquí, solo la base de datos
 
+date_default_timezone_set('America/La_Paz');
+
 class Database {
     private $host = "localhost";
     private $db_name = "yo_voto010";
