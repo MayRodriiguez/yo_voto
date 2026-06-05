@@ -275,7 +275,6 @@ $coordsDep = [
                         <div class="genero-pills">
                             <div class="genero-pill"><input type="radio" name="genero" id="g-m" value="Masculino" required><label for="g-m"><i class="fas fa-mars"></i> Masculino</label></div>
                             <div class="genero-pill"><input type="radio" name="genero" id="g-f" value="Femenino"><label for="g-f"><i class="fas fa-venus"></i> Femenino</label></div>
-                            <div class="genero-pill"><input type="radio" name="genero" id="g-o" value="Prefiero no decir"><label for="g-o"><i class="fas fa-genderless"></i> Prefiero no decir</label></div>
                         </div>
                     </div>
 
