@@ -18,9 +18,6 @@ class AuthController {
         }
     }
 
-    // ============================================
-    // LOGIN DE VOTANTE
-    // ============================================
     public function loginVotante() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header("Location: /yo_voto/");
@@ -73,16 +70,12 @@ class AuthController {
         exit();
     }
 
-    // ============================================
-    // REGISTRO DE CIUDADANO (PÚBLICO)
-    // ============================================
     public function registroCiudadano() {
         if ($_SERVER['REQUEST_METHOD'] != 'POST') {
             header("Location: /yo_voto/registro");
             exit();
         }
 
-        // Verificar votación activa + fecha y hora
         $config = [];
         $resConfig = $this->conn->query("SELECT clave, valor FROM configuracion");
         while ($row = $resConfig->fetch_assoc()) { $config[$row['clave']] = $row['valor']; }
@@ -103,18 +96,23 @@ class AuthController {
             $fechaHoyStr  = $ahora->format('Y-m-d');
             $horaAhoraStr = $ahora->format('H:i');
 
-            if ($fechaHoyStr !== $fechaVotacion) {
-                $_SESSION['error_registro'] = "📅 El registro solo está disponible el " . date('d/m/Y', strtotime($fechaVotacion)) . ".";
+            if ($fechaHoyStr < $fechaVotacion) {
+                $_SESSION['error_registro'] = "📅 El registro aún no está disponible. Comienza el " . date('d/m/Y', strtotime($fechaVotacion)) . ".";
                 header("Location: /yo_voto/registro");
                 exit();
-            }
-            if ($horaAhoraStr < $horaApertura) {
-                $_SESSION['error_registro'] = "⏰ El registro abre a las {$horaApertura}.";
-                header("Location: /yo_voto/registro");
-                exit();
-            }
-            if ($horaAhoraStr > $horaCierre) {
-                $_SESSION['error_registro'] = "🔒 El período de registro cerró a las {$horaCierre}.";
+            } elseif ($fechaHoyStr === $fechaVotacion) {
+                if ($horaAhoraStr < $horaApertura) {
+                    $_SESSION['error_registro'] = "⏰ El registro abre a las {$horaApertura}.";
+                    header("Location: /yo_voto/registro");
+                    exit();
+                }
+                if ($horaAhoraStr > $horaCierre) {
+                    $_SESSION['error_registro'] = "🔒 El período de registro cerró a las {$horaCierre}.";
+                    header("Location: /yo_voto/registro");
+                    exit();
+                }
+            } elseif ($fechaHoyStr > $fechaVotacion) {
+                $_SESSION['error_registro'] = "🔒 El período de votación ya terminó.";
                 header("Location: /yo_voto/registro");
                 exit();
             }
@@ -200,9 +198,6 @@ class AuthController {
         exit();
     }
 
-    // ============================================
-    // LOGIN DE ADMIN — PASO 1
-    // ============================================
     public function login() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (isset($_POST['codigo_verificacion'])) {
@@ -243,9 +238,6 @@ class AuthController {
         require_once 'views/auth/login.php';
     }
 
-    // ============================================
-    // LOGIN DE ADMIN — PASO 2
-    // ============================================
     private function verificarCodigoEmail() {
         $codigoIngresado = trim($_POST['codigo_verificacion'] ?? '');
         $codigoGuardado  = $_SESSION['admin_codigo_email'] ?? '';
@@ -269,9 +261,6 @@ class AuthController {
         }
     }
 
-    // ============================================
-    // ENVIAR CÓDIGO POR CORREO
-    // ============================================
     private function enviarCodigoVerificacion($email, $nombre, $codigo) {
         $asunto  = "🔐 Código de verificación - Yo Voto Admin";
         $mensaje = "

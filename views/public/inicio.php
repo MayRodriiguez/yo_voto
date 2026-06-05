@@ -9,6 +9,33 @@ if (empty($_SESSION['csrf_token'])) {
 
 $error_login = $_SESSION['error_login'] ?? null;
 unset($_SESSION['error_login']);
+
+// Estado de votación
+require_once 'config/database.php';
+$db = new Database();
+$conn = $db->getConnection();
+$config = [];
+$resConfig = $conn->query("SELECT clave, valor FROM configuracion");
+while ($row = $resConfig->fetch_assoc()) { $config[$row['clave']] = $row['valor']; }
+$votacionActiva = $config['votacion_activa'] ?? '0';
+$fechaVotacion  = $config['fecha_votacion']  ?? '';
+$horaApertura   = $config['hora_apertura']   ?? '00:00';
+$horaCierre     = $config['hora_cierre']     ?? '23:59';
+
+if ($votacionActiva == '1' && $fechaVotacion) {
+    $ahora        = new DateTime();
+    $fechaHoyStr  = $ahora->format('Y-m-d');
+    $horaAhoraStr = $ahora->format('H:i');
+    if ($fechaHoyStr < $fechaVotacion) {
+        $votacionActiva = '0';
+    } elseif ($fechaHoyStr === $fechaVotacion) {
+        if ($horaAhoraStr < $horaApertura || $horaAhoraStr > $horaCierre) {
+            $votacionActiva = '0';
+        }
+    } elseif ($fechaHoyStr > $fechaVotacion) {
+        $votacionActiva = '0';
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -44,6 +71,7 @@ unset($_SESSION['error_login']);
         .navbar-nav a:hover { color: #fff; background: rgba(255,255,255,0.08); }
         .navbar-nav .btn-registro { background: #FF6B00; color: #fff; padding: 7px 18px; border-radius: 8px; }
         .navbar-nav .btn-registro:hover { background: #FF8C38; }
+        .navbar-nav .btn-registro-cerrado { background: rgba(231,76,60,0.15); color: #ff6b6b; border: 1px solid rgba(231,76,60,0.3); padding: 7px 18px; border-radius: 8px; font-size: 14px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; cursor: not-allowed; }
         .navbar-nav .user-name { color: #FF8C38; font-size: 14px; font-weight: 600; }
 
         .hero { min-height: 100vh; background: linear-gradient(160deg, #0a1628 0%, #0d2251 40%, #1a3a7a 70%, #0d2251 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 80px 24px 40px; position: relative; overflow: hidden; }
@@ -53,6 +81,15 @@ unset($_SESSION['error_login']);
         .btn-votar:hover { background: #FF8C38; transform: translateY(-2px); color: #fff; }
         .btn-outline { background: rgba(255,255,255,0.08); color: #fff; padding: 14px 32px; border-radius: 10px; text-decoration: none; font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 15px; display: inline-flex; align-items: center; gap: 9px; transition: .25s; border: 1.5px solid rgba(255,255,255,0.2); cursor: pointer; }
         .btn-outline:hover { background: rgba(255,255,255,0.15); transform: translateY(-2px); color: #fff; }
+        .btn-outline-cerrado { background: rgba(231,76,60,0.08); color: #ff6b6b; padding: 14px 32px; border-radius: 10px; font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 15px; display: inline-flex; align-items: center; gap: 9px; border: 1.5px solid rgba(231,76,60,0.3); cursor: not-allowed; opacity: 0.7; }
+
+        .estado-votacion { display: inline-flex; align-items: center; gap: 8px; padding: 7px 18px; border-radius: 50px; font-size: 12px; font-weight: 700; margin-bottom: 20px; position: relative; z-index: 1; }
+        .estado-activo { background: rgba(39,174,96,0.15); border: 1px solid rgba(39,174,96,0.4); color: #5cdb95; }
+        .estado-inactivo { background: rgba(231,76,60,0.15); border: 1px solid rgba(231,76,60,0.3); color: #ff6b6b; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; }
+        .dot-activo { background: #5cdb95; animation: pulse 1.5s infinite; }
+        .dot-inactivo { background: #ff6b6b; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
         .modules-section { background: linear-gradient(180deg, #0d2251 0%, #0a1a3e 100%); padding: 60px 24px; }
         .modules-grid { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
@@ -125,7 +162,11 @@ unset($_SESSION['error_login']);
             <a href="/yo_voto/logout-votante"><i class="fas fa-sign-out-alt"></i> Salir</a>
         <?php else: ?>
             <a href="#" onclick="mostrarModalLogin()"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</a>
-            <a href="/yo_voto/registro" class="btn-registro"><i class="fas fa-user-plus"></i> Registrarse</a>
+            <?php if ($votacionActiva == '1'): ?>
+                <a href="/yo_voto/registro" class="btn-registro"><i class="fas fa-user-plus"></i> Registrarse</a>
+            <?php else: ?>
+                <span class="btn-registro-cerrado"><i class="fas fa-lock"></i> Registro cerrado</span>
+            <?php endif; ?>
             <a href="/yo_voto/login">Admin</a>
         <?php endif; ?>
     </nav>
@@ -135,6 +176,14 @@ unset($_SESSION['error_login']);
     <div style="position:relative;z-index:1;width:100%;max-width:1200px;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;text-align:left;">
         <div>
             <div class="hero-badge"><i class="fas fa-shield-alt"></i> Elecciones Generales Bolivia 2026</div>
+
+            <!-- Estado de votación visible -->
+            <?php if ($votacionActiva == '1'): ?>
+                <div class="estado-votacion estado-activo"><div class="dot dot-activo"></div> Votación ACTIVA</div>
+            <?php else: ?>
+                <div class="estado-votacion estado-inactivo"><div class="dot dot-inactivo"></div> Votación CERRADA</div>
+            <?php endif; ?>
+
             <h1 style="font-family:'Montserrat',sans-serif;font-weight:900;font-size:clamp(42px,5vw,70px);color:#fff;line-height:1.05;margin-bottom:18px;position:relative;z-index:1;">Tu Voto es<span style="color:#FF6B00;display:block;">tu Voz</span></h1>
             <p style="font-size:17px;color:rgba(255,255,255,0.55);margin-bottom:36px;line-height:1.6;position:relative;z-index:1;">Participa en estas votaciones, es un cambio para Bolivia</p>
             <div style="display:flex;gap:14px;flex-wrap:wrap;position:relative;z-index:1;">
@@ -145,7 +194,11 @@ unset($_SESSION['error_login']);
                 <?php else: ?>
                     <span class="btn-votar" style="background:#27AE60;cursor:default;"><i class="fas fa-check"></i> Ya Votaste</span>
                 <?php endif; ?>
-                <a href="/yo_voto/registro" class="btn-outline"><i class="fas fa-user-plus"></i> Registrarse</a>
+                <?php if ($votacionActiva == '1'): ?>
+                    <a href="/yo_voto/registro" class="btn-outline"><i class="fas fa-user-plus"></i> Registrarse</a>
+                <?php else: ?>
+                    <span class="btn-outline-cerrado"><i class="fas fa-lock"></i> Registro cerrado</span>
+                <?php endif; ?>
                 <a href="/yo_voto/login" class="btn-outline"><i class="fas fa-lock"></i> Panel Admin</a>
             </div>
         </div>
@@ -318,7 +371,11 @@ unset($_SESSION['error_login']);
             <h3 style="font-family:'Montserrat',sans-serif;font-size:26px;font-weight:900;color:#fff;margin-bottom:12px;">¿Listo para participar?</h3>
             <p style="color:rgba(255,255,255,0.45);margin-bottom:28px;">Únete a Yo Voto y participa en las elecciones</p>
             <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
-                <a href="/yo_voto/registro" style="background:#FF6B00;color:#fff;padding:14px 32px;border-radius:10px;font-family:'Montserrat',sans-serif;font-weight:800;font-size:15px;text-decoration:none;display:inline-flex;align-items:center;gap:9px;box-shadow:0 6px 24px rgba(255,107,0,0.35);"><i class="fas fa-user-plus"></i> Crear mi cuenta</a>
+                <?php if ($votacionActiva == '1'): ?>
+                    <a href="/yo_voto/registro" style="background:#FF6B00;color:#fff;padding:14px 32px;border-radius:10px;font-family:'Montserrat',sans-serif;font-weight:800;font-size:15px;text-decoration:none;display:inline-flex;align-items:center;gap:9px;box-shadow:0 6px 24px rgba(255,107,0,0.35);"><i class="fas fa-user-plus"></i> Crear mi cuenta</a>
+                <?php else: ?>
+                    <span style="background:rgba(231,76,60,0.15);color:#ff6b6b;padding:14px 32px;border-radius:10px;font-family:'Montserrat',sans-serif;font-weight:800;font-size:15px;display:inline-flex;align-items:center;gap:9px;border:1px solid rgba(231,76,60,0.3);cursor:not-allowed;"><i class="fas fa-lock"></i> Registro cerrado</span>
+                <?php endif; ?>
                 <a href="/yo_voto/resultados" style="background:rgba(255,255,255,0.08);color:#fff;padding:14px 32px;border-radius:10px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:15px;text-decoration:none;display:inline-flex;align-items:center;gap:9px;border:1.5px solid rgba(255,255,255,0.2);"><i class="fas fa-chart-bar"></i> Ver resultados</a>
             </div>
         </div>
@@ -475,6 +532,7 @@ unset($_SESSION['error_login']);
     });
     <?php endif; ?>
 </script>
+
 <!-- CHATBOT CON FIREBASE -->
 <style>
     #chatbot-widget { position: fixed; bottom: 20px; right: 20px; z-index: 9999; font-family: "Open Sans", sans-serif; }

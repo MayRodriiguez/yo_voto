@@ -22,13 +22,14 @@ if ($votacionActiva == '1' && $fechaVotacion) {
     $fechaHoyStr  = $ahora->format('Y-m-d');
     $horaAhoraStr = $ahora->format('H:i');
     if ($fechaHoyStr < $fechaVotacion) {
-        $votacionActiva = '0'; // Aún no llega el día
+        $votacionActiva = '0';
     } elseif ($fechaHoyStr === $fechaVotacion) {
         if ($horaAhoraStr < $horaApertura || $horaAhoraStr > $horaCierre) {
-            $votacionActiva = '0'; // Fuera de horario
+            $votacionActiva = '0';
         }
+    } elseif ($fechaHoyStr > $fechaVotacion) {
+        $votacionActiva = '0';
     }
-    // Si ya pasó la fecha, el admin decide cuándo cerrar manualmente
 }
 
 if (empty($_SESSION['csrf_token'])) {
