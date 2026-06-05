@@ -6,8 +6,30 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once 'config/database.php';
 $db = new Database();
 $conn = $db->getConnection();
-$resVotacion = $conn->query("SELECT valor FROM configuracion WHERE clave = 'votacion_activa'");
-$votacionActiva = $resVotacion ? ($resVotacion->fetch_assoc()['valor'] ?? '0') : '0';
+
+// Verificar votación activa + fecha y hora
+$config = [];
+$resConfig = $conn->query("SELECT clave, valor FROM configuracion");
+while ($row = $resConfig->fetch_assoc()) { $config[$row['clave']] = $row['valor']; }
+
+$votacionActiva = $config['votacion_activa'] ?? '0';
+$fechaVotacion  = $config['fecha_votacion']  ?? '';
+$horaApertura   = $config['hora_apertura']   ?? '00:00';
+$horaCierre     = $config['hora_cierre']     ?? '23:59';
+
+if ($votacionActiva == '1' && $fechaVotacion) {
+    $ahora        = new DateTime();
+    $fechaHoyStr  = $ahora->format('Y-m-d');
+    $horaAhoraStr = $ahora->format('H:i');
+    if ($fechaHoyStr < $fechaVotacion) {
+        $votacionActiva = '0'; // Aún no llega el día
+    } elseif ($fechaHoyStr === $fechaVotacion) {
+        if ($horaAhoraStr < $horaApertura || $horaAhoraStr > $horaCierre) {
+            $votacionActiva = '0'; // Fuera de horario
+        }
+    }
+    // Si ya pasó la fecha, el admin decide cuándo cerrar manualmente
+}
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -118,7 +140,6 @@ $minDate = date('Y-m-d', strtotime('-99 years'));
         <div class="card-body">
 
             <?php if ($votacionActiva != '1'): ?>
-                <!-- REGISTRO CERRADO -->
                 <div class="closed-box">
                     <i class="fas fa-lock"></i>
                     <h3>Registro no disponible</h3>
@@ -149,7 +170,6 @@ $minDate = date('Y-m-d', strtotime('-99 years'));
                 <form method="POST" action="/yo_voto/registro-ciudadano" id="registroForm" enctype="multipart/form-data">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
 
-                    <!-- DATOS PERSONALES -->
                     <div class="sec-title"><i class="fas fa-user"></i> Datos Personales</div>
                     <div class="form-grid grid-2" style="margin-bottom:14px;">
                         <div class="form-group">
@@ -177,7 +197,7 @@ $minDate = date('Y-m-d', strtotime('-99 years'));
                         <div class="form-group">
                             <label><i class="fas fa-calendar"></i> Fecha de Nacimiento <span class="req">*</span></label>
                             <div class="input-wrap"><i class="ico fas fa-calendar"></i>
-                                <input type="date" name="fecha_nac" min="<?= $minDate ?>" max="<?= $maxDate ?>" required>
+                                <input type="date" name="fecha_nac" min="<?= $minDate ?>" max="<?= $maxDate ?>" required onkeydown="return false" style="cursor:pointer;">
                             </div>
                             <small>Debes ser mayor de 18 años</small>
                         </div>
@@ -196,7 +216,6 @@ $minDate = date('Y-m-d', strtotime('-99 years'));
                         </div>
                     </div>
 
-                    <!-- CONTACTO -->
                     <div class="sec-title"><i class="fas fa-envelope"></i> Contacto</div>
                     <div class="form-group" style="margin-bottom:14px;">
                         <label><i class="fas fa-envelope"></i> Correo Electrónico <span class="req">*</span></label>
@@ -205,7 +224,6 @@ $minDate = date('Y-m-d', strtotime('-99 years'));
                         </div>
                     </div>
 
-                    <!-- SEGURIDAD -->
                     <div class="sec-title"><i class="fas fa-shield-alt"></i> Seguridad</div>
                     <div class="form-grid grid-2" style="margin-bottom:14px;">
                         <div class="form-group">
