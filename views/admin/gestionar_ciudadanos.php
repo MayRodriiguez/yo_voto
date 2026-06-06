@@ -18,16 +18,17 @@ unset($_SESSION['mensaje'], $_SESSION['error']);
 
 // Editar ciudadano
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['editar_id'])) {
-    $id         = intval($_POST['editar_id']);
-    $nombres    = $conn->real_escape_string($_POST['nombres']);
-    $apellidos  = $conn->real_escape_string($_POST['apellidos']);
-    $carnet     = $conn->real_escape_string($_POST['carnet']);
-    $email      = $conn->real_escape_string($_POST['email']);
-    $telefono   = $conn->real_escape_string($_POST['telefono']);
-    $direccion  = $conn->real_escape_string($_POST['direccion']);
+    $id           = intval($_POST['editar_id']);
+    $nombres      = $conn->real_escape_string($_POST['nombres']);
+    $apellidos    = $conn->real_escape_string($_POST['apellidos']);
+    $carnet       = $conn->real_escape_string($_POST['carnet']);
+    $email        = $conn->real_escape_string($_POST['email']);
+    $telefono     = $conn->real_escape_string($_POST['telefono']);
+    $direccion    = $conn->real_escape_string($_POST['direccion']);
     $departamento = $conn->real_escape_string($_POST['departamento']);
+    $habilitado   = intval($_POST['habilitado_voto'] ?? 0);
 
-    $sql = "UPDATE usuarios SET nombres='$nombres', apellidos='$apellidos', carnet='$carnet', email='$email', telefono='$telefono', direccion='$direccion', departamento='$departamento' WHERE id=$id AND rol='usuario'";
+    $sql = "UPDATE usuarios SET nombres='$nombres', apellidos='$apellidos', carnet='$carnet', email='$email', telefono='$telefono', direccion='$direccion', departamento='$departamento', habilitado_voto=$habilitado WHERE id=$id AND rol='usuario'";
     if ($conn->query($sql)) {
         $_SESSION['mensaje'] = "Ciudadano actualizado correctamente.";
     } else {
@@ -90,10 +91,8 @@ if (isset($_GET['editar'])) {
         tbody tr:hover { background:rgba(255,255,255,0.03); }
         .btn-editar { background:rgba(255,107,0,0.1); color:#FF8C38; border:1px solid rgba(255,107,0,0.2); padding:6px 12px; border-radius:8px; font-size:12px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:5px; transition:all 0.2s; }
         .btn-editar:hover { background:rgba(255,107,0,0.2); color:#FF6B00; }
-        .badge-si { background:rgba(39,174,96,0.15); color:#5cdb95; border:1px solid rgba(39,174,96,0.25); padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; }
-        .badge-no { background:rgba(231,76,60,0.15); color:#ff6b6b; border:1px solid rgba(231,76,60,0.2); padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; }
-
-        /* Modal editar */
+        .badge-si { background:rgba(39,174,96,0.15); color:#5cdb95; border:1px solid rgba(39,174,96,0.25); padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; cursor:pointer; }
+        .badge-no { background:rgba(231,76,60,0.15); color:#ff6b6b; border:1px solid rgba(231,76,60,0.2); padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; cursor:pointer; }
         .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:500; overflow-y:auto; padding:30px 20px; }
         .modal-overlay.open { display:block; }
         .modal-box { background:#0d1e42; border:1px solid rgba(255,255,255,0.1); border-radius:20px; max-width:600px; margin:0 auto; overflow:hidden; }
@@ -168,7 +167,13 @@ if (isset($_GET['editar'])) {
                             <td><?= htmlspecialchars($c['email']) ?></td>
                             <td><?= htmlspecialchars($c['telefono'] ?? '—') ?></td>
                             <td><?= htmlspecialchars($c['departamento'] ?? '—') ?></td>
-                            <td><?= $c['habilitado_voto'] ? '<span class="badge-si">Sí</span>' : '<span class="badge-no">No</span>' ?></td>
+                            <td>
+                                <a href="/yo_voto/admin/toggle-habilitar/<?= $c['id'] ?>"
+                                   onclick="return confirm('¿Cambiar estado de habilitación de <?= htmlspecialchars($c['nombres']) ?>?')"
+                                   style="text-decoration:none;">
+                                    <?= $c['habilitado_voto'] ? '<span class="badge-si">Sí</span>' : '<span class="badge-no">No</span>' ?>
+                                </a>
+                            </td>
                             <td><?= $c['ya_voto'] ? '<span class="badge-si">Sí</span>' : '<span class="badge-no">No</span>' ?></td>
                             <td>
                                 <a href="?editar=<?= $c['id'] ?><?= $buscar ? '&q=' . urlencode($buscar) : '' ?>" class="btn-editar">
@@ -238,6 +243,13 @@ if (isset($_GET['editar'])) {
                     <div class="form-group">
                         <label class="form-label">Dirección</label>
                         <input type="text" name="direccion" class="form-control" value="<?= htmlspecialchars($editando['direccion'] ?? '') ?>">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">¿Habilitado para votar?</label>
+                        <select name="habilitado_voto" class="form-select">
+                            <option value="1" <?= $editando['habilitado_voto'] == 1 ? 'selected' : '' ?>>Si - Puede votar</option>
+                            <option value="0" <?= $editando['habilitado_voto'] == 0 ? 'selected' : '' ?>>No - No puede votar</option>
+                        </select>
                     </div>
                     <button type="submit" class="btn-guardar"><i class="fas fa-save"></i> Guardar Cambios</button>
                 </form>
