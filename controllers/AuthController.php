@@ -114,12 +114,12 @@ class AuthController {
         $checkStmt->bind_param("s", $carnet);
         $checkStmt->execute();
         if ($checkStmt->get_result()->num_rows > 0) {
-            $_SESSION['error_registro'] = "El carnet {$carnet} ya está registrado";
+            $_SESSION['error_registro'] = "❌ El carnet {$carnet} ya está registrado.";
             header("Location: /yo_voto/registro");
             exit();
         }
 
-        //correo duplicado
+        // Validar correo duplicado
         if (!empty($_POST['email'])) {
             $emailCheck = trim($_POST['email']);
             $emailStmt  = $this->conn->prepare("SELECT id FROM usuarios WHERE email = ?");
@@ -174,22 +174,23 @@ class AuthController {
         $direccion        = trim($_POST['direccion'] ?? '');
         $telefono         = trim($_POST['telefono'] ?? '');
         $email            = !empty($_POST['email']) ? trim($_POST['email']) : $carnet . '@yovoto.com';
+        $departamento     = trim($_POST['departamento'] ?? '');
         $hashedPassword   = password_hash($password, PASSWORD_DEFAULT);
         $numeroRegistro   = $this->generarNumeroRegistroUnico();
 
-        $sql  = "INSERT INTO usuarios (numero_registro, nombres, apellidos, carnet, fecha_nacimiento, direccion, telefono, email, password, foto_url, rol, habilitado_voto, ya_voto, activo)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'usuario', 0, 0, 1)";
+        $sql  = "INSERT INTO usuarios (numero_registro, nombres, apellidos, carnet, fecha_nacimiento, direccion, telefono, email, password, foto_url, departamento, rol, habilitado_voto, ya_voto, activo)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'usuario', 0, 0, 1)";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("ssssssssss",
+        $stmt->bind_param("sssssssssss",
             $numeroRegistro, $nombres, $apellidos, $carnet,
             $fecha_nacimiento, $direccion, $telefono, $email,
-            $hashedPassword, $foto_url
+            $hashedPassword, $foto_url, $departamento
         );
 
         if ($stmt->execute()) {
-            $_SESSION['success_registro'] = " ¡Registro exitoso!";
+            $_SESSION['success_registro'] = "✅ ¡Registro exitoso!";
         } else {
-            $_SESSION['error_registro'] = " Error al registrar: " . $this->conn->error;
+            $_SESSION['error_registro'] = "❌ Error al registrar: " . $this->conn->error;
         }
 
         header("Location: /yo_voto/registro");
