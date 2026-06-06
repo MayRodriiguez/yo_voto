@@ -223,7 +223,7 @@ $coordsDep = [
                     </div>
 
                     <div class="form-group" style="margin-bottom:14px;">
-                        <label><i class="fas fa-id-card"></i> Número de CI + Extensión <span class="req">*</span></label>
+                        <label><i class="fas fa-id-card"></i> Número de CI  <span class="req">*</span></label>
                         <div class="form-grid grid-ci">
                             <div class="input-wrap"><i class="ico fas fa-id-card"></i>
                                 <input type="text" name="carnet" id="carnet" placeholder="Número de CI" maxlength="10" inputmode="numeric" required>
