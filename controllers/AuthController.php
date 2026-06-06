@@ -81,41 +81,12 @@ class AuthController {
         while ($row = $resConfig->fetch_assoc()) { $config[$row['clave']] = $row['valor']; }
 
         $votacionActiva = $config['votacion_activa'] ?? '0';
-        $fechaVotacion  = $config['fecha_votacion']  ?? '';
-        $horaApertura   = $config['hora_apertura']   ?? '00:00';
-        $horaCierre     = $config['hora_cierre']     ?? '23:59';
 
-        if ($votacionActiva != '1') {
-            $_SESSION['error_registro'] = "❌ El registro no está disponible. Las votaciones aún no han sido habilitadas.";
+        // Registro cerrado cuando votación está ACTIVA
+        if ($votacionActiva == '1') {
+            $_SESSION['error_registro'] = "❌ El registro está cerrado. Las votaciones ya han comenzado.";
             header("Location: /yo_voto/registro");
             exit();
-        }
-
-        if ($fechaVotacion) {
-            $ahora        = new DateTime();
-            $fechaHoyStr  = $ahora->format('Y-m-d');
-            $horaAhoraStr = $ahora->format('H:i');
-
-            if ($fechaHoyStr < $fechaVotacion) {
-                $_SESSION['error_registro'] = "📅 El registro aún no está disponible. Comienza el " . date('d/m/Y', strtotime($fechaVotacion)) . ".";
-                header("Location: /yo_voto/registro");
-                exit();
-            } elseif ($fechaHoyStr === $fechaVotacion) {
-                if ($horaAhoraStr < $horaApertura) {
-                    $_SESSION['error_registro'] = "⏰ El registro abre a las {$horaApertura}.";
-                    header("Location: /yo_voto/registro");
-                    exit();
-                }
-                if ($horaAhoraStr > $horaCierre) {
-                    $_SESSION['error_registro'] = "🔒 El período de registro cerró a las {$horaCierre}.";
-                    header("Location: /yo_voto/registro");
-                    exit();
-                }
-            } elseif ($fechaHoyStr > $fechaVotacion) {
-                $_SESSION['error_registro'] = "🔒 El período de votación ya terminó.";
-                header("Location: /yo_voto/registro");
-                exit();
-            }
         }
 
         $tokenEnviado = $_POST['csrf_token'] ?? '';

@@ -25,9 +25,8 @@ $conn = $db->getConnection();
 
 $url = $_SERVER['REQUEST_URI'];
 
-// ============================================
-// RECUPERAR CONTRASEÑA — PASO 1: enviar código
-// ============================================
+
+// recuperar contraseña — enviar codigo
 if (strpos($url, '/api/recuperar-password') !== false && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $data   = json_decode(file_get_contents('php://input'), true);
     $carnet = trim($data['carnet'] ?? '');
@@ -110,9 +109,8 @@ if (strpos($url, '/api/recuperar-password') !== false && $_SERVER['REQUEST_METHO
     exit();
 }
 
-// ============================================
-// RECUPERAR CONTRASEÑA — PASO 2: verificar código
-// ============================================
+
+// verificar codigo
 if (strpos($url, '/api/verificar-reset') !== false && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $data   = json_decode(file_get_contents('php://input'), true);
     $codigo = trim($data['codigo'] ?? '');
@@ -139,9 +137,7 @@ if (strpos($url, '/api/verificar-reset') !== false && $_SERVER['REQUEST_METHOD']
     exit();
 }
 
-// ============================================
-// RECUPERAR CONTRASEÑA — PASO 3: nueva contraseña
-// ============================================
+// nueva contraseña
 if (strpos($url, '/api/nueva-password') !== false && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $data      = json_decode(file_get_contents('php://input'), true);
     $password  = $data['password'] ?? '';

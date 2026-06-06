@@ -195,7 +195,7 @@ $coordsDep = [
         </div>
         <div class="card-body">
 
-            <?php if ($votacionActiva != '1'): ?>
+            <?php if ($votacionActiva == '1'): ?>
                 <div class="closed-box">
                     <i class="fas fa-lock"></i>
                     <h3>Registro no disponible</h3>
