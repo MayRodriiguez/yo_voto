@@ -59,6 +59,8 @@ if (strpos($_SERVER['REQUEST_URI'], '/api/') !== false) {
         exit();
     } elseif (strpos($url, '/api/captcha') !== false) {
         $api->getCaptcha();
+    } elseif (strpos($url, '/api/verificar-password') !== false) {
+        $api->verificarPassword();
     } elseif (strpos($url, '/api/registrar-voto') !== false) {
         $api->registrarVoto();
     } elseif (strpos($url, '/api/estadisticas') !== false) {
@@ -165,6 +167,11 @@ if ($controller == 'registro-ciudadano') {
 
 if ($controller == 'blockchain-verificar') {
     require_once 'views/public/blockchain_verificar.php';
+    exit();
+}
+
+if ($controller == 'certificado') {
+    require_once 'views/public/certificado.php';
     exit();
 }
 

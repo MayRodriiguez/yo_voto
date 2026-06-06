@@ -82,7 +82,6 @@ class AuthController {
 
         $votacionActiva = $config['votacion_activa'] ?? '0';
 
-        // Registro cerrado cuando votación está ACTIVA
         if ($votacionActiva == '1') {
             $_SESSION['error_registro'] = "❌ El registro está cerrado. Las votaciones ya han comenzado.";
             header("Location: /yo_voto/registro");
@@ -141,6 +140,21 @@ class AuthController {
             exit();
         }
 
+        // Guardar foto
+        $foto_url = 'uploads/img/sin_foto.jpg';
+        if (isset($_FILES['foto_rostro']) && $_FILES['foto_rostro']['error'] === 0) {
+            $allowed = ['jpg', 'jpeg', 'png'];
+            $ext = strtolower(pathinfo($_FILES['foto_rostro']['name'], PATHINFO_EXTENSION));
+            if (in_array($ext, $allowed) && $_FILES['foto_rostro']['size'] <= 5 * 1024 * 1024) {
+                $uploadDir = 'uploads/img/';
+                if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+                $nombreFoto = 'rostro_' . $carnet . '_' . time() . '.' . $ext;
+                if (move_uploaded_file($_FILES['foto_rostro']['tmp_name'], $uploadDir . $nombreFoto)) {
+                    $foto_url = $uploadDir . $nombreFoto;
+                }
+            }
+        }
+
         $nombres          = trim($_POST['nombres']);
         $apellidos        = trim($_POST['apellidos']);
         $fecha_nacimiento = $_POST['fecha_nac'];
@@ -150,13 +164,13 @@ class AuthController {
         $hashedPassword   = password_hash($password, PASSWORD_DEFAULT);
         $numeroRegistro   = $this->generarNumeroRegistroUnico();
 
-        $sql  = "INSERT INTO usuarios (numero_registro, nombres, apellidos, carnet, fecha_nacimiento, direccion, telefono, email, password, rol, habilitado_voto, ya_voto, activo)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'usuario', 0, 0, 1)";
+        $sql  = "INSERT INTO usuarios (numero_registro, nombres, apellidos, carnet, fecha_nacimiento, direccion, telefono, email, password, foto_url, rol, habilitado_voto, ya_voto, activo)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'usuario', 0, 0, 1)";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("sssssssss",
+        $stmt->bind_param("ssssssssss",
             $numeroRegistro, $nombres, $apellidos, $carnet,
             $fecha_nacimiento, $direccion, $telefono, $email,
-            $hashedPassword
+            $hashedPassword, $foto_url
         );
 
         if ($stmt->execute()) {

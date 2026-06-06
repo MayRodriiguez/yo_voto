@@ -130,7 +130,7 @@ class ApiController {
             return;
         }
         $data = json_decode(file_get_contents('php://input'), true);
-        $id_usuario  = $_SESSION['user']['id'];
+        $id_usuario   = $_SESSION['user']['id'];
         $id_candidato = $data['id_candidato'] ?? 0;
         $checkStmt = $this->conn->prepare("SELECT id FROM votos WHERE id_usuario = ?");
         $checkStmt->bind_param("i", $id_usuario);
@@ -162,6 +162,25 @@ class ApiController {
             'total_candidatos'=> $totalCandidatos,
             'participacion'   => $totalUsuarios > 0 ? round(($totalVotos / $totalUsuarios) * 100, 1) : 0
         ]);
+    }
+
+    public function verificarPassword() {
+        header('Content-Type: application/json');
+        if (!isset($_SESSION['user'])) {
+            echo json_encode(['success' => false, 'error' => 'No autenticado']);
+            return;
+        }
+        $data     = json_decode(file_get_contents('php://input'), true);
+        $password = $data['password'] ?? '';
+        $stmt = $this->conn->prepare("SELECT password FROM usuarios WHERE id = ?");
+        $stmt->bind_param("i", $_SESSION['user']['id']);
+        $stmt->execute();
+        $user = $stmt->get_result()->fetch_assoc();
+        if ($user && password_verify($password, $user['password'])) {
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Contraseña incorrecta']);
+        }
     }
 }
 ?>
