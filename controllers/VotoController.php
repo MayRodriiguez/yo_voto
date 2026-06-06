@@ -44,33 +44,6 @@ class VotoController {
             exit();
         }
 
-        if ($fechaVotacion) {
-            $ahora        = new DateTime();
-            $fechaHoyStr  = $ahora->format('Y-m-d');
-            $horaAhoraStr = $ahora->format('H:i');
-
-            if ($fechaHoyStr < $fechaVotacion) {
-                $_SESSION['error_login'] = "📅 La votación aún no comienza. Fecha: " . date('d/m/Y', strtotime($fechaVotacion)) . ".";
-                header("Location: /yo_voto/");
-                exit();
-            } elseif ($fechaHoyStr === $fechaVotacion) {
-                if ($horaAhoraStr < $horaApertura) {
-                    $_SESSION['error_login'] = "⏰ La votación abre a las {$horaApertura}.";
-                    header("Location: /yo_voto/");
-                    exit();
-                }
-                if ($horaAhoraStr > $horaCierre) {
-                    $_SESSION['error_login'] = "🔒 La votación cerró a las {$horaCierre}.";
-                    header("Location: /yo_voto/");
-                    exit();
-                }
-            } elseif ($fechaHoyStr > $fechaVotacion) {
-                $_SESSION['error_login'] = "🔒 El período de votación ya terminó.";
-                header("Location: /yo_voto/");
-                exit();
-            }
-        }
-
         $user    = $_SESSION['user'];
         $yaVoto  = $this->userModel->yaVoto($user['id']);
         $error   = '';

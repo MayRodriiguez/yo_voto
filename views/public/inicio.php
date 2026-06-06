@@ -18,25 +18,9 @@ $config = [];
 $resConfig = $conn->query("SELECT clave, valor FROM configuracion");
 while ($row = $resConfig->fetch_assoc()) { $config[$row['clave']] = $row['valor']; }
 $votacionActiva = $config['votacion_activa'] ?? '0';
-$fechaVotacion  = $config['fecha_votacion']  ?? '';
-$horaApertura   = $config['hora_apertura']   ?? '00:00';
-$horaCierre     = $config['hora_cierre']     ?? '23:59';
-
-if ($votacionActiva == '1' && $fechaVotacion) {
-    $ahora        = new DateTime();
-    $fechaHoyStr  = $ahora->format('Y-m-d');
-    $horaAhoraStr = $ahora->format('H:i');
-    if ($fechaHoyStr < $fechaVotacion) {
-        $votacionActiva = '0';
-    } elseif ($fechaHoyStr === $fechaVotacion) {
-        if ($horaAhoraStr < $horaApertura || $horaAhoraStr > $horaCierre) {
-            $votacionActiva = '0';
-        }
-    } elseif ($fechaHoyStr > $fechaVotacion) {
-        $votacionActiva = '0';
-    }
-}
+// La votación se controla solo con el botón del dashboard
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
