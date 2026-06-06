@@ -162,7 +162,7 @@ if ($votacionActiva == '1' && $fechaVotacion) {
             <a href="/yo_voto/logout-votante"><i class="fas fa-sign-out-alt"></i> Salir</a>
         <?php else: ?>
             <a href="#" onclick="mostrarModalLogin()"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</a>
-            <?php if ($votacionActiva == '1'): ?>
+            <?php if ($votacionActiva != '1'): ?>
                 <a href="/yo_voto/registro" class="btn-registro"><i class="fas fa-user-plus"></i> Registrarse</a>
             <?php else: ?>
                 <span class="btn-registro-cerrado"><i class="fas fa-lock"></i> Registro cerrado</span>
@@ -176,14 +176,11 @@ if ($votacionActiva == '1' && $fechaVotacion) {
     <div style="position:relative;z-index:1;width:100%;max-width:1200px;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;text-align:left;">
         <div>
             <div class="hero-badge"><i class="fas fa-shield-alt"></i> Elecciones Generales Bolivia 2026</div>
-
-            <!-- Estado de votación visible -->
             <?php if ($votacionActiva == '1'): ?>
                 <div class="estado-votacion estado-activo"><div class="dot dot-activo"></div> Votación ACTIVA</div>
             <?php else: ?>
-                <div class="estado-votacion estado-inactivo"><div class="dot dot-inactivo"></div> Votación CERRADA</div>
+                <div class="estado-votacion estado-inactivo"><div class="dot dot-inactivo"></div> Período de Registro</div>
             <?php endif; ?>
-
             <h1 style="font-family:'Montserrat',sans-serif;font-weight:900;font-size:clamp(42px,5vw,70px);color:#fff;line-height:1.05;margin-bottom:18px;position:relative;z-index:1;">Tu Voto es<span style="color:#FF6B00;display:block;">tu Voz</span></h1>
             <p style="font-size:17px;color:rgba(255,255,255,0.55);margin-bottom:36px;line-height:1.6;position:relative;z-index:1;">Participa en estas votaciones, es un cambio para Bolivia</p>
             <div style="display:flex;gap:14px;flex-wrap:wrap;position:relative;z-index:1;">
@@ -194,7 +191,7 @@ if ($votacionActiva == '1' && $fechaVotacion) {
                 <?php else: ?>
                     <span class="btn-votar" style="background:#27AE60;cursor:default;"><i class="fas fa-check"></i> Ya Votaste</span>
                 <?php endif; ?>
-                <?php if ($votacionActiva == '1'): ?>
+                <?php if ($votacionActiva != '1'): ?>
                     <a href="/yo_voto/registro" class="btn-outline"><i class="fas fa-user-plus"></i> Registrarse</a>
                 <?php else: ?>
                     <span class="btn-outline-cerrado"><i class="fas fa-lock"></i> Registro cerrado</span>
@@ -371,7 +368,7 @@ if ($votacionActiva == '1' && $fechaVotacion) {
             <h3 style="font-family:'Montserrat',sans-serif;font-size:26px;font-weight:900;color:#fff;margin-bottom:12px;">¿Listo para participar?</h3>
             <p style="color:rgba(255,255,255,0.45);margin-bottom:28px;">Únete a Yo Voto y participa en las elecciones</p>
             <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
-                <?php if ($votacionActiva == '1'): ?>
+                <?php if ($votacionActiva != '1'): ?>
                     <a href="/yo_voto/registro" style="background:#FF6B00;color:#fff;padding:14px 32px;border-radius:10px;font-family:'Montserrat',sans-serif;font-weight:800;font-size:15px;text-decoration:none;display:inline-flex;align-items:center;gap:9px;box-shadow:0 6px 24px rgba(255,107,0,0.35);"><i class="fas fa-user-plus"></i> Crear mi cuenta</a>
                 <?php else: ?>
                     <span style="background:rgba(231,76,60,0.15);color:#ff6b6b;padding:14px 32px;border-radius:10px;font-family:'Montserrat',sans-serif;font-weight:800;font-size:15px;display:inline-flex;align-items:center;gap:9px;border:1px solid rgba(231,76,60,0.3);cursor:not-allowed;"><i class="fas fa-lock"></i> Registro cerrado</span>

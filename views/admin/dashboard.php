@@ -146,9 +146,9 @@ $votacionActiva = $config['votacion_activa'] ?? '0';
 
             <!-- Estado actual -->
             <?php if ($votacionActiva == '1'): ?>
-                <div class="estado-badge estado-activo"><i class="fas fa-circle"></i> Votación ACTIVA — Los ciudadanos pueden registrarse y votar</div>
+                <div class="estado-badge estado-activo"><i class="fas fa-circle"></i> Votación ACTIVA — Registro cerrado · Votación abierta</div>
             <?php else: ?>
-                <div class="estado-badge estado-inactivo"><i class="fas fa-circle"></i> Votación INACTIVA — El registro y la votación están cerrados</div>
+                <div class="estado-badge estado-inactivo"><i class="fas fa-circle"></i> Período de Registro — Los ciudadanos pueden registrarse</div>
             <?php endif; ?>
 
             <p style="color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:20px;">
