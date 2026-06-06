@@ -179,8 +179,7 @@ if ($yaVoto || $mensaje) {
     <a href="/yo_voto/" class="navbar-logo"><i class="fas fa-envelope"></i> Yo <span>Voto</span></a>
     <nav class="navbar-nav">
         <span class="user-name"><i class="fas fa-user"></i> <?= htmlspecialchars($user['nombres']) ?></span>
-        <a href="/yo_voto/mi-perfil"><i class="fas fa-home"></i> Mi Perfil</a>
-        <a href="/yo_voto/logout-votante" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Salir</a>
+        <span style="color:rgba(255,255,255,0.4);font-size:13px;">Votación en proceso...</span>
     </nav>
 </header>
 
@@ -213,7 +212,7 @@ if ($yaVoto || $mensaje) {
             <div class="estado-box exito" style="margin-bottom:24px;">
                 <i class="fas fa-check-circle icono"></i>
                 <h3>¡Voto Registrado Exitosamente!</h3>
-                <p>Tu participación fortalece la democracia boliviana.<br>A continuación tu Certificado de Sufragio.</p>
+                <p>Gracias por participar<br>A continuación tu Certificado de Sufragio.</p>
                 <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-top:16px;">
                     <a href="/yo_voto/certificado" style="background:#27AE60;color:#fff;padding:11px 22px;border-radius:10px;font-weight:800;font-size:14px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;"><i class="fas fa-download"></i> Descargar PDF</a>
                     <a href="/yo_voto/mi-perfil" class="btn-outline-secondary"><i class="fas fa-home"></i> Mi Perfil</a>
@@ -347,7 +346,6 @@ if ($yaVoto || $mensaje) {
                 </button>
             </form>
 
-            <a href="/yo_voto/mi-perfil" class="btn-cancelar"><i class="fas fa-times"></i> Cancelar y volver a mi perfil</a>
             <?php endif; ?>
 
         </div>

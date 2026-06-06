@@ -21,9 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->query("UPDATE usuarios SET habilitado_voto = $nuevoEstado WHERE rol = 'usuario'");
         // Habilitar/deshabilitar registro y votacion en configuracion
         $conn->query("UPDATE configuracion SET valor = '$nuevoEstado' WHERE clave = 'votacion_activa'");
-        $mensajeAccion = $nuevoEstado
-            ? '✅ Votación habilitada. Los ciudadanos ya pueden registrarse y votar.'
-            : '🔒 Votación deshabilitada. El registro y la votación están cerrados.';
+        $mensajeAccion = '';
     }
     if (isset($_POST['fecha_votacion'])) {
         $fecha    = $conn->real_escape_string($_POST['fecha_votacion']);

@@ -119,6 +119,19 @@ class AuthController {
             exit();
         }
 
+        //correo duplicado
+        if (!empty($_POST['email'])) {
+            $emailCheck = trim($_POST['email']);
+            $emailStmt  = $this->conn->prepare("SELECT id FROM usuarios WHERE email = ?");
+            $emailStmt->bind_param("s", $emailCheck);
+            $emailStmt->execute();
+            if ($emailStmt->get_result()->num_rows > 0) {
+                $_SESSION['error_registro'] = "❌ El correo electrónico ya está registrado.";
+                header("Location: /yo_voto/registro");
+                exit();
+            }
+        }
+
         $fechaNac = new DateTime($_POST['fecha_nac']);
         $edad = (new DateTime())->diff($fechaNac)->y;
         if ($edad < 18) {
@@ -174,9 +187,9 @@ class AuthController {
         );
 
         if ($stmt->execute()) {
-            $_SESSION['success_registro'] = "✅ ¡Registro exitoso! Tu número de registro es: <strong>{$numeroRegistro}</strong>. El administrador habilitará tu cuenta pronto.";
+            $_SESSION['success_registro'] = " ¡Registro exitoso!";
         } else {
-            $_SESSION['error_registro'] = "❌ Error al registrar: " . $this->conn->error;
+            $_SESSION['error_registro'] = " Error al registrar: " . $this->conn->error;
         }
 
         header("Location: /yo_voto/registro");
