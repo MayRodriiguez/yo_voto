@@ -26,7 +26,7 @@ if (!$user['ya_voto']) {
     exit();
 }
 
-$stmtVoto = $conn->prepare("SELECT c.nombre as candidato, c.partido, v.fecha_voto, v.id_voto FROM votos v JOIN candidatos c ON v.id_candidato = c.id_candidato WHERE v.id_usuario = ? ORDER BY v.id_voto DESC LIMIT 1");
+$stmtVoto = $conn->prepare("SELECT c.nombre as candidato, c.partido, v.fecha_voto FROM votos v JOIN candidatos c ON v.id_candidato = c.id_candidato WHERE v.id_usuario = ? ORDER BY v.id_voto DESC LIMIT 1");
 $stmtVoto->bind_param("i", $user['id']);
 $stmtVoto->execute();
 $voto = $stmtVoto->get_result()->fetch_assoc();
@@ -41,97 +41,139 @@ $pdf->SetMargins(15, 15, 15);
 $pdf->SetAutoPageBreak(false, 0);
 $pdf->AddPage();
 
-$fotoPath = getcwd() . '/' . ($user['foto_url'] ?? 'uploads/img/sin_foto.jpg');
-if (!file_exists($fotoPath) || empty($user['foto_url'])) {
-    $fotoPath = null;
+// ── HEADER AZUL ──
+$pdf->SetFillColor(26, 58, 122);
+$pdf->Rect(15, 15, 180, 45, 'F');
+
+// Logo Yo Voto
+$pdf->SetFillColor(255, 255, 255);
+$pdf->RoundedRect(18, 19, 35, 10, 2, '1111', 'F');
+$pdf->SetFont('helvetica', 'B', 11);
+$pdf->SetTextColor(26, 58, 122);
+$pdf->SetXY(18, 20);
+$pdf->Cell(35, 8, 'Yo Voto', 0, 0, 'C');
+
+// Subtitulo logo
+$pdf->SetFont('helvetica', '', 9);
+$pdf->SetTextColor(200, 210, 230);
+$pdf->SetXY(18, 31);
+$pdf->Cell(60, 5, 'Sistema Electoral Bolivia', 0, 0, 'L');
+
+// Titulo derecha
+$pdf->SetFont('helvetica', 'B', 16);
+$pdf->SetTextColor(255, 255, 255);
+$pdf->SetXY(80, 20);
+$pdf->Cell(113, 9, 'CERTIFICADO DE SUFRAGIO', 0, 0, 'R');
+
+$pdf->SetFont('helvetica', '', 10);
+$pdf->SetTextColor(200, 210, 230);
+$pdf->SetXY(80, 31);
+$pdf->Cell(113, 6, 'Elecciones Generales Bolivia 2026', 0, 0, 'R');
+$pdf->SetXY(80, 38);
+$pdf->Cell(113, 6, date('d \d\e F \d\e Y'), 0, 0, 'R');
+
+// ── CUERPO ──
+$pdf->SetFillColor(255, 255, 255);
+$pdf->SetDrawColor(220, 220, 220);
+$pdf->SetLineWidth(0.3);
+$pdf->Rect(15, 60, 180, 90, 'D');
+$pdf->Line(58, 60, 58, 150);
+$pdf->Line(152, 60, 152, 150);
+
+// ── FOTO ──
+$fotoPath = null;
+if (!empty($user['foto_url']) && file_exists(getcwd() . '/' . $user['foto_url'])) {
+    $fotoPath = getcwd() . '/' . $user['foto_url'];
 }
-
-$qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' . urlencode('localhost/yo_voto/mi-perfil?ci=' . $user['carnet']);
-
-$html = '
-<table style="width:100%;background-color:#1a3a7a;padding:14px 18px;border-radius:6px 6px 0 0;">
-    <tr>
-        <td style="color:white;width:40%;">
-            <div style="background-color:white;color:#1a3a7a;font-weight:bold;padding:4px 10px;font-size:14px;border-radius:4px;display:inline-block;">Yo Voto</div>
-            <div style="font-size:9px;color:rgba(255,255,255,0.75);margin-top:5px;">Sistema Electoral Bolivia</div>
-        </td>
-        <td style="text-align:right;color:white;">
-            <div style="font-size:18px;font-weight:bold;letter-spacing:2px;">CERTIFICADO DE SUFRAGIO</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.8);margin-top:3px;">Elecciones Generales Bolivia 2026</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.8);">' . date('d \d\e F \d\e Y') . '</div>
-        </td>
-    </tr>
-</table>
-
-<br>
-
-<table style="width:100%;border:1px solid #ddd;border-radius:0 0 6px 6px;">
-    <tr>
-        <td style="width:22%;vertical-align:top;text-align:center;padding:16px 10px;border-right:1px solid #eee;">';
 
 if ($fotoPath) {
-    $html .= '<img src="' . $fotoPath . '" width="90" height="110" style="border:2px solid #1a3a7a;border-radius:4px;"><br>';
+    $pdf->Image($fotoPath, 20, 64, 32, 40, '', '', '', true, 150, '', false, false, 1);
 } else {
-    $html .= '<div style="width:90px;height:110px;background:#f0f0f0;border:2px solid #1a3a7a;border-radius:4px;display:inline-block;line-height:110px;text-align:center;font-size:11px;color:#aaa;">Sin foto</div><br>';
+    $pdf->SetFillColor(240, 240, 240);
+    $pdf->Rect(20, 64, 32, 40, 'DF');
+    $pdf->SetFont('helvetica', '', 8);
+    $pdf->SetTextColor(170, 170, 170);
+    $pdf->SetXY(20, 81);
+    $pdf->Cell(32, 5, 'Sin foto', 0, 0, 'C');
 }
 
-$html .= '
-            <div style="font-size:9px;color:#555;font-weight:bold;margin-top:6px;">CARNET DE IDENTIDAD</div>
-            <div style="font-size:14px;color:#1a3a7a;font-weight:bold;margin-top:2px;">' . htmlspecialchars($user['carnet']) . '</div>
-        </td>
-        <td style="vertical-align:top;padding:16px 18px;">
-            <table style="width:100%;border-collapse:collapse;">
-                <tr style="background:#f8f9fa;">
-                    <td style="color:#555;font-weight:bold;font-size:10px;padding:7px 10px;width:38%;border-bottom:1px solid #eee;">NOMBRE COMPLETO</td>
-                    <td style="font-size:11px;padding:7px 10px;border-bottom:1px solid #eee;font-weight:600;">' . htmlspecialchars($user['nombres'] . ' ' . $user['apellidos']) . '</td>
-                </tr>
-                <tr>
-                    <td style="color:#555;font-weight:bold;font-size:10px;padding:7px 10px;border-bottom:1px solid #eee;">FECHA NACIMIENTO</td>
-                    <td style="font-size:11px;padding:7px 10px;border-bottom:1px solid #eee;">' . ($user['fecha_nacimiento'] ? date('d/m/Y', strtotime($user['fecha_nacimiento'])) : '---') . '</td>
-                </tr>
-                <tr style="background:#f8f9fa;">
-                    <td style="color:#555;font-weight:bold;font-size:10px;padding:7px 10px;border-bottom:1px solid #eee;">CELULAR</td>
-                    <td style="font-size:11px;padding:7px 10px;border-bottom:1px solid #eee;">' . htmlspecialchars($user['telefono'] ?? '---') . '</td>
-                </tr>
-                <tr>
-                    <td style="color:#555;font-weight:bold;font-size:10px;padding:7px 10px;border-bottom:1px solid #eee;">CORREO</td>
-                    <td style="font-size:11px;padding:7px 10px;border-bottom:1px solid #eee;">' . htmlspecialchars($user['email'] ?? '---') . '</td>
-                </tr>
-                <tr style="background:#f8f9fa;">
-                    <td style="color:#555;font-weight:bold;font-size:10px;padding:7px 10px;border-bottom:1px solid #eee;">FECHA DE VOTO</td>
-                    <td style="font-size:11px;padding:7px 10px;border-bottom:1px solid #eee;font-weight:600;color:#1a3a7a;">' . ($voto ? date('d/m/Y', strtotime($voto['fecha_voto'])) : date('d/m/Y')) . '</td>
-                </tr>
-                <tr>
-                    <td style="color:#555;font-weight:bold;font-size:10px;padding:7px 10px;">HORA DE VOTO</td>
-                    <td style="font-size:11px;padding:7px 10px;font-weight:600;color:#1a3a7a;">' . ($voto ? date('H:i:s', strtotime($voto['fecha_voto'])) : '---') . '</td>
-                </tr>
-            </table>
-        </td>
-        <td style="width:18%;vertical-align:bottom;text-align:center;padding:16px 10px;border-left:1px solid #eee;">
-            <img src="' . $qrUrl . '" width="90" height="90" style="border:1px solid #ddd;"><br>
-            <div style="font-size:8px;color:#999;margin-top:4px;">Escanea para verificar</div>
-        </td>
-    </tr>
-</table>
+// CI label
+$pdf->SetFont('helvetica', '', 8);
+$pdf->SetTextColor(100, 100, 100);
+$pdf->SetXY(20, 107);
+$pdf->Cell(32, 5, 'C.I.', 0, 0, 'C');
 
-<br>
+// CI numero
+$pdf->SetFont('helvetica', 'B', 13);
+$pdf->SetTextColor(26, 58, 122);
+$pdf->SetXY(20, 113);
+$pdf->Cell(32, 7, $user['carnet'], 0, 0, 'C');
 
-<table style="width:100%;background-color:#f5f7fa;border:1px solid #ddd;border-radius:4px;padding:10px 15px;">
-    <tr>
-        <td style="font-size:9px;color:#777;">
-            Documento generado el ' . date('d/m/Y') . ' a las ' . date('H:i:s') . '
-        </td>
-        <td style="text-align:center;">
-            <div style="font-size:12px;color:#27AE60;font-weight:bold;">SUFRAGIO VALIDO</div>
-        </td>
-        <td style="text-align:right;font-size:9px;color:#1a3a7a;font-weight:bold;">
-            Sistema Electoral Bolivia 2026
-        </td>
-    </tr>
-</table>
-';
+// ── DATOS ──
+$datos = [
+    ['Nombre:', $user['nombres'] . ' ' . $user['apellidos']],
+    ['Fec. Nac.:', $user['fecha_nacimiento'] ? date('d/m/Y', strtotime($user['fecha_nacimiento'])) : '---'],
+    ['Celular:', $user['telefono'] ?? '---'],
+    ['Correo:', $user['email'] ?? '---'],
+    ['Fecha Voto:', $voto ? date('d/m/Y', strtotime($voto['fecha_voto'])) : date('d/m/Y')],
+    ['Hora Voto:', $voto ? date('H:i:s', strtotime($voto['fecha_voto'])) : '---'],
+];
 
-$pdf->writeHTML($html, true, false, true, false, '');
+$y = 60;
+foreach ($datos as $i => $dato) {
+    if ($i % 2 == 0) {
+        $pdf->SetFillColor(248, 249, 250);
+        $pdf->Rect(58, $y, 94, 15, 'F');
+    }
+    $pdf->SetFont('helvetica', 'B', 10);
+    $pdf->SetTextColor(100, 100, 100);
+    $pdf->SetXY(61, $y + 4);
+    $pdf->Cell(30, 6, $dato[0], 0, 0, 'L');
+
+    if (in_array($dato[0], ['Fecha Voto:', 'Hora Voto:'])) {
+        $pdf->SetTextColor(26, 58, 122);
+        $pdf->SetFont('helvetica', 'B', 11);
+    } else {
+        $pdf->SetTextColor(30, 30, 30);
+        $pdf->SetFont('helvetica', '', 11);
+    }
+    $pdf->SetXY(93, $y + 4);
+    $pdf->Cell(57, 6, $dato[1], 0, 0, 'L');
+
+    $pdf->SetDrawColor(230, 230, 230);
+    $pdf->Line(58, $y + 15, 152, $y + 15);
+    $y += 15;
+}
+
+// ── QR ──
+$qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' . urlencode('localhost/yo_voto/mi-perfil?ci=' . $user['carnet']);
+$pdf->Image($qrUrl, 155, 64, 35, 35, 'PNG', '', '', true);
+$pdf->SetFont('helvetica', '', 7);
+$pdf->SetTextColor(150, 150, 150);
+$pdf->SetXY(152, 101);
+$pdf->Cell(43, 5, 'Escanea para verificar', 0, 0, 'C');
+
+// ── FOOTER ──
+$pdf->SetFillColor(245, 247, 250);
+$pdf->SetDrawColor(26, 58, 122);
+$pdf->SetLineWidth(0.5);
+$pdf->Rect(15, 150, 180, 14, 'DF');
+
+$pdf->SetFont('helvetica', '', 8);
+$pdf->SetTextColor(120, 120, 120);
+$pdf->SetXY(17, 154);
+$pdf->Cell(55, 6, 'Generado: ' . date('d/m/Y H:i:s'), 0, 0, 'L');
+
+$pdf->SetFont('helvetica', 'B', 12);
+$pdf->SetTextColor(39, 174, 96);
+$pdf->SetXY(75, 154);
+$pdf->Cell(50, 6, 'SUFRAGIO VALIDO', 0, 0, 'C');
+
+$pdf->SetFont('helvetica', 'B', 8);
+$pdf->SetTextColor(26, 58, 122);
+$pdf->SetXY(130, 154);
+$pdf->Cell(63, 6, 'Sistema Electoral Bolivia 2026', 0, 0, 'R');
+
 $pdf->Output('certificado_sufragio_' . $user['carnet'] . '.pdf', 'D');
 exit();
 ?>
