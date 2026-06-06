@@ -222,16 +222,16 @@ if ($yaVoto || $mensaje) {
                 <div id="certificado">
                     <div class="cert-header">
                         <div class="cert-header-left">
-                            <div class="cert-ted-logo">TED</div>
+                            <div class="cert-ted-logo">Yo Voto</div>
                             <div>
-                                <div style="font-size:11px;color:rgba(255,255,255,0.7);">Tribunal Electoral</div>
-                                <div style="font-size:11px;color:rgba(255,255,255,0.7);">Departamental</div>
+                                <div style="font-size:11px;color:rgba(255,255,255,0.7);">Sistema Electoral</div>
+                                <div style="font-size:11px;color:rgba(255,255,255,0.7);">Bolivia 2026</div>
                             </div>
                         </div>
                         <div class="cert-header-title">
                             <h2>CERTIFICADO DE SUFRAGIO</h2>
                             <p>Elecciones Generales Bolivia 2026</p>
-                            <p><?= date('d \d\e F \d\e Y') ?></p>
+                            <p><?= date('d') . ' de ' . ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][date('n')-1] . ' de ' . date('Y') ?></p>
                         </div>
                     </div>
                     <div class="cert-body">
@@ -249,12 +249,12 @@ if ($yaVoto || $mensaje) {
                             <div class="cert-row"><span class="cert-label">Hora de Voto:</span><span class="cert-valor"><?= $fechaVoto ? date('H:i:s', strtotime($fechaVoto)) : date('H:i:s') ?></span></div>
                         </div>
                         <div class="cert-qr-col">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=YOVOTO-<?= $user['carnet'] ?>-<?= date('Y') ?>" width="80" height="80" alt="QR" style="border:1px solid #ddd;">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=<?= urlencode('CERTIFICADO DE SUFRAGIO - Yo Voto Bolivia 2026 - CI: ' . $user['carnet'] . ' - Nombre: ' . $user['nombres'] . ' ' . $user['apellidos'] . ' - Fecha: ' . ($fechaVoto ? date('d/m/Y', strtotime($fechaVoto)) : date('d/m/Y')) . ' - Hora: ' . ($fechaVoto ? date('H:i:s', strtotime($fechaVoto)) : '---') . ' - SUFRAGIO VALIDO') ?>" width="100" height="100" alt="QR" style="border:1px solid #ddd;">
                             <div style="font-size:9px;color:#999;margin-top:4px;text-align:center;">Verificación<br>Digital</div>
                         </div>
                     </div>
                     <div class="cert-footer">
-                        <div class="cert-footer-text">Reg: <?= htmlspecialchars($user['numero_registro'] ?? '') ?><br>Generado: <?= date('d/m/Y H:i:s') ?></div>
+                        <div class="cert-footer-text">Generado: <?= date('d/m/Y H:i:s') ?></div>
                         <div class="cert-sello">✓ SUFRAGIO VÁLIDO<br>Sistema Electoral Bolivia 2026</div>
                     </div>
                 </div>
@@ -283,7 +283,7 @@ if ($yaVoto || $mensaje) {
                         <div class="cert-header-title">
                             <h2>CERTIFICADO DE SUFRAGIO</h2>
                             <p>Elecciones Generales Bolivia 2026</p>
-                            <p><?= date('d \d\e F \d\e Y') ?></p>
+                            <p><?= date('d') . ' de ' . ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][date('n')-1] . ' de ' . date('Y') ?></p>
                         </div>
                     </div>
                     <div class="cert-body">
@@ -301,7 +301,7 @@ if ($yaVoto || $mensaje) {
                             <div class="cert-row"><span class="cert-label">Hora de Voto:</span><span class="cert-valor"><?= $fechaVoto ? date('H:i:s', strtotime($fechaVoto)) : '—' ?></span></div>
                         </div>
                         <div class="cert-qr-col">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=YOVOTO-<?= $user['carnet'] ?>-<?= date('Y') ?>" width="80" height="80" alt="QR" style="border:1px solid #ddd;">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=<?= urlencode('CERTIFICADO DE SUFRAGIO - Yo Voto Bolivia 2026 - CI: ' . $user['carnet'] . ' - Nombre: ' . $user['nombres'] . ' ' . $user['apellidos'] . ' - Fecha: ' . ($fechaVoto ? date('d/m/Y', strtotime($fechaVoto)) : date('d/m/Y')) . ' - Hora: ' . ($fechaVoto ? date('H:i:s', strtotime($fechaVoto)) : '---') . ' - SUFRAGIO VALIDO') ?>" width="100" height="100" alt="QR" style="border:1px solid #ddd;">
                             <div style="font-size:9px;color:#999;margin-top:4px;text-align:center;">Verificación<br>Digital</div>
                         </div>
                     </div>

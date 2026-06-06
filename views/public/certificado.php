@@ -70,7 +70,7 @@ $pdf->SetTextColor(200, 210, 230);
 $pdf->SetXY(80, 31);
 $pdf->Cell(113, 6, 'Elecciones Generales Bolivia 2026', 0, 0, 'R');
 $pdf->SetXY(80, 38);
-$pdf->Cell(113, 6, date('d \d\e F \d\e Y'), 0, 0, 'R');
+$pdf->Cell(113, 6, date('d') . ' de ' . ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][date('n')-1] . ' de ' . date('Y'), 0, 0, 'R');
 
 // ── CUERPO ──
 $pdf->SetFillColor(255, 255, 255);
@@ -146,7 +146,16 @@ foreach ($datos as $i => $dato) {
 }
 
 // ── QR ──
-$qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' . urlencode('localhost/yo_voto/mi-perfil?ci=' . $user['carnet']);
+$qrData = "CERTIFICADO DE SUFRAGIO\n" .
+          "Yo Voto Bolivia 2026\n" .
+          "-------------------\n" .
+          "CI: " . $user['carnet'] . "\n" .
+          "Nombre: " . $user['nombres'] . " " . $user['apellidos'] . "\n" .
+          "Fecha Voto: " . ($voto ? date('d/m/Y', strtotime($voto['fecha_voto'])) : date('d/m/Y')) . "\n" .
+          "Hora Voto: " . ($voto ? date('H:i:s', strtotime($voto['fecha_voto'])) : '---') . "\n" .
+          "-------------------\n" .
+          "SUFRAGIO VALIDO";
+$qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' . urlencode($qrData);
 $pdf->Image($qrUrl, 155, 64, 35, 35, 'PNG', '', '', true);
 $pdf->SetFont('helvetica', '', 7);
 $pdf->SetTextColor(150, 150, 150);
