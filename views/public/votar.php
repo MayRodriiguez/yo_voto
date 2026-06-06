@@ -274,10 +274,10 @@ if ($yaVoto || $mensaje) {
                 <div id="certificado">
                     <div class="cert-header">
                         <div class="cert-header-left">
-                            <div class="cert-ted-logo">TED</div>
+                            <div class="cert-ted-logo">Yo Voto</div>
                             <div>
-                                <div style="font-size:11px;color:rgba(255,255,255,0.7);">Tribunal Electoral</div>
-                                <div style="font-size:11px;color:rgba(255,255,255,0.7);">Departamental</div>
+                                <div style="font-size:11px;color:rgba(255,255,255,0.7);">Sistema Electoral</div>
+                                <div style="font-size:11px;color:rgba(255,255,255,0.7);">Bolivia 2026</div>
                             </div>
                         </div>
                         <div class="cert-header-title">
@@ -306,7 +306,7 @@ if ($yaVoto || $mensaje) {
                         </div>
                     </div>
                     <div class="cert-footer">
-                        <div class="cert-footer-text">Reg: <?= htmlspecialchars($user['numero_registro'] ?? '') ?><br>Generado: <?= date('d/m/Y H:i:s') ?></div>
+                        <div class="cert-footer-text"> Generado: <?= date('d/m/Y H:i:s') ?></div>
                         <div class="cert-sello">✓ SUFRAGIO VÁLIDO<br>Sistema Electoral Bolivia 2026</div>
                     </div>
                 </div>
@@ -323,7 +323,7 @@ if ($yaVoto || $mensaje) {
             <?php else: ?>
             <div class="alerta-inmutable">
                 <i class="fas fa-shield-alt"></i>
-                <div><strong>Importante:</strong> Una vez emitido, tu voto <strong>no podrá ser modificado ni eliminado</strong>. Elige con cuidado.</div>
+                <div><strong>Importante:</strong> Una vez emitido, tu voto <strong>no podrá ser modificado ni eliminado</strong> Elige con cuidado</div>
             </div>
 
             <form method="POST" id="votoForm">
