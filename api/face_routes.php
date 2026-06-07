@@ -83,12 +83,12 @@ if (strpos($url, '/api/recuperar-password') !== false && $_SERVER['REQUEST_METHO
         $mail->addAddress($email, $user['nombres']);
 
         $mail->isHTML(true);
-        $mail->Subject = '🔐 Código de recuperación - Yo Voto';
+        $mail->Subject = ' Código de recuperación - Yo Voto';
         $mail->Body    = "
         <html><body style='font-family:Arial,sans-serif;background:#0a1628;padding:30px;'>
             <div style='max-width:480px;margin:0 auto;background:#0d2251;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);'>
                 <div style='background:#FF6B00;padding:24px;text-align:center;'>
-                    <h1 style='margin:0;font-size:24px;color:#fff;'>🗳️ Yo Voto</h1>
+                    <h1 style='margin:0;font-size:24px;color:#fff;'> Yo Voto</h1>
                     <p style='margin:6px 0 0;color:rgba(255,255,255,0.8);font-size:13px;'>Sistema Electoral Bolivia 2026</p>
                 </div>
                 <div style='padding:32px;'>

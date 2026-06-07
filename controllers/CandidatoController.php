@@ -112,7 +112,7 @@ public function activarTipo($tipo) {
     require_once 'models/Configuracion.php';
     $config = new Configuracion();
     $config->setTipoEleccion($tipo);
-    $_SESSION['mensaje'] = "✅ Elecciones " . ucfirst($tipo) . "es activadas correctamente";
+    $_SESSION['mensaje'] = " Elecciones " . ucfirst($tipo) . "es activadas correctamente";
     header("Location: /yo_voto/candidatos/$tipo");
     exit();
 }
@@ -121,7 +121,7 @@ public function resetearTipo() {
     require_once 'models/Configuracion.php';
     $config = new Configuracion();
     $config->setTipoEleccion('ninguna');
-    $_SESSION['mensaje'] = "✅ Tipo de elección reiniciado correctamente";
+    $_SESSION['mensaje'] = " Tipo de elección reiniciado correctamente";
     header("Location: /yo_voto/candidatos");
     exit();
 }

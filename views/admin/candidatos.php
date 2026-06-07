@@ -108,7 +108,7 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['rol'] != 'admin') {
         </div>
     </div>
 
-    <footer><p>🗳️ <span>Yo Voto</span> — Sistema Electoral Bolivia 2026 · Democracia y Transparencia</p></footer>
+    <footer><p> <span>Yo Voto</span> — Sistema Electoral Bolivia 2026 · Democracia y Transparencia</p></footer>
 
     <script>
         function toggleEstado(id, estadoActual) {

@@ -389,7 +389,7 @@ $coordsDep = [
                     <button type="submit" class="btn-submit" id="submit-btn" disabled>
                         <i class="fas fa-user-plus"></i> Crear mi Cuenta
                     </button>
-                    <p style="text-align:center;margin-top:10px;font-size:12px;color:rgba(255,255,255,0.28);">⚠️ Debe subir una foto antes de registrarse</p>
+                    <p style="text-align:center;margin-top:10px;font-size:12px;color:rgba(255,255,255,0.28);"> Debe subir una foto antes de registrarse</p>
                 </form>
 
             <?php endif; ?>
@@ -399,7 +399,7 @@ $coordsDep = [
     </div>
 </div>
 
-<footer><p>🗳️ <span>Yo Voto</span> — Sistema Electoral Bolivia 2026 · Democracia y Transparencia</p></footer>
+<footer><p> <span>Yo Voto</span> — Sistema Electoral Bolivia 2026 · Democracia y Transparencia</p></footer>
 
 <script>
 const coordsDep = <?= json_encode($coordsDep) ?>;
@@ -548,7 +548,7 @@ function obtenerDireccion(lat, lng) {
 function procesarFoto(input) {
     const file = input.files[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { mostrarStatus('❌ La foto es muy grande. Máximo 5MB.', 'error'); return; }
+    if (file.size > 5 * 1024 * 1024) { mostrarStatus(' La foto es muy grande. Máximo 5MB.', 'error'); return; }
     const reader = new FileReader();
     reader.onload = (e) => {
         const preview = document.getElementById('foto-preview');
@@ -557,7 +557,7 @@ function procesarFoto(input) {
         document.getElementById('foto-placeholder').style.display = 'none';
         document.getElementById('btn-retake').style.display = 'inline-flex';
         document.getElementById('submit-btn').disabled = false;
-        mostrarStatus('✅ Foto cargada correctamente.', 'success');
+        mostrarStatus(' Foto cargada correctamente.', 'success');
     };
     reader.readAsDataURL(file);
 }

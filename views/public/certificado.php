@@ -82,8 +82,9 @@ $pdf->Line(152, 60, 152, 150);
 
 // ── FOTO ──
 $fotoPath = null;
-if (!empty($user['foto_url']) && file_exists(getcwd() . '/' . $user['foto_url'])) {
-    $fotoPath = getcwd() . '/' . $user['foto_url'];
+$fotoPath = 'C:/xampp/htdocs/yo_voto/' . $user['foto_url'];
+if (!file_exists($fotoPath)) {
+    $fotoPath = null;
 }
 
 if ($fotoPath) {

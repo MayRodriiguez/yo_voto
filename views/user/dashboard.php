@@ -195,7 +195,7 @@ $user = $_SESSION['user'];
 </main>
 
 <footer>
-    <p>🗳️ <span>Yo Voto</span> — Sistema Electoral Bolivia 2026 · Democracia y Transparencia</p>
+    <p> <span>Yo Voto</span> — Sistema Electoral Bolivia 2026 · Democracia y Transparencia</p>
 </footer>
 
 

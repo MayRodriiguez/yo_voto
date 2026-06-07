@@ -188,7 +188,7 @@ if (isset($_GET['editar'])) {
         </div>
     </div>
 
-    <footer><p>🗳️ <span>Yo Voto</span> — Sistema Electoral Bolivia 2026</p></footer>
+    <footer><p> <span>Yo Voto</span> — Sistema Electoral Bolivia 2026</p></footer>
 
     <!-- MODAL EDITAR -->
     <div class="modal-overlay <?= $editando ? 'open' : '' ?>" id="modalEditar">

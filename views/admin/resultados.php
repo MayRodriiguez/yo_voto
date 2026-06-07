@@ -145,6 +145,6 @@ while ($row = $result->fetch_assoc()) { $candidatos[] = $row; }
 
 </div>
 
-<footer><p>🗳️ <span>Yo Voto</span> — Sistema Electoral Bolivia 2026 · Democracia y Transparencia</p></footer>
+<footer><p> <span>Yo Voto</span> — Sistema Electoral Bolivia 2026 · Democracia y Transparencia</p></footer>
 </body>
 </html>

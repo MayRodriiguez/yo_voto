@@ -143,7 +143,7 @@ footer span { color: #FF6B00; font-weight: 700; }
         </div>
     </div>
 
-    <footer><p>🗳️ <span>Yo Voto</span> — Sistema Electoral Bolivia 2026 · Democracia y Transparencia</p></footer>
+    <footer><p> <span>Yo Voto</span> — Sistema Electoral Bolivia 2026 · Democracia y Transparencia</p></footer>
 
     <script>
     async function habilitarCiudadano(id, nombre) {
@@ -157,13 +157,13 @@ footer span { color: #FF6B00; font-weight: 700; }
                 });
                 const result = await response.json();
                 if (result.success) {
-                    alert(`✅ ${nombre} ha sido habilitado para votar`);
+                    alert(` ${nombre} ha sido habilitado para votar`);
                     location.reload();
                 } else {
-                    alert('❌ Error: ' + (result.error || 'No se pudo habilitar'));
+                    alert(' Error: ' + (result.error || 'No se pudo habilitar'));
                 }
             } catch (error) {
-                alert('❌ Error de conexión: ' + error.message);
+                alert(' Error de conexión: ' + error.message);
             }
         }
     }

@@ -139,7 +139,7 @@ $cadenaValida = $blockchainVote->verificarIntegridad();
 
     </div>
 
-    <footer><p>🗳️ <span>Yo Voto</span> — Sistema Electoral Bolivia 2026 · Blockchain verificable · Voto secreto garantizado</p></footer>
+    <footer><p> <span>Yo Voto</span> — Sistema Electoral Bolivia 2026 · Blockchain verificable · Voto secreto garantizado</p></footer>
 
     <script>
     async function cargarUltimosBloques() {

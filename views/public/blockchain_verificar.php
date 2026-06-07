@@ -30,7 +30,7 @@ if (session_status() === PHP_SESSION_NONE) {
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo">🗳️ Yo <span>Voto</span></div>
+        <div class="logo"> Yo <span>Voto</span></div>
         <div class="nav-links">
             <a href="/yo_voto/" style="color: white; text-decoration: none; margin-left: 20px;">Inicio</a>
             <a href="/yo_voto/resultados" style="color: white; text-decoration: none; margin-left: 20px;">Resultados</a>
@@ -180,7 +180,7 @@ if (session_status() === PHP_SESSION_NONE) {
                     const datos = typeof bloque.datos_voto === 'string' ? JSON.parse(bloque.datos_voto) : bloque.datos_voto;
                     resultadoDiv.innerHTML = `
                         <div class="alert alert-success">
-                            <strong>✅ Bloque encontrado!</strong><br>
+                            <strong> Bloque encontrado!</strong><br>
                             <strong>Índice:</strong> ${bloque.indice}<br>
                             <strong>Hash:</strong> <code>${bloque.hash_bloque}</code><br>
                             <strong>Hash Anterior:</strong> <code>${bloque.hash_anterior}</code><br>

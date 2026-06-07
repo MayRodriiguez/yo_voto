@@ -48,18 +48,18 @@ if ($fechaVotacion) {
     $horaActual = $ahora->format('H:i');
 
     if ($fechaHoy < $fechaVotacion) {
-        $mensajeHorario = '⏳ La votación aún no ha comenzado. Fecha programada: <strong>' . date('d/m/Y', strtotime($fechaVotacion)) . '</strong> desde las <strong>' . $horaApertura . '</strong>.';
+        $mensajeHorario = ' La votación aún no ha comenzado. Fecha programada: <strong>' . date('d/m/Y', strtotime($fechaVotacion)) . '</strong> desde las <strong>' . $horaApertura . '</strong>.';
     } elseif ($fechaHoy > $fechaVotacion) {
-        $mensajeHorario = '🔒 El período de votación ha finalizado.';
+        $mensajeHorario = ' El período de votación ha finalizado.';
     } elseif ($horaActual < $horaApertura) {
-        $mensajeHorario = '⏳ La votación abre a las <strong>' . $horaApertura . '</strong>. Vuelve más tarde.';
+        $mensajeHorario = ' La votación abre a las <strong>' . $horaApertura . '</strong>. Vuelve más tarde.';
     } elseif ($horaActual > $horaCierre) {
-        $mensajeHorario = '🔒 La votación cerró a las <strong>' . $horaCierre . '</strong>.';
+        $mensajeHorario = ' La votación cerró a las <strong>' . $horaCierre . '</strong>.';
     } else {
         $votacionAbierta = true;
     }
 } else {
-    $mensajeHorario = '⏳ El administrador aún no ha programado la fecha de votación.';
+    $mensajeHorario = ' El administrador aún no ha programado la fecha de votación.';
 }
 
 $mensaje = $_SESSION['mensaje_voto'] ?? '';
@@ -353,7 +353,7 @@ if ($yaVoto || $mensaje) {
 </main>
 
 <footer>
-    <p>🗳️ <span>Yo Voto</span> — Sistema Electoral Bolivia 2026 · Tu voto es secreto, seguro e inmutable</p>
+    <p> <span>Yo Voto</span> — Sistema Electoral Bolivia 2026 · Tu voto es secreto, seguro e inmutable</p>
 </footer>
 
 <!-- MODAL CONFIRMACIÓN CON CONTRASEÑA -->
@@ -420,7 +420,7 @@ if ($yaVoto || $mensaje) {
         const btn      = document.getElementById('btnConfirmarFinal');
 
         if (!password) {
-            errDiv.innerHTML = '⚠️ Ingresa tu contraseña.';
+            errDiv.innerHTML = ' Ingresa tu contraseña.';
             errDiv.style.display = 'block';
             return;
         }
@@ -440,7 +440,7 @@ if ($yaVoto || $mensaje) {
                 btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registrando voto...';
                 document.getElementById('votoForm').submit();
             } else {
-                errDiv.innerHTML = '❌ Contraseña incorrecta. Intenta de nuevo.';
+                errDiv.innerHTML = ' Contraseña incorrecta. Intenta de nuevo.';
                 errDiv.style.display = 'block';
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-vote-yea"></i> Emitir mi Voto';
@@ -448,7 +448,7 @@ if ($yaVoto || $mensaje) {
                 document.getElementById('passwordConfirm').focus();
             }
         } catch(e) {
-            errDiv.innerHTML = '❌ Error de conexión.';
+            errDiv.innerHTML = ' Error de conexión.';
             errDiv.style.display = 'block';
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-vote-yea"></i> Emitir mi Voto';

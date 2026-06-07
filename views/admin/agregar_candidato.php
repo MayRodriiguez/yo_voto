@@ -112,7 +112,7 @@ if (session_status() === PHP_SESSION_NONE) {
         </div>
     </div>
 
-    <footer><p>🗳️ <span>Yo Voto</span> — Sistema Electoral Bolivia 2026 · Democracia y Transparencia</p></footer>
+    <footer><p> <span>Yo Voto</span> — Sistema Electoral Bolivia 2026 · Democracia y Transparencia</p></footer>
 
     <script>
         function previewImage(input) {

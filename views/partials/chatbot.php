@@ -74,7 +74,7 @@ $chatUserId = isset($_SESSION['user']['id']) ? 'user_' . $_SESSION['user']['id']
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <script>
-    // 1. INICIALIZAR FIREBASE (⚠️ Pon tus credenciales reales aquí)
+    // INICIALIZAR FIREBASE 
     const firebaseConfig = {
         apiKey: "AIzaSyC_0G2wLZF_m0bYRpuBXVsMNbbwr_F1rPw",
         authDomain: "yo-voto-chat.firebaseapp.com",

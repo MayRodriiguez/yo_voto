@@ -131,7 +131,7 @@ $votacionActiva = $config['votacion_activa'] ?? '0';
     <div class="splash-logo"><i class="fas fa-envelope"></i> Yo <span>Voto</span></div>
     <div class="splash-sub">Sistema Electoral Bolivia</div>
     <div class="splash-bar-wrap"><div class="splash-bar"></div></div>
-    <div class="splash-badge">🗳️ Elecciones Generales 2026</div>
+    <div class="splash-badge"> Elecciones Generales 2026</div>
 </div>
 
 <header class="navbar">
@@ -364,7 +364,7 @@ $votacionActiva = $config['votacion_activa'] ?? '0';
 </section>
 
 <footer>
-    <div class="footer-logo">🗳️ Yo <span>Voto</span></div>
+    <div class="footer-logo"> Yo <span>Voto</span></div>
     <p>Sistema Electoral Bolivia 2026 · Democracia y Transparencia</p>
 </footer>
 
@@ -388,7 +388,7 @@ $votacionActiva = $config['votacion_activa'] ?? '0';
         const email  = document.getElementById('rec-email').value.trim();
         const errDiv = document.getElementById('recuperar-error');
         errDiv.style.display = 'none';
-        if (!carnet || !email) { errDiv.style.display = 'block'; errDiv.innerHTML = '⚠️ Completa todos los campos.'; return; }
+        if (!carnet || !email) { errDiv.style.display = 'block'; errDiv.innerHTML = ' Completa todos los campos.'; return; }
         try {
             const res = await fetch('/yo_voto/api/recuperar-password', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ carnet, email }) });
             const r = await res.json();
@@ -397,21 +397,21 @@ $votacionActiva = $config['votacion_activa'] ?? '0';
                 document.getElementById('paso-codigo').style.display = 'block';
                 document.getElementById('modal-login-titulo').innerHTML = '<i class="fas fa-envelope-open-text"></i> Verificar Código';
                 iniciarCountdown(); document.getElementById('c1').focus();
-            } else { errDiv.style.display = 'block'; errDiv.innerHTML = '❌ ' + r.error; }
-        } catch(e) { errDiv.style.display = 'block'; errDiv.innerHTML = '❌ Error de conexión.'; }
+            } else { errDiv.style.display = 'block'; errDiv.innerHTML = ' ' + r.error; }
+        } catch(e) { errDiv.style.display = 'block'; errDiv.innerHTML = ' Error de conexión.'; }
     }
 
     async function verificarCodigoRecuperar() {
         const codigo = ['c1','c2','c3','c4','c5','c6'].map(id => document.getElementById(id)?.value || '').join('');
         const errDiv = document.getElementById('codigo-error');
         errDiv.style.display = 'none';
-        if (codigo.length !== 6) { errDiv.style.display = 'block'; errDiv.innerHTML = '⚠️ Ingresa los 6 dígitos.'; return; }
+        if (codigo.length !== 6) { errDiv.style.display = 'block'; errDiv.innerHTML = ' Ingresa los 6 dígitos.'; return; }
         try {
             const res = await fetch('/yo_voto/api/verificar-reset', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ codigo }) });
             const r = await res.json();
             if (r.success) { document.getElementById('paso-codigo').style.display = 'none'; document.getElementById('paso-nueva-pass').style.display = 'block'; document.getElementById('modal-login-titulo').innerHTML = '<i class="fas fa-lock-open"></i> Nueva Contraseña'; if (countdownTimer) clearInterval(countdownTimer); }
-            else { errDiv.style.display = 'block'; errDiv.innerHTML = '❌ ' + r.error; }
-        } catch(e) { errDiv.style.display = 'block'; errDiv.innerHTML = '❌ Error de conexión.'; }
+            else { errDiv.style.display = 'block'; errDiv.innerHTML = ' ' + r.error; }
+        } catch(e) { errDiv.style.display = 'block'; errDiv.innerHTML = ' Error de conexión.'; }
     }
 
     async function guardarNuevaPassword() {
@@ -419,14 +419,14 @@ $votacionActiva = $config['votacion_activa'] ?? '0';
         const confirm  = document.getElementById('confirmar-pass').value;
         const errDiv   = document.getElementById('pass-error');
         errDiv.style.display = 'none';
-        if (password.length < 6) { errDiv.style.display = 'block'; errDiv.innerHTML = '⚠️ Mínimo 6 caracteres.'; return; }
-        if (password !== confirm) { errDiv.style.display = 'block'; errDiv.innerHTML = '⚠️ Las contraseñas no coinciden.'; return; }
+        if (password.length < 6) { errDiv.style.display = 'block'; errDiv.innerHTML = 'Mínimo 6 caracteres.'; return; }
+        if (password !== confirm) { errDiv.style.display = 'block'; errDiv.innerHTML = ' Las contraseñas no coinciden.'; return; }
         try {
             const res = await fetch('/yo_voto/api/nueva-password', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ password, confirm }) });
             const r = await res.json();
             if (r.success) { document.getElementById('paso-nueva-pass').innerHTML = `<div style="text-align:center;padding:20px;"><i class="fas fa-check-circle" style="font-size:50px;color:#27AE60;display:block;margin-bottom:16px;"></i><h3 style="color:#fff;font-family:'Montserrat',sans-serif;margin-bottom:8px;">¡Contraseña actualizada!</h3><button onclick="mostrarLogin()" style="background:#FF6B00;color:#fff;padding:10px 24px;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-family:'Montserrat',sans-serif;margin-top:16px;">Ir al Login</button></div>`; }
-            else { errDiv.style.display = 'block'; errDiv.innerHTML = '❌ ' + r.error; }
-        } catch(e) { errDiv.style.display = 'block'; errDiv.innerHTML = '❌ Error de conexión.'; }
+            else { errDiv.style.display = 'block'; errDiv.innerHTML = ' ' + r.error; }
+        } catch(e) { errDiv.style.display = 'block'; errDiv.innerHTML = ' Error de conexión.'; }
     }
 
     function iniciarCountdown() {

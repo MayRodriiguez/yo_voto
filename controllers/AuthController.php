@@ -27,7 +27,7 @@ class AuthController {
         $tokenEnviado = $_POST['csrf_token'] ?? '';
         $tokenSesion  = $_SESSION['csrf_token'] ?? '';
         if (empty($tokenEnviado) || $tokenEnviado !== $tokenSesion) {
-            $_SESSION['error_login'] = "❌ Token de seguridad inválido. Intenta de nuevo.";
+            $_SESSION['error_login'] = " Token de seguridad inválido. Intenta de nuevo.";
             header("Location: /yo_voto/");
             exit();
         }
@@ -37,7 +37,7 @@ class AuthController {
         $password = $_POST['password'] ?? '';
 
         if (empty($carnet) || empty($password)) {
-            $_SESSION['error_login'] = "❌ Ingresa tu carnet y contraseña.";
+            $_SESSION['error_login'] = " Ingresa tu carnet y contraseña.";
             header("Location: /yo_voto/");
             exit();
         }
@@ -48,19 +48,19 @@ class AuthController {
         $user = $stmt->get_result()->fetch_assoc();
 
         if (!$user) {
-            $_SESSION['error_login'] = "❌ Carnet no encontrado.";
+            $_SESSION['error_login'] = " Carnet no encontrado.";
             header("Location: /yo_voto/");
             exit();
         }
 
         if (!password_verify($password, $user['password'])) {
-            $_SESSION['error_login'] = "❌ Contraseña incorrecta.";
+            $_SESSION['error_login'] = " Contraseña incorrecta.";
             header("Location: /yo_voto/");
             exit();
         }
 
         if ($user['habilitado_voto'] != 1) {
-            $_SESSION['error_login'] = "⏳ Tu cuenta aún no está habilitada para votar.";
+            $_SESSION['error_login'] = " Tu cuenta aún no está habilitada para votar.";
             header("Location: /yo_voto/");
             exit();
         }
@@ -83,7 +83,7 @@ class AuthController {
         $votacionActiva = $config['votacion_activa'] ?? '0';
 
         if ($votacionActiva == '1') {
-            $_SESSION['error_registro'] = "❌ El registro está cerrado. Las votaciones ya han comenzado.";
+            $_SESSION['error_registro'] = " El registro está cerrado. Las votaciones ya han comenzado.";
             header("Location: /yo_voto/registro");
             exit();
         }
@@ -91,7 +91,7 @@ class AuthController {
         $tokenEnviado = $_POST['csrf_token'] ?? '';
         $tokenSesion  = $_SESSION['csrf_token'] ?? '';
         if (empty($tokenEnviado) || $tokenEnviado !== $tokenSesion) {
-            $_SESSION['error_registro'] = "❌ Token de seguridad inválido.";
+            $_SESSION['error_registro'] = " Token de seguridad inválido.";
             header("Location: /yo_voto/registro");
             exit();
         }
@@ -114,7 +114,7 @@ class AuthController {
         $checkStmt->bind_param("s", $carnet);
         $checkStmt->execute();
         if ($checkStmt->get_result()->num_rows > 0) {
-            $_SESSION['error_registro'] = "❌ El carnet {$carnet} ya está registrado.";
+            $_SESSION['error_registro'] = " El carnet {$carnet} ya está registrado.";
             header("Location: /yo_voto/registro");
             exit();
         }
@@ -126,7 +126,7 @@ class AuthController {
             $emailStmt->bind_param("s", $emailCheck);
             $emailStmt->execute();
             if ($emailStmt->get_result()->num_rows > 0) {
-                $_SESSION['error_registro'] = "❌ El correo electrónico ya está registrado.";
+                $_SESSION['error_registro'] = " El correo electrónico ya está registrado.";
                 header("Location: /yo_voto/registro");
                 exit();
             }
@@ -188,9 +188,9 @@ class AuthController {
         );
 
         if ($stmt->execute()) {
-            $_SESSION['success_registro'] = "✅ ¡Registro exitoso!";
+            $_SESSION['success_registro'] = " ¡Registro exitoso!";
         } else {
-            $_SESSION['error_registro'] = "❌ Error al registrar: " . $this->conn->error;
+            $_SESSION['error_registro'] = " Error al registrar: " . $this->conn->error;
         }
 
         header("Location: /yo_voto/registro");
@@ -206,7 +206,7 @@ class AuthController {
 
             $hcaptchaResponse = $_POST['h-captcha-response'] ?? '';
             if (empty($hcaptchaResponse)) {
-                $error = "❌ Por favor complete el captcha de seguridad.";
+                $error = " Por favor complete el captcha de seguridad.";
                 require_once 'views/auth/login.php';
                 return;
             }
@@ -231,7 +231,7 @@ class AuthController {
                 }
                 exit();
             } else {
-                $error = "❌ Email o contraseña incorrectos.";
+                $error = " Email o contraseña incorrectos.";
             }
         }
         require_once 'views/auth/login.php';
@@ -243,7 +243,7 @@ class AuthController {
         $expira          = $_SESSION['admin_codigo_expira'] ?? 0;
 
         if (time() > $expira) {
-            $error = "❌ El código ha expirado.";
+            $error = " El código ha expirado.";
             unset($_SESSION['admin_codigo_email'], $_SESSION['admin_codigo_expira'], $_SESSION['admin_user_temp']);
             require_once 'views/auth/login.php';
             return;
@@ -255,18 +255,18 @@ class AuthController {
             header("Location: /yo_voto/admin/dashboard");
             exit();
         } else {
-            $error = "❌ Código incorrecto.";
+            $error = " Código incorrecto.";
             require_once 'views/auth/verificar_codigo.php';
         }
     }
 
     private function enviarCodigoVerificacion($email, $nombre, $codigo) {
-        $asunto  = "🔐 Código de verificación - Yo Voto Admin";
+        $asunto  = " Código de verificación - Yo Voto Admin";
         $mensaje = "
         <html><body style='font-family:Arial,sans-serif;background:#0a1628;color:#fff;padding:30px;'>
             <div style='max-width:480px;margin:0 auto;background:#0d2251;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);'>
                 <div style='background:#FF6B00;padding:24px;text-align:center;'>
-                    <h1 style='margin:0;font-size:24px;color:#fff;'>🗳️ Yo Voto</h1>
+                    <h1 style='margin:0;font-size:24px;color:#fff;'> Yo Voto</h1>
                 </div>
                 <div style='padding:32px;'>
                     <p style='color:rgba(255,255,255,0.7);margin-bottom:24px;'>Hola <strong style='color:#fff;'>{$nombre}</strong>, tu código:</p>

@@ -167,7 +167,7 @@
     </div>
 
     <div class="back-link"><a href="/yo_voto/"><i class="fas fa-arrow-left"></i> Volver al inicio</a></div>
-    <footer>🗳️ <span>Yo Voto</span> — Sistema Electoral Bolivia 2026</footer>
+    <footer> <span>Yo Voto</span> — Sistema Electoral Bolivia 2026</footer>
 
     <script>
         // Validar que hCaptcha esté completado antes de enviar

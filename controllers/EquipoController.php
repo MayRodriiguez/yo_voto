@@ -35,9 +35,9 @@ class EquipoController {
             $nivel = $_POST['nivel'] ?? 1;
             
             if ($this->equipoModel->add($id_candidato, $nombre, $cargo, $nivel)) {
-                $_SESSION['mensaje'] = "✅ Integrante agregado exitosamente";
+                $_SESSION['mensaje'] = " Integrante agregado exitosamente";
             } else {
-                $_SESSION['error'] = "❌ Error al agregar integrante";
+                $_SESSION['error'] = " Error al agregar integrante";
             }
             header("Location: /yo_voto/equipo/$id_candidato");
             exit();
@@ -50,9 +50,9 @@ class EquipoController {
     
     public function eliminar($id_integrante, $id_candidato) {
         if ($this->equipoModel->delete($id_integrante)) {
-            $_SESSION['mensaje'] = "✅ Integrante eliminado exitosamente";
+            $_SESSION['mensaje'] = " Integrante eliminado exitosamente";
         } else {
-            $_SESSION['error'] = "❌ Error al eliminar integrante";
+            $_SESSION['error'] = " Error al eliminar integrante";
         }
         header("Location: /yo_voto/equipo/$id_candidato");
         exit();
@@ -70,9 +70,9 @@ class EquipoController {
         $nivel  = $_POST['nivel'] ?? 1;
 
         if ($this->equipoModel->update($id_integrante, $nombre, $cargo, $nivel)) {
-            $_SESSION['mensaje'] = "✅ Integrante actualizado exitosamente";
+            $_SESSION['mensaje'] = " Integrante actualizado exitosamente";
         } else {
-            $_SESSION['error'] = "❌ Error al actualizar integrante";
+            $_SESSION['error'] = " Error al actualizar integrante";
         }
         header("Location: /yo_voto/equipo/$id_candidato");
         exit();

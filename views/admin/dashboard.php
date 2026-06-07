@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->query("UPDATE configuracion SET valor = '$fecha'    WHERE clave = 'fecha_votacion'");
         $conn->query("UPDATE configuracion SET valor = '$apertura' WHERE clave = 'hora_apertura'");
         $conn->query("UPDATE configuracion SET valor = '$cierre'   WHERE clave = 'hora_cierre'");
-        $mensajeAccion = '✅ Configuración de votación guardada correctamente.';
+        $mensajeAccion = ' Configuración de votación guardada correctamente.';
     }
 }
 
@@ -206,6 +206,6 @@ $votacionActiva = $config['votacion_activa'] ?? '0';
 
     </div>
 
-    <footer><p>🗳️ <span>Yo Voto</span> — Sistema Electoral Bolivia 2026 · Democracia y Transparencia</p></footer>
+    <footer><p> <span>Yo Voto</span> — Sistema Electoral Bolivia 2026 · Democracia y Transparencia</p></footer>
 </body>
 </html>
