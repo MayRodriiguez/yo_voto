@@ -16,3 +16,5 @@ $_SESSION['user'] = [
 
 header("Location: /yo_voto/mi-perfil");
 exit();
+
+//<!--esto hace iniciar sesion, para poder hacer las pruebas de la aplicacion sin necesidad de pasar por el login-->

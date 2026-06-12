@@ -1,5 +1,5 @@
 <?php
-
+// controllers/AuthController.php
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -23,6 +23,18 @@ class AuthController {
             header("Location: /yo_voto/");
             exit();
         }
+
+        // ── Protección fuerza bruta ──────────────────────────────
+        $intentos     = $_SESSION['login_intentos']     ?? 0;
+        $bloqueadoHasta = $_SESSION['login_bloqueado_hasta'] ?? 0;
+
+        if ($bloqueadoHasta > time()) {
+            $segundos = $bloqueadoHasta - time();
+            $_SESSION['error_login'] = " Demasiados intentos fallidos. Espera {$segundos} segundos para intentar de nuevo.";
+            header("Location: /yo_voto/");
+            exit();
+        }
+        // ────────────────────────────────────────────────────────
 
         $tokenEnviado = $_POST['csrf_token'] ?? '';
         $tokenSesion  = $_SESSION['csrf_token'] ?? '';
@@ -48,13 +60,31 @@ class AuthController {
         $user = $stmt->get_result()->fetch_assoc();
 
         if (!$user) {
-            $_SESSION['error_login'] = " Carnet no encontrado.";
+            // Contar intento fallido
+            $_SESSION['login_intentos'] = $intentos + 1;
+            if ($_SESSION['login_intentos'] >= 3) {
+                $_SESSION['login_bloqueado_hasta'] = time() + 60; // bloqueo 60 seg
+                $_SESSION['login_intentos'] = 0;
+                $_SESSION['error_login'] = " Demasiados intentos fallidos. Espera 60 segundos.";
+            } else {
+                $restantes = 3 - $_SESSION['login_intentos'];
+                $_SESSION['error_login'] = " Carnet no encontrado. Te quedan {$restantes} intentos.";
+            }
             header("Location: /yo_voto/");
             exit();
         }
 
         if (!password_verify($password, $user['password'])) {
-            $_SESSION['error_login'] = " Contraseña incorrecta.";
+            // Contar intento fallido
+            $_SESSION['login_intentos'] = $intentos + 1;
+            if ($_SESSION['login_intentos'] >= 3) {
+                $_SESSION['login_bloqueado_hasta'] = time() + 60;
+                $_SESSION['login_intentos'] = 0;
+                $_SESSION['error_login'] = " Demasiados intentos fallidos. Espera 60 segundos.";
+            } else {
+                $restantes = 3 - $_SESSION['login_intentos'];
+                $_SESSION['error_login'] = " Contraseña incorrecta. Te quedan {$restantes} intentos.";
+            }
             header("Location: /yo_voto/");
             exit();
         }
@@ -65,6 +95,9 @@ class AuthController {
             exit();
         }
 
+        // Login exitoso — limpiar contadores
+        unset($_SESSION['login_intentos'], $_SESSION['login_bloqueado_hasta']);
+        session_regenerate_id(true); // Prevenir session fixation
         $_SESSION['user'] = $user;
         header("Location: /yo_voto/mi-perfil");
         exit();
@@ -119,6 +152,7 @@ class AuthController {
             exit();
         }
 
+        // Validar correo duplicado
         if (!empty($_POST['email'])) {
             $emailCheck = trim($_POST['email']);
             $emailStmt  = $this->conn->prepare("SELECT id FROM usuarios WHERE email = ?");
@@ -152,6 +186,7 @@ class AuthController {
             exit();
         }
 
+        // Guardar foto
         $foto_url = 'uploads/img/sin_foto.jpg';
         if (isset($_FILES['foto_rostro']) && $_FILES['foto_rostro']['error'] === 0) {
             $allowed = ['jpg', 'jpeg', 'png'];
@@ -209,11 +244,26 @@ class AuthController {
                 return;
             }
 
+            // ── Protección fuerza bruta admin ────────────────────
+            $intentosAdmin     = $_SESSION['admin_intentos']       ?? 0;
+            $bloqueadoAdminHasta = $_SESSION['admin_bloqueado_hasta'] ?? 0;
+            if ($bloqueadoAdminHasta > time()) {
+                $seg = $bloqueadoAdminHasta - time();
+                $error = " Demasiados intentos. Espera {$seg} segundos.";
+                require_once 'views/auth/login.php';
+                return;
+            }
+            // ────────────────────────────────────────────────────
+
             $email    = trim($_POST['email'] ?? '');
             $password = $_POST['password'] ?? '';
 
             $user = $this->userModel->login($email, $password);
             if ($user && $user['rol'] == 'admin') {
+                // Login correcto — limpiar contadores
+                unset($_SESSION['admin_intentos'], $_SESSION['admin_bloqueado_hasta']);
+                session_regenerate_id(true);
+
                 $codigo = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
                 $_SESSION['admin_codigo_email']  = $codigo;
                 $_SESSION['admin_codigo_expira'] = time() + 300;
@@ -229,7 +279,16 @@ class AuthController {
                 }
                 exit();
             } else {
-                $error = " Email o contraseña incorrectos.";
+                // Intento fallido
+                $_SESSION['admin_intentos'] = $intentosAdmin + 1;
+                if ($_SESSION['admin_intentos'] >= 3) {
+                    $_SESSION['admin_bloqueado_hasta'] = time() + 120; // 2 minutos
+                    $_SESSION['admin_intentos'] = 0;
+                    $error = " Demasiados intentos fallidos. Espera 2 minutos.";
+                } else {
+                    $restantes = 3 - $_SESSION['admin_intentos'];
+                    $error = " Email o contraseña incorrectos. Te quedan {$restantes} intentos.";
+                }
             }
         }
         require_once 'views/auth/login.php';

@@ -4,8 +4,8 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 //crea el token cuando usuario abre la pagina LOGIN 
-if (empty($_SESSION['csrf_token'])) {     //genera y guarda el token en $_SESSION si no existe
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));  //genera un token aleatorio de 32 bytes
+if (empty($_SESSION['csrf_token'])) {     //<!--genera y guarda el token en $_SESSION si no existe-->
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));  //<!--genera un token aleatorio de 32 bytes-->
 }
 
 $error_login = $_SESSION['error_login'] ?? null;
@@ -229,7 +229,7 @@ $votacionActiva = $config['votacion_activa'] ?? '0';
         <div class="modal-body">
             <div id="paso-login">
                 <div id="login-error-message" class="alert-error"></div>
-                <form method="POST" action="/yo_voto/login-votante" id="loginForm"> //lo inyecta escondido en el formulario para que se envie al servidor y se valide
+                <form method="POST" action="/yo_voto/login-votante" id="loginForm"> <!--lo inyecta escondido en el formulario para que se envie al servidor y se valide-->
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                     <div class="form-group">
                         <label><i class="fas fa-id-card"></i> Número de Carnet</label>
@@ -237,7 +237,7 @@ $votacionActiva = $config['votacion_activa'] ?? '0';
                     </div>
                     <div class="form-group" style="margin-bottom:6px;">
                         <label><i class="fas fa-lock"></i> Contraseña</label>
-                        <input type="password" name="password" id="face-password" placeholder="Tu contraseña" required>
+                        <input type="password" name="password" id="face-password" placeholder="Tu contraseña" required maxlength="6">
                     </div>
                     <div style="text-align:right;margin-bottom:16px;">
                         <a href="#" onclick="mostrarRecuperar()" style="color:#FF6B00;font-size:12px;font-weight:700;text-decoration:none;">¿Olvidaste tu contraseña?</a>

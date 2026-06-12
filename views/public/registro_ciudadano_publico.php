@@ -346,7 +346,7 @@ $coordsDep = [
                         <div class="form-group">
                             <label><i class="fas fa-lock"></i> Contraseña <span class="req">*</span></label>
                             <div class="input-wrap"><i class="ico fas fa-lock"></i>
-                                <input type="password" name="password" id="passInput" placeholder="Mín. 6 caracteres" required>
+                                <input type="password" name="password" id="passInput" placeholder="Solo 6 caracteres" required maxlength="6">
                             </div>
                             <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
                             <div class="strength-text" id="strengthText"></div>
@@ -354,7 +354,7 @@ $coordsDep = [
                         <div class="form-group">
                             <label><i class="fas fa-check-double"></i> Confirmar Contraseña <span class="req">*</span></label>
                             <div class="input-wrap"><i class="ico fas fa-check-double"></i>
-                                <input type="password" name="confirm_password" id="confirmInput" placeholder="Repite tu contraseña" required>
+                                <input type="password" name="confirm_password" id="confirmInput" placeholder="Repite tu contraseña" required maxlength="6">
                             </div>
                             <div class="strength-text" id="matchText"></div>
                         </div>
@@ -763,11 +763,12 @@ const matchTxt     = document.getElementById('matchText');
 passInput.addEventListener('input', () => {
     const v = passInput.value;
     let s = 0;
-    if (v.length >= 6) s++; if (v.length >= 10) s++;
-    if (/[A-Z]/.test(v)) s++; if (/[0-9]/.test(v)) s++;
+    if (v.length >= 6) s++;
+    if (/[A-Z]/.test(v)) s++;
+    if (/[0-9]/.test(v)) s++;
     if (/[^A-Za-z0-9]/.test(v)) s++;
-    const levels = [{w:'20%',c:'#E74C3C',l:'Muy débil'},{w:'40%',c:'#E67E22',l:'Débil'},{w:'60%',c:'#F1C40F',l:'Regular'},{w:'80%',c:'#27AE60',l:'Buena'},{w:'100%',c:'#1ABC9C',l:'Muy segura'}];
-    const lv = v.length > 0 ? (levels[Math.min(s-1,4)] || levels[0]) : {w:'0%',c:'transparent',l:''};
+    const levels = [{w:'33%',c:'#E74C3C',l:'Mala'},{w:'66%',c:'#F1C40F',l:'Buena'},{w:'100%',c:'#27AE60',l:'Muy buena'}];
+    const lv = v.length > 0 ? (levels[Math.min(s-1,2)] || levels[0]) : {w:'0%',c:'transparent',l:''};
     fill.style.width = lv.w; fill.style.background = lv.c;
     txt.textContent = lv.l; txt.style.color = lv.c;
     checkMatch();
