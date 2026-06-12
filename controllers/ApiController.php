@@ -104,7 +104,7 @@ class ApiController {
         header('Content-Type: application/json');
         header('Access-Control-Allow-Origin: *');
         $data = json_decode(file_get_contents('php://input'), true);
-        if (!isset($data['captcha']) || !isset($_SESSION['captcha_resultado']) || $data['captcha'] != $_SESSION['captcha_resultado']) {
+        if (!isset($data['captcha']) || !isset($_SESSION['captcha_codigo']) || strtoupper($data['captcha']) != strtoupper($_SESSION['captcha_codigo'])) {
             echo json_encode(['success' => false, 'error' => 'Código de seguridad incorrecto']);
             return;
         }

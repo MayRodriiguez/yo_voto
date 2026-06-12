@@ -3,14 +3,15 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+//crea el token cuando usuario abre la pagina LOGIN 
+if (empty($_SESSION['csrf_token'])) {     //genera y guarda el token en $_SESSION si no existe
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));  //genera un token aleatorio de 32 bytes
 }
 
 $error_login = $_SESSION['error_login'] ?? null;
 unset($_SESSION['error_login']);
 
-// Estado de votación
+
 require_once 'config/database.php';
 $db = new Database();
 $conn = $db->getConnection();
@@ -18,7 +19,7 @@ $config = [];
 $resConfig = $conn->query("SELECT clave, valor FROM configuracion");
 while ($row = $resConfig->fetch_assoc()) { $config[$row['clave']] = $row['valor']; }
 $votacionActiva = $config['votacion_activa'] ?? '0';
-// La votación se controla solo con el botón del dashboard
+
 ?>
 
 <!DOCTYPE html>
@@ -197,7 +198,7 @@ $votacionActiva = $config['votacion_activa'] ?? '0';
     </div>
 </section>
 
-<!-- MÓDULOS -->
+
 <section class="modules-section">
     <div class="modules-grid">
         <div class="module-card" onclick="mostrarModalLogin()">
@@ -218,7 +219,7 @@ $votacionActiva = $config['votacion_activa'] ?? '0';
     </div>
 </section>
 
-<!-- MODAL LOGIN -->
+
 <div id="modalLogin" class="modal-overlay">
     <div class="modal-box">
         <div class="modal-head">
@@ -228,7 +229,7 @@ $votacionActiva = $config['votacion_activa'] ?? '0';
         <div class="modal-body">
             <div id="paso-login">
                 <div id="login-error-message" class="alert-error"></div>
-                <form method="POST" action="/yo_voto/login-votante" id="loginForm">
+                <form method="POST" action="/yo_voto/login-votante" id="loginForm"> //lo inyecta escondido en el formulario para que se envie al servidor y se valide
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                     <div class="form-group">
                         <label><i class="fas fa-id-card"></i> Número de Carnet</label>
@@ -309,7 +310,7 @@ $votacionActiva = $config['votacion_activa'] ?? '0';
     </div>
 </div>
 
-<!-- MODAL CANDIDATO -->
+
 <div id="modalCandidato" class="modal-overlay">
     <div class="modal-box modal-box-lg">
         <div class="modal-head">
@@ -320,7 +321,6 @@ $votacionActiva = $config['votacion_activa'] ?? '0';
     </div>
 </div>
 
-<!-- SECCIÓN PASOS -->
 <section style="background:linear-gradient(180deg,#0a1628 0%,#070e1f 100%);padding:70px 24px;">
     <div style="max-width:1100px;margin:0 auto;">
         <div style="text-align:center;margin-bottom:52px;">
@@ -514,7 +514,6 @@ $votacionActiva = $config['votacion_activa'] ?? '0';
     <?php endif; ?>
 </script>
 
-<!-- CHATBOT CON FIREBASE -->
 <style>
     #chatbot-widget { position: fixed; bottom: 20px; right: 20px; z-index: 9999; font-family: "Open Sans", sans-serif; }
     #chatbot-toggle { background: #FF6B00; color: white; border: none; border-radius: 50%; width: 60px; height: 60px; font-size: 24px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: transform 0.3s; }

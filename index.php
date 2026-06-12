@@ -65,6 +65,8 @@ if (strpos($_SERVER['REQUEST_URI'], '/api/') !== false) {
         $api->registrarVoto();
     } elseif (strpos($url, '/api/estadisticas') !== false) {
         $api->getEstadisticas();
+    } elseif (strpos($url, '/api/login') !== false) {
+        $api->login();
     } elseif (strpos($url, '/api/admin/habilitar') !== false) {
         require_once 'api/admin.php';
         exit();
@@ -74,7 +76,8 @@ if (strpos($_SERVER['REQUEST_URI'], '/api/') !== false) {
     } elseif (
         strpos($url, '/api/recuperar-password') !== false ||
         strpos($url, '/api/verificar-reset') !== false ||
-        strpos($url, '/api/nueva-password') !== false
+        strpos($url, '/api/nueva-password') !== false ||
+        strpos($url, '/api/face/') !== false
     ) {
         require_once 'api/face_routes.php';
         exit();

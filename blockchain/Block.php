@@ -35,7 +35,7 @@ class Block {
             $this->nonce++;
             $this->hash = $this->calculateHash();
         }
-        echo "Bloque minado: " . $this->hash . "\n";
+        // No usar echo aquí: contamina las respuestas JSON de la API
     }
 }
 ?>

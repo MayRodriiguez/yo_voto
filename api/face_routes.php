@@ -1,5 +1,5 @@
 <?php
-// api/face_routes.php
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
@@ -26,7 +26,68 @@ $conn = $db->getConnection();
 $url = $_SERVER['REQUEST_URI'];
 
 
-// recuperar contraseña — enviar codigo
+if (strpos($url, '/api/face/login') !== false) {
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+
+        echo json_encode(['status' => 'ok', 'message' => 'Endpoint de autenticación facial activo']);
+        exit();
+    }
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $data       = json_decode(file_get_contents('php://input'), true);
+        $carnet     = trim($data['carnet'] ?? '');
+        $captcha    = $data['captcha'] ?? '';
+        $descriptor = $data['descriptor'] ?? null; 
+
+        if (empty($carnet)) {
+            echo json_encode(['success' => false, 'error' => 'El número de carnet es requerido.']);
+            exit();
+        }
+
+
+        $captchaSession = $_SESSION['captcha_codigo'] ?? '';
+        if (empty($captcha) || strtoupper((string)$captcha) !== strtoupper((string)$captchaSession)) {
+            echo json_encode(['success' => false, 'error' => 'Código de seguridad incorrecto. Recarga el captcha.']);
+            exit();
+        }
+
+
+        $stmt = $conn->prepare("SELECT * FROM usuarios WHERE carnet = ? AND activo = 1");
+        $stmt->bind_param("s", $carnet);
+        $stmt->execute();
+        $user = $stmt->get_result()->fetch_assoc();
+
+        if (!$user) {
+            echo json_encode(['success' => false, 'error' => 'No se encontró ninguna cuenta con ese carnet.']);
+            exit();
+        }
+
+        if ($user['rol'] !== 'usuario') {
+            echo json_encode(['success' => false, 'error' => 'Acceso no permitido para este tipo de cuenta.']);
+            exit();
+        }
+
+        if ($user['habilitado_voto'] != 1) {
+            echo json_encode(['success' => false, 'error' => 'Tu cuenta aún no está habilitada para votar.']);
+            exit();
+        }
+
+        $_SESSION['user'] = $user;
+
+        unset($_SESSION['captcha_codigo']);
+
+        echo json_encode([
+            'success'  => true,
+            'redirect' => '/yo_voto/mi-perfil',
+            'nombre'   => $user['nombres'] . ' ' . $user['apellidos']
+        ]);
+        exit();
+    }
+
+    echo json_encode(['success' => false, 'error' => 'Método no permitido.']);
+    exit();
+}
+
 if (strpos($url, '/api/recuperar-password') !== false && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $data   = json_decode(file_get_contents('php://input'), true);
     $carnet = trim($data['carnet'] ?? '');
@@ -67,7 +128,6 @@ if (strpos($url, '/api/recuperar-password') !== false && $_SERVER['REQUEST_METHO
         $stmt2->execute();
     }
 
-    // Enviar con PHPMailer
     $mail = new PHPMailer(true);
     try {
         $mail->isSMTP();
@@ -109,8 +169,6 @@ if (strpos($url, '/api/recuperar-password') !== false && $_SERVER['REQUEST_METHO
     exit();
 }
 
-
-// verificar codigo
 if (strpos($url, '/api/verificar-reset') !== false && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $data   = json_decode(file_get_contents('php://input'), true);
     $codigo = trim($data['codigo'] ?? '');
@@ -137,7 +195,6 @@ if (strpos($url, '/api/verificar-reset') !== false && $_SERVER['REQUEST_METHOD']
     exit();
 }
 
-// nueva contraseña
 if (strpos($url, '/api/nueva-password') !== false && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $data      = json_decode(file_get_contents('php://input'), true);
     $password  = $data['password'] ?? '';

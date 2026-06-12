@@ -1,5 +1,5 @@
 <?php
-// controllers/AuthController.php
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -119,7 +119,6 @@ class AuthController {
             exit();
         }
 
-        // Validar correo duplicado
         if (!empty($_POST['email'])) {
             $emailCheck = trim($_POST['email']);
             $emailStmt  = $this->conn->prepare("SELECT id FROM usuarios WHERE email = ?");
@@ -153,7 +152,6 @@ class AuthController {
             exit();
         }
 
-        // Guardar foto
         $foto_url = 'uploads/img/sin_foto.jpg';
         if (isset($_FILES['foto_rostro']) && $_FILES['foto_rostro']['error'] === 0) {
             $allowed = ['jpg', 'jpeg', 'png'];

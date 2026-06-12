@@ -84,6 +84,7 @@ $coordsDep = [
         .sec-title { font-size: 11px; font-weight: 700; color: #FF6B00; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 16px; margin-top: 26px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,107,0,0.25); display: flex; align-items: center; gap: 8px; }
         .sec-title:first-child { margin-top: 0; }
         .form-grid { display: grid; gap: 14px; }
+        .form-grid.grid-ciudad { grid-template-columns: 1fr 1fr; }
         .grid-2 { grid-template-columns: 1fr 1fr; }
         .grid-ci { grid-template-columns: 1fr 100px; }
         .form-group { display: flex; flex-direction: column; gap: 5px; }
@@ -266,12 +267,12 @@ $coordsDep = [
                     <!-- UBICACIÓN CON MAPA -->
                     <div class="sec-title"><i class="fas fa-map-marker-alt"></i> Tu Ubicación</div>
 
-                    <div class="form-grid grid-2" style="margin-bottom:14px;">
+                    <div class="form-grid" style="margin-bottom:14px;">
                         <div class="form-group">
                             <label><i class="fas fa-map"></i> Departamento <span class="req">*</span></label>
                             <div class="input-wrap"><i class="ico fas fa-map"></i>
                                 <select name="departamento" id="departamento" required onchange="cambiarDepartamento(this.value)">
-                                    <option value="">Seleccionar</option>
+                                    <option value=""> Selecciona tu departamento </option>
                                     <?php foreach($departamentos as $dep): ?>
                                         <option value="<?= $dep ?>"><?= $dep ?></option>
                                     <?php endforeach; ?>
@@ -282,8 +283,8 @@ $coordsDep = [
                         <div class="form-group" id="grupo-ciudad" style="display:none;">
                             <label><i class="fas fa-city"></i> Ciudad <span class="req">*</span></label>
                             <div class="input-wrap"><i class="ico fas fa-city"></i>
-                                <select name="ciudad" id="ciudad" class="no-icon" style="padding-left:34px;">
-                                    <option value="">Seleccionar</option>
+                                <select name="ciudad" id="ciudad" style="padding-left:34px;width:100%;">
+                                    <option value="" disabled selected> Selecciona una ciudad </option>
                                     <option value="La Paz">La Paz</option>
                                     <option value="El Alto">El Alto</option>
                                 </select>
@@ -362,34 +363,72 @@ $coordsDep = [
                     <!-- FOTO -->
                     <div class="sec-title"><i class="fas fa-camera"></i> Foto de Verificación</div>
                     <div class="foto-box">
-                        <div class="foto-preview-wrap">
-                            <div class="foto-placeholder" id="foto-placeholder" onclick="document.getElementById('foto-input').click()">
-                                <i class="fas fa-user-circle"></i>
-                                <span>Subir foto</span>
+
+                        <!-- Estado: sin foto -->
+                        <div id="estado-inicial">
+                            <div class="foto-placeholder" id="foto-placeholder" style="width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,0.05);border:3px dashed rgba(255,107,0,0.4);display:flex;flex-direction:column;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);margin:0 auto 16px;">
+                                <i class="fas fa-user-circle" style="font-size:48px;margin-bottom:8px;"></i>
+                                <span style="font-size:12px;font-weight:600;">Sin foto</span>
                             </div>
-                            <img id="foto-preview" class="foto-preview" src="" alt="Foto de perfil">
+                            <p style="color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:16px;">Toma una foto con tu cámara o sube una imagen de tu rostro.<br>Aparecerá en tu certificado de sufragio.</p>
+                            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+                                <button type="button" class="btn-upload" id="btn-abrir-camara" onclick="abrirCamara()">
+                                    <i class="fas fa-camera"></i> Usar Cámara
+                                </button>
+                                <button type="button" class="btn-upload" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);" onclick="document.getElementById('foto-input').click()">
+                                    <i class="fas fa-upload"></i> Subir Foto
+                                </button>
+                            </div>
                         </div>
-                        <p style="color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:14px;">Sube una foto clara de tu rostro para el certificado de sufragio</p>
-                        <div class="tips-grid">
-                            <div class="tip"><span class="tip-ico ok"><i class="fas fa-check"></i></span><span>Buena iluminación</span></div>
-                            <div class="tip"><span class="tip-ico ok"><i class="fas fa-check"></i></span><span>Rostro de frente</span></div>
-                            <div class="tip"><span class="tip-ico ok"><i class="fas fa-check"></i></span><span>Fondo claro</span></div>
-                            <div class="tip"><span class="tip-ico no"><i class="fas fa-times"></i></span><span>Sin gorro</span></div>
-                            <div class="tip"><span class="tip-ico no"><i class="fas fa-times"></i></span><span>Sin lentes oscuros</span></div>
-                            <div class="tip"><span class="tip-ico no"><i class="fas fa-times"></i></span><span>Sin mascarilla</span></div>
+
+                        <!-- Estado: cámara activa -->
+                        <div id="estado-camara" style="display:none;">
+                            <div style="position:relative;width:280px;margin:0 auto 14px;">
+                                <video id="camara-video" autoplay playsinline style="width:280px;height:280px;border-radius:50%;object-fit:cover;border:4px solid #FF6B00;display:block;background:#000;"></video>
+                                <!-- Guía de rostro -->
+                                <div style="position:absolute;inset:0;border-radius:50%;border:2px dashed rgba(255,255,255,0.3);pointer-events:none;"></div>
+                            </div>
+                            <p style="color:rgba(255,255,255,0.45);font-size:13px;margin-bottom:14px;">Centra tu rostro en el círculo y presiona <strong style="color:#FF6B00;">Tomar Foto</strong></p>
+                            <div class="tips-grid" style="margin-bottom:16px;">
+                                <div class="tip"><span class="tip-ico ok"><i class="fas fa-check"></i></span><span>Buena iluminación</span></div>
+                                <div class="tip"><span class="tip-ico ok"><i class="fas fa-check"></i></span><span>Rostro de frente</span></div>
+                                <div class="tip"><span class="tip-ico no"><i class="fas fa-times"></i></span><span>Sin mascarilla</span></div>
+                            </div>
+                            <div style="display:flex;gap:10px;justify-content:center;">
+                                <button type="button" class="btn-upload" onclick="tomarFoto()"><i class="fas fa-camera"></i> Tomar Foto</button>
+                                <button type="button" class="btn-upload" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);" onclick="cancelarCamara()"><i class="fas fa-times"></i> Cancelar</button>
+                            </div>
                         </div>
-                        <input type="file" id="foto-input" name="foto_rostro" accept="image/jpeg,image/png,image/jpg" style="display:none;" onchange="procesarFoto(this)">
-                        <div style="margin-top:16px;">
-                            <button type="button" class="btn-upload" onclick="document.getElementById('foto-input').click()"><i class="fas fa-upload"></i> Seleccionar Foto</button>
-                            <button type="button" class="btn-retake" id="btn-retake" onclick="retakePhoto()"><i class="fas fa-redo"></i> Cambiar Foto</button>
+
+                        <!-- Estado: foto tomada/cargada -->
+                        <div id="estado-preview" style="display:none;">
+                            <div style="position:relative;width:160px;height:160px;margin:0 auto 16px;">
+                                <img id="foto-preview" style="width:160px;height:160px;border-radius:50%;object-fit:cover;border:4px solid #FF6B00;display:block;" src="" alt="Foto de perfil">
+                                <div style="position:absolute;bottom:4px;right:4px;width:32px;height:32px;background:#27AE60;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                                    <i class="fas fa-check" style="color:#fff;font-size:14px;"></i>
+                                </div>
+                            </div>
+                            <p style="color:#5cdb95;font-size:14px;font-weight:700;margin-bottom:14px;"><i class="fas fa-check-circle"></i> Foto lista para el registro</p>
+                            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+                                <button type="button" class="btn-upload" onclick="abrirCamara()"><i class="fas fa-camera"></i> Nueva foto</button>
+                                <button type="button" class="btn-upload" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);" onclick="document.getElementById('foto-input').click()"><i class="fas fa-upload"></i> Subir otra</button>
+                            </div>
                         </div>
-                        <div id="foto-status" class="foto-status"></div>
+
+                        <!-- Canvas oculto para captura -->
+                        <canvas id="foto-canvas" style="display:none;"></canvas>
+                        <!-- Input oculto para el archivo final que se envía -->
+                        <input type="file" id="foto-input" name="foto_rostro" accept="image/jpeg,image/png,image/jpg" style="display:none;" onchange="procesarArchivoFoto(this)">
+                        <!-- Input hidden para foto capturada por cámara (base64 → blob) -->
+                        <input type="hidden" id="foto-data-url" name="">
+
+                        <div id="foto-status" class="foto-status" style="margin-top:12px;"></div>
                     </div>
 
                     <button type="submit" class="btn-submit" id="submit-btn" disabled>
                         <i class="fas fa-user-plus"></i> Crear mi Cuenta
                     </button>
-                    <p style="text-align:center;margin-top:10px;font-size:12px;color:rgba(255,255,255,0.28);"> Debe subir una foto antes de registrarse</p>
+                    <p style="text-align:center;margin-top:10px;font-size:12px;color:rgba(255,255,255,0.28);"> Debes tomar o subir una foto antes de registrarte</p>
                 </form>
 
             <?php endif; ?>
@@ -415,29 +454,40 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('submit-btn').disabled = true;
 });
 
+function getCiudad() {
+    const el = document.getElementById('ciudad');
+    return (el && el.offsetParent !== null) ? el.value : '';
+}
+
 function cambiarDepartamento(dep) {
     const grupoCiudad = document.getElementById('grupo-ciudad');
     const selectCiudad = document.getElementById('ciudad');
+    const grid = grupoCiudad.parentElement;
     if (dep === 'La Paz') {
         grupoCiudad.style.display = 'block';
         selectCiudad.required = true;
+        selectCiudad.value = '';
+        grid.classList.add('grid-ciudad');
     } else {
         grupoCiudad.style.display = 'none';
         selectCiudad.required = false;
         selectCiudad.value = '';
+        grid.classList.remove('grid-ciudad');
     }
     if (coordsDep[dep]) mapa.setView(coordsDep[dep], 13);
 }
 
 function autocompletarZona(query) {
     const dep    = document.getElementById('departamento').value;
-    const ciudad = document.getElementById('ciudad').value;
+    const ciudad = getCiudad();
     const lista  = document.getElementById('zona-sugerencias');
     if (query.length < 3) { lista.style.display = 'none'; return; }
     clearTimeout(zonaTimer);
     zonaTimer = setTimeout(() => {
         const lugar = ciudad || dep || 'Bolivia';
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ', ' + lugar + ', Bolivia')}&limit=6&addressdetails=1`)
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ', ' + lugar + ', Bolivia')}&limit=6&addressdetails=1&countrycodes=bo`, {
+            headers: { 'Accept-Language': 'es' }
+        })
             .then(r => r.json())
             .then(data => {
                 if (!data.length) { lista.style.display = 'none'; return; }
@@ -445,17 +495,19 @@ function autocompletarZona(query) {
                 lista.innerHTML = data.map(item => {
                     const partes = item.display_name.split(',');
                     const nombre = partes.slice(0, 3).join(',').trim();
-                    return `<div onclick="seleccionarZona('${item.display_name.replace(/'/g,"\\'")}', ${item.lat}, ${item.lon})"
-                        style="padding:10px 14px;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.8);border-bottom:1px solid rgba(255,255,255,0.06);transition:.15s;"
-                        onmouseover="this.style.background='rgba(255,107,0,0.15)'"
-                        onmouseout="this.style.background='transparent'">
-                        <i class="fas fa-map-marker-alt" style="color:#FF6B00;margin-right:6px;font-size:11px;"></i>${nombre}
-                    </div>`;
+                    const safeNombre = item.display_name.replace(/'/g, "\'");
+                    return '<div onclick="seleccionarZona(\'' + safeNombre + '\', ' + item.lat + ', ' + item.lon + ')" '
+                         + 'style="padding:10px 14px;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.8);border-bottom:1px solid rgba(255,255,255,0.06);transition:.15s;" '
+                         + 'onmouseover="this.style.background=\'rgba(255,107,0,0.15)\'" '
+                         + 'onmouseout="this.style.background=\'transparent\'">'
+                         + '<i class="fas fa-map-marker-alt" style="color:#FF6B00;margin-right:6px;font-size:11px;"></i>' + nombre
+                         + '</div>';
                 }).join('');
             })
             .catch(() => { lista.style.display = 'none'; });
     }, 400);
 }
+
 
 function seleccionarZona(nombre, lat, lng) {
     const partes = nombre.split(',');
@@ -474,7 +526,7 @@ document.addEventListener('click', function(e) {
 
 function actualizarBuscador() {
     const dir    = document.getElementById('direccion').value;
-    const ciudad = document.getElementById('ciudad').value;
+    const ciudad = getCiudad();
     const dep    = document.getElementById('departamento').value;
     if (dir.length > 4) {
         document.getElementById('buscar-mapa').value = dir + (ciudad ? ', ' + ciudad : dep ? ', ' + dep : '') + ', Bolivia';
@@ -482,19 +534,54 @@ function actualizarBuscador() {
 }
 
 function buscarEnMapa() {
-    const query = document.getElementById('buscar-mapa').value.trim();
-    const dep   = document.getElementById('departamento').value;
-    const ciudad = document.getElementById('ciudad').value;
+    const query  = document.getElementById('buscar-mapa').value.trim();
+    const dep    = document.getElementById('departamento').value || 'La Paz';
+    const ciudad = getCiudad();
     if (!query) return;
-    const busqueda = query + (ciudad ? ', ' + ciudad : dep ? ', ' + dep : '') + ', Bolivia';
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(busqueda)}&limit=1`)
+
+    const btnBuscar = document.querySelector('.mapa-search button');
+    btnBuscar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Buscando...';
+    btnBuscar.disabled = true;
+
+    // Intentos en orden: con ciudad → con departamento → solo query + Bolivia
+    const intentos = [
+        ciudad ? `${query}, ${ciudad}, ${dep}, Bolivia` : null,
+        `${query}, ${dep}, Bolivia`,
+        `${query}, Bolivia`
+    ].filter(Boolean);
+
+    function intentar(idx) {
+        if (idx >= intentos.length) {
+            btnBuscar.innerHTML = '<i class="fas fa-search"></i> Buscar';
+            btnBuscar.disabled = false;
+            alert('No se encontró "' + query + '" en el mapa.\nIntenta escribir la dirección completa, por ejemplo:\n"Av. Bautista Saavedra 123, Miraflores"');
+            return;
+        }
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(intentos[idx])}&limit=3&countrycodes=bo&addressdetails=1`, {
+            headers: { 'Accept-Language': 'es' }
+        })
         .then(r => r.json())
         .then(data => {
-            if (!data.length) { alert('No se encontró la dirección.'); return; }
-            ubicarEnMapa(parseFloat(data[0].lat), parseFloat(data[0].lon));
-            obtenerDireccion(parseFloat(data[0].lat), parseFloat(data[0].lon));
+            if (!data || !data.length) {
+                intentar(idx + 1); // probar siguiente variante
+                return;
+            }
+            const resultado = data[0];
+            const lat = parseFloat(resultado.lat);
+            const lon = parseFloat(resultado.lon);
+            ubicarEnMapa(lat, lon);
+            obtenerDireccion(lat, lon);
+            // Centrar el mapa con más zoom
+            mapa.setView([lat, lon], 17);
+            btnBuscar.innerHTML = '<i class="fas fa-search"></i> Buscar';
+            btnBuscar.disabled = false;
         })
-        .catch(() => alert('Error al buscar.'));
+        .catch(() => {
+            intentar(idx + 1);
+        });
+    }
+
+    intentar(0);
 }
 
 function usarUbicacionActual() {
@@ -544,41 +631,124 @@ function obtenerDireccion(lat, lng) {
         }).catch(() => {});
 }
 
-// Foto
-function procesarFoto(input) {
+// =====================================================
+// CÁMARA / FOTO
+// =====================================================
+let streamActivo = null;
+
+function abrirCamara() {
+    mostrarStatus('', '');
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        mostrarStatus('Tu navegador no soporta acceso a la cámara. Usa la opción de subir foto.', 'error');
+        return;
+    }
+    navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 640, facingMode: 'user' } })
+        .then(function(stream) {
+            streamActivo = stream;
+            const video = document.getElementById('camara-video');
+            video.srcObject = stream;
+            document.getElementById('estado-inicial').style.display = 'none';
+            document.getElementById('estado-preview').style.display = 'none';
+            document.getElementById('estado-camara').style.display = 'block';
+        })
+        .catch(function(err) {
+            if (err.name === 'NotAllowedError') {
+                mostrarStatus('Permiso de cámara denegado. Por favor permite el acceso o usa la opción de subir foto.', 'error');
+            } else {
+                mostrarStatus('No se pudo acceder a la cámara. Usa la opción de subir foto.', 'error');
+            }
+        });
+}
+
+function cancelarCamara() {
+    detenerStream();
+    document.getElementById('estado-camara').style.display = 'none';
+    const hayFoto = document.getElementById('foto-preview').src && document.getElementById('foto-preview').src !== window.location.href;
+    document.getElementById('estado-preview').style.display = hayFoto ? 'block' : 'none';
+    document.getElementById('estado-inicial').style.display = hayFoto ? 'none' : 'block';
+}
+
+function detenerStream() {
+    if (streamActivo) {
+        streamActivo.getTracks().forEach(t => t.stop());
+        streamActivo = null;
+    }
+}
+
+function tomarFoto() {
+    const video  = document.getElementById('camara-video');
+    const canvas = document.getElementById('foto-canvas');
+    const size   = 400;
+    canvas.width  = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    // Capturar cuadrado centrado del video
+    const vw = video.videoWidth;
+    const vh = video.videoHeight;
+    const lado = Math.min(vw, vh);
+    const sx = (vw - lado) / 2;
+    const sy = (vh - lado) / 2;
+    ctx.drawImage(video, sx, sy, lado, lado, 0, 0, size, size);
+
+    const dataURL = canvas.toDataURL('image/jpeg', 0.85);
+    detenerStream();
+
+    // Mostrar preview
+    const preview = document.getElementById('foto-preview');
+    preview.src = dataURL;
+    document.getElementById('estado-camara').style.display = 'none';
+    document.getElementById('estado-preview').style.display = 'block';
+    document.getElementById('estado-inicial').style.display = 'none';
+    document.getElementById('submit-btn').disabled = false;
+    mostrarStatus('¡Foto tomada! Ya puedes registrarte.', 'success');
+
+    // Convertir dataURL a Blob y asignarlo al input file para que el servidor lo reciba
+    dataURLaBlob(dataURL, function(blob) {
+        const dt = new DataTransfer();
+        const archivo = new File([blob], 'foto_rostro_camara.jpg', { type: 'image/jpeg' });
+        dt.items.add(archivo);
+        document.getElementById('foto-input').files = dt.files;
+    });
+}
+
+function dataURLaBlob(dataURL, callback) {
+    const parts = dataURL.split(',');
+    const mime  = parts[0].match(/:(.*?);/)[1];
+    const bstr  = atob(parts[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) u8arr[n] = bstr.charCodeAt(n);
+    callback(new Blob([u8arr], { type: mime }));
+}
+
+function procesarArchivoFoto(input) {
     const file = input.files[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { mostrarStatus(' La foto es muy grande. Máximo 5MB.', 'error'); return; }
+    if (file.size > 5 * 1024 * 1024) { mostrarStatus('La foto es muy grande. Máximo 5MB.', 'error'); return; }
     const reader = new FileReader();
     reader.onload = (e) => {
         const preview = document.getElementById('foto-preview');
         preview.src = e.target.result;
-        preview.style.display = 'block';
-        document.getElementById('foto-placeholder').style.display = 'none';
-        document.getElementById('btn-retake').style.display = 'inline-flex';
+        document.getElementById('estado-camara').style.display = 'none';
+        document.getElementById('estado-inicial').style.display = 'none';
+        document.getElementById('estado-preview').style.display = 'block';
         document.getElementById('submit-btn').disabled = false;
-        mostrarStatus(' Foto cargada correctamente.', 'success');
+        mostrarStatus('Foto cargada correctamente.', 'success');
     };
     reader.readAsDataURL(file);
 }
 
-function retakePhoto() {
-    document.getElementById('foto-input').value = '';
-    document.getElementById('foto-preview').style.display = 'none';
-    document.getElementById('foto-preview').src = '';
-    document.getElementById('foto-placeholder').style.display = 'flex';
-    document.getElementById('btn-retake').style.display = 'none';
-    document.getElementById('submit-btn').disabled = true;
-    document.getElementById('foto-status').style.display = 'none';
-}
-
 function mostrarStatus(msg, type) {
     const s = document.getElementById('foto-status');
+    if (!msg) { s.style.display = 'none'; return; }
     s.style.display = 'block';
     s.className = 'foto-status ' + type;
     s.innerHTML = msg;
     if (type === 'success') setTimeout(() => s.style.display = 'none', 4000);
 }
+
+// Detener cámara si el usuario sale de la página sin guardar
+window.addEventListener('beforeunload', detenerStream);
 
 document.getElementById('carnet').addEventListener('input', function() {
     this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);
