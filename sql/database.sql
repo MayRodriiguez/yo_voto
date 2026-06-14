@@ -1,7 +1,3 @@
--- =====================================================
--- YO VOTO - Schema de Base de Datos
--- =====================================================
-
 CREATE DATABASE IF NOT EXISTS yo_voto010 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE yo_voto010;
 
@@ -96,9 +92,7 @@ CREATE TABLE IF NOT EXISTS blockchain_votos (
     UNIQUE KEY unique_hash (hash_bloque)
 ) ENGINE=InnoDB;
 
--- =====================================================
 -- Datos iniciales de configuración
--- =====================================================
 INSERT IGNORE INTO configuracion (clave, valor) VALUES
     ('votacion_activa', '0'),
     ('fecha_votacion', ''),
