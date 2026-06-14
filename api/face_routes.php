@@ -26,9 +26,7 @@ $conn = $db->getConnection();
 $url = $_SERVER['REQUEST_URI'];
 
 
-// =====================================================
 // LOGIN CON RECONOCIMIENTO FACIAL
-// =====================================================
 if (strpos($url, '/api/face/login') !== false) {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         // Devolver estado (útil para verificar que el endpoint existe)

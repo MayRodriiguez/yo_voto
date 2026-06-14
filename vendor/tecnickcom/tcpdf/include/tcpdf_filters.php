@@ -474,8 +474,4 @@ class TCPDF_FILTERS {
 		throw new Exception('TCPDF_PARSER ERROR: '.$msg);
 	}
 
-} // END OF TCPDF_FILTERS CLASS
-
-//============================================================+
-// END OF FILE
-//============================================================+
+} 

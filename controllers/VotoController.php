@@ -63,7 +63,7 @@ class VotoController {
         }
 
         if (!empty($horaCierre) && $horaActual > $horaCierre) {
-            $_SESSION['error_login'] = " La votación ha cerrado. Horario: {$horaApertura} - {$horaCierre}.";
+            $_SESSION['error_login'] = " La votación ha cerrado Horario: {$horaApertura} - {$horaCierre}.";
             header("Location: /yo_voto/");
             exit();
         }

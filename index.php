@@ -10,9 +10,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 require_once 'config/database.php';
 
-// =====================================================
 // API - CHATBOT
-// =====================================================
 
 if (strpos($_SERVER['REQUEST_URI'], '/api/chatbot') !== false) {
     require_once 'controllers/ChatbotController.php';
@@ -31,9 +29,7 @@ if (strpos($_SERVER['REQUEST_URI'], '/api/chatbot') !== false) {
     exit();
 }
 
-// =====================================================
 // API
-// =====================================================
 
 if (strpos($_SERVER['REQUEST_URI'], '/api/') !== false) {
 
@@ -86,9 +82,7 @@ if (strpos($_SERVER['REQUEST_URI'], '/api/') !== false) {
     exit();
 }
 
-// =====================================================
 // URL
-// =====================================================
 
 $urlPath = isset($_GET['url']) ? $_GET['url'] : '';
 $urlPath = rtrim($urlPath, '/');
@@ -99,9 +93,7 @@ $method  = isset($parts[1]) ? $parts[1] : 'index';
 $param   = isset($parts[2]) ? $parts[2] : null;
 $param2  = isset($parts[3]) ? $parts[3] : null;
 
-// =====================================================
 // PÚBLICO
-// =====================================================
 
 if ($controller == 'public' || $controller == '') {
     require_once 'views/public/inicio.php';
@@ -178,9 +170,7 @@ if ($controller == 'certificado') {
     exit();
 }
 
-// =====================================================
 // ADMIN ESPECIALES
-// =====================================================
 
 if ($controller == 'admin' && $method == 'registro') {
     require_once 'controllers/RegistroController.php';
@@ -219,19 +209,14 @@ if ($controller == 'admin' && $method == 'resultados') {
     exit();
 }
 
-// =====================================================
 // VERIFICAR LOGIN ADMIN
-// =====================================================
 
 if (!isset($_SESSION['user']) || $_SESSION['user']['rol'] != 'admin') {
     header("Location: /yo_voto/login");
     exit();
 }
 
-// =====================================================
 // RUTAS PROTEGIDAS
-// =====================================================
-
 switch ($controller) {
 
     case 'admin':

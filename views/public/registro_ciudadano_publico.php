@@ -631,9 +631,7 @@ function obtenerDireccion(lat, lng) {
         }).catch(() => {});
 }
 
-// =====================================================
 // CÁMARA / FOTO
-// =====================================================
 let streamActivo = null;
 
 function abrirCamara() {

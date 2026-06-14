@@ -24,7 +24,7 @@ class AuthController {
             exit();
         }
 
-        // ── Protección fuerza bruta ──────────────────────────────
+        //  Protección fuerza bruta 
         $intentos     = $_SESSION['login_intentos']     ?? 0;
         $bloqueadoHasta = $_SESSION['login_bloqueado_hasta'] ?? 0;
 
@@ -34,7 +34,7 @@ class AuthController {
             header("Location: /yo_voto/");
             exit();
         }
-        // ────────────────────────────────────────────────────────
+        // Protección fuerza bruta
 
         $tokenEnviado = $_POST['csrf_token'] ?? '';
         $tokenSesion  = $_SESSION['csrf_token'] ?? '';
@@ -244,7 +244,7 @@ class AuthController {
                 return;
             }
 
-            // ── Protección fuerza bruta admin ────────────────────
+            //  Protección fuerza bruta admin
             $intentosAdmin     = $_SESSION['admin_intentos']       ?? 0;
             $bloqueadoAdminHasta = $_SESSION['admin_bloqueado_hasta'] ?? 0;
             if ($bloqueadoAdminHasta > time()) {
@@ -253,7 +253,7 @@ class AuthController {
                 require_once 'views/auth/login.php';
                 return;
             }
-            // ────────────────────────────────────────────────────
+            // Protección fuerza bruta admin
 
             $email    = trim($_POST['email'] ?? '');
             $password = $_POST['password'] ?? '';
