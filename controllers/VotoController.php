@@ -44,18 +44,71 @@ class VotoController {
             exit();
         }
 
+        // Validar fecha y hora actual
+        $ahora      = new DateTime('now');
+        $fechaHoy   = $ahora->format('Y-m-d');
+        $horaActual = $ahora->format('H:i');
+
+        if (!empty($fechaVotacion) && $fechaHoy !== $fechaVotacion) {
+            $fechaFormateada = date('d/m/Y', strtotime($fechaVotacion));
+            $_SESSION['error_login'] = " La votación está programada para el {$fechaFormateada}. Hoy no es día de votación.";
+            header("Location: /yo_voto/");
+            exit();
+        }
+
+        if (!empty($horaApertura) && $horaActual < $horaApertura) {
+            $_SESSION['error_login'] = " La votación aún no ha comenzado. Apertura: {$horaApertura}.";
+            header("Location: /yo_voto/");
+            exit();
+        }
+
+        if (!empty($horaCierre) && $horaActual > $horaCierre) {
+            $_SESSION['error_login'] = " La votación ha cerrado. Horario: {$horaApertura} - {$horaCierre}.";
+            header("Location: /yo_voto/");
+            exit();
+        }
+
         $user    = $_SESSION['user'];
         $yaVoto  = $this->userModel->yaVoto($user['id']);
         $error   = '';
         $mensaje = '';
         
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            if ($yaVoto) {
+            // verifica la hora real del servidor justo cuando el usuario presiona votar
+            $ahoraPost      = new DateTime('now');         // obtiene fecha y hora actual del servidor
+            $fechaHoyPost   = $ahoraPost->format('Y-m-d'); // convierte a formato año,mes,día para comparar
+            $horaActualPost = $ahoraPost->format('H:i');   // convierte a formato hora-minuto para comparar
+
+            // si hoy no es el dia configurado para votar en el panel admin
+            if (!empty($fechaVotacion) && $fechaHoyPost !== $fechaVotacion) {
+                $error = " Hoy no es día de votación.";
+
+            // si todavia no llego la hora de apertura configurada
+            } elseif (!empty($horaApertura) && $horaActualPost < $horaApertura) {
+                $error = " La votación aún no ha comenzado. Apertura: {$horaApertura}.";
+
+            // si ya paso la hora de cierre configurada
+            } elseif (!empty($horaCierre) && $horaActualPost > $horaCierre) {
+                $error = " El horario de votación ha cerrado. Horario: {$horaApertura} - {$horaCierre}.";
+
+            // si el usuario ya emitio su voto anteriormente
+            } elseif ($yaVoto) {
                 $error = " USTED YA HA EMITIDO SU VOTO. Los votos son inmutables y no pueden modificarse.";
             } else {
-                $id_candidato = $_POST['id_candidato'] ?? 0;
+                $id_candidato = intval($_POST['id_candidato'] ?? 0);
                 $carnet       = $user['carnet'];
-                $result = $this->blockchainVote->registrarVotoBlockchain($user['id'], $id_candidato, $carnet);
+
+                // validar que el candidato existe y esta activo
+                if ($id_candidato <= 0) {
+                    $error = " Selecciona un candidato válido.";
+                } else {
+                    $stmtCheck = $this->conn->prepare("SELECT id_candidato FROM candidatos WHERE id_candidato = ? AND estado = 'activo'");
+                    $stmtCheck->bind_param("i", $id_candidato);
+                    $stmtCheck->execute();
+                    if ($stmtCheck->get_result()->num_rows === 0) {
+                        $error = " El candidato seleccionado no es válido.";
+                    } else {
+                        $result = $this->blockchainVote->registrarVotoBlockchain($user['id'], $id_candidato, $carnet);
                 if ($result['success']) {
                     $_SESSION['user']['ya_voto'] = 1;
                     $_SESSION['bloque_voto']     = $result['bloque'];
@@ -63,10 +116,12 @@ class VotoController {
                                 Hash: <strong>" . substr($result['bloque']['hash'], 0, 20) . "...</strong><br>
                                 Bloque #" . $result['bloque']['indice'] . "<br>
                                 Su voto es inmutable y no puede ser modificado.";
-                    $yaVoto = true;
-                } else {
-                    $error = " Error al registrar su voto: " . ($result['error'] ?? 'Intente nuevamente');
-                }
+                        $yaVoto = true;
+                    } else {
+                        $error = " Error al registrar su voto: " . ($result['error'] ?? 'Intente nuevamente');
+                    }
+                    } 
+                } 
             }
         }
         

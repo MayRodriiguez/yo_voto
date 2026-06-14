@@ -3,15 +3,14 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-//crea el token cuando usuario abre la pagina LOGIN 
-if (empty($_SESSION['csrf_token'])) {     //<!--genera y guarda el token en $_SESSION si no existe-->
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));  //<!--genera un token aleatorio de 32 bytes-->
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
 $error_login = $_SESSION['error_login'] ?? null;
 unset($_SESSION['error_login']);
 
-
+// Estado de votación
 require_once 'config/database.php';
 $db = new Database();
 $conn = $db->getConnection();
@@ -19,7 +18,7 @@ $config = [];
 $resConfig = $conn->query("SELECT clave, valor FROM configuracion");
 while ($row = $resConfig->fetch_assoc()) { $config[$row['clave']] = $row['valor']; }
 $votacionActiva = $config['votacion_activa'] ?? '0';
-
+// La votación se controla solo con el botón del dashboard
 ?>
 
 <!DOCTYPE html>
@@ -198,7 +197,7 @@ $votacionActiva = $config['votacion_activa'] ?? '0';
     </div>
 </section>
 
-
+<!-- MÓDULOS -->
 <section class="modules-section">
     <div class="modules-grid">
         <div class="module-card" onclick="mostrarModalLogin()">
@@ -219,7 +218,7 @@ $votacionActiva = $config['votacion_activa'] ?? '0';
     </div>
 </section>
 
-
+<!-- MODAL LOGIN -->
 <div id="modalLogin" class="modal-overlay">
     <div class="modal-box">
         <div class="modal-head">
@@ -229,7 +228,7 @@ $votacionActiva = $config['votacion_activa'] ?? '0';
         <div class="modal-body">
             <div id="paso-login">
                 <div id="login-error-message" class="alert-error"></div>
-                <form method="POST" action="/yo_voto/login-votante" id="loginForm"> <!--lo inyecta escondido en el formulario para que se envie al servidor y se valide-->
+                <form method="POST" action="/yo_voto/login-votante" id="loginForm">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                     <div class="form-group">
                         <label><i class="fas fa-id-card"></i> Número de Carnet</label>
@@ -237,7 +236,7 @@ $votacionActiva = $config['votacion_activa'] ?? '0';
                     </div>
                     <div class="form-group" style="margin-bottom:6px;">
                         <label><i class="fas fa-lock"></i> Contraseña</label>
-                        <input type="password" name="password" id="face-password" placeholder="Tu contraseña" required maxlength="6">
+                        <input type="password" name="password" id="face-password" placeholder="Tu contraseña" required>
                     </div>
                     <div style="text-align:right;margin-bottom:16px;">
                         <a href="#" onclick="mostrarRecuperar()" style="color:#FF6B00;font-size:12px;font-weight:700;text-decoration:none;">¿Olvidaste tu contraseña?</a>
@@ -296,13 +295,19 @@ $votacionActiva = $config['votacion_activa'] ?? '0';
                     <h3 style="color:#fff;font-family:'Montserrat',sans-serif;font-size:16px;margin-bottom:6px;">Nueva Contraseña</h3>
                 </div>
                 <div id="pass-error" class="alert-error"></div>
-                <div class="form-group" style="margin-bottom:14px;">
+                <div class="form-group" style="margin-bottom:6px;">
                     <label><i class="fas fa-lock"></i> Nueva Contraseña *</label>
-                    <input type="password" id="nueva-pass" placeholder="Mín. 6 caracteres">
+                    <input type="password" id="nueva-pass" placeholder="Mín. 6 caracteres" minlength="6" maxlength="6" oninput="evaluarFuerzaReset(this.value)" ...>
+                </div>
+                <div style="margin-bottom:14px;">
+                    <div style="height:5px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden;margin-bottom:5px;">
+                        <div id="reset-strength-fill" style="height:100%;width:0%;border-radius:4px;transition:all .3s;"></div>
+                    </div>
+                    <span id="reset-strength-text" style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.35);"></span>
                 </div>
                 <div class="form-group" style="margin-bottom:20px;">
                     <label><i class="fas fa-check-double"></i> Confirmar Contraseña *</label>
-                    <input type="password" id="confirmar-pass" placeholder="Repite la contraseña">
+                    <input type="password" id="confirmar-pass" placeholder="Repite la contraseña" minlength="6" maxlength="6" ...>
                 </div>
                 <button type="button" onclick="guardarNuevaPassword()" style="width:100%;padding:13px;background:#27AE60;color:#fff;border:none;border-radius:10px;font-family:'Montserrat',sans-serif;font-size:15px;font-weight:800;cursor:pointer;"><i class="fas fa-save"></i> Guardar Contraseña</button>
             </div>
@@ -310,7 +315,7 @@ $votacionActiva = $config['votacion_activa'] ?? '0';
     </div>
 </div>
 
-
+<!-- MODAL CANDIDATO -->
 <div id="modalCandidato" class="modal-overlay">
     <div class="modal-box modal-box-lg">
         <div class="modal-head">
@@ -321,6 +326,7 @@ $votacionActiva = $config['votacion_activa'] ?? '0';
     </div>
 </div>
 
+<!-- SECCIÓN PASOS -->
 <section style="background:linear-gradient(180deg,#0a1628 0%,#070e1f 100%);padding:70px 24px;">
     <div style="max-width:1100px;margin:0 auto;">
         <div style="text-align:center;margin-bottom:52px;">
@@ -412,6 +418,27 @@ $votacionActiva = $config['votacion_activa'] ?? '0';
             if (r.success) { document.getElementById('paso-codigo').style.display = 'none'; document.getElementById('paso-nueva-pass').style.display = 'block'; document.getElementById('modal-login-titulo').innerHTML = '<i class="fas fa-lock-open"></i> Nueva Contraseña'; if (countdownTimer) clearInterval(countdownTimer); }
             else { errDiv.style.display = 'block'; errDiv.innerHTML = ' ' + r.error; }
         } catch(e) { errDiv.style.display = 'block'; errDiv.innerHTML = ' Error de conexión.'; }
+    }
+
+    function evaluarFuerzaReset(v) {
+        const fill = document.getElementById('reset-strength-fill');
+        const txt  = document.getElementById('reset-strength-text');
+        if (!fill) return;
+        let s = 0;
+        if (v.length >= 6) s++;
+        if (/[A-Z]/.test(v)) s++;
+        if (/[0-9]/.test(v)) s++;
+        if (/[^A-Za-z0-9]/.test(v)) s++;
+        const levels = [
+            {w:'33%', c:'#E74C3C', l:'Mala'},
+            {w:'66%', c:'#F1C40F', l:'Buena'},
+            {w:'100%',c:'#27AE60', l:'Muy buena'}
+        ];
+        const lv = v.length > 0 ? (levels[Math.min(s-1,2)] || levels[0]) : {w:'0%',c:'transparent',l:''};
+        fill.style.width      = lv.w;
+        fill.style.background = lv.c;
+        txt.textContent       = lv.l;
+        txt.style.color       = lv.c;
     }
 
     async function guardarNuevaPassword() {
@@ -514,6 +541,7 @@ $votacionActiva = $config['votacion_activa'] ?? '0';
     <?php endif; ?>
 </script>
 
+<!-- CHATBOT CON FIREBASE -->
 <style>
     #chatbot-widget { position: fixed; bottom: 20px; right: 20px; z-index: 9999; font-family: "Open Sans", sans-serif; }
     #chatbot-toggle { background: #FF6B00; color: white; border: none; border-radius: 50%; width: 60px; height: 60px; font-size: 24px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: transform 0.3s; }

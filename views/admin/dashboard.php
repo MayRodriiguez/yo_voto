@@ -181,13 +181,13 @@ $votacionActiva = $config['votacion_activa'] ?? '0';
                 </div>
                 <div>
                     <label style="color:rgba(255,255,255,0.6);font-size:13px;font-weight:700;display:block;margin-bottom:6px;"><i class="fas fa-door-open"></i> Hora de Apertura</label>
-                    <input type="time" name="hora_apertura" value="<?= htmlspecialchars($horaApertura) ?>"
-                        style="width:100%;padding:11px 14px;border:1.5px solid rgba(255,255,255,0.1);border-radius:10px;font-size:14px;background:rgba(255,255,255,0.07);color:#fff;font-family:inherit;">
+                    <input type="time" name="hora_apertura" value="<?= htmlspecialchars($horaApertura) ?>" readonly onkeydown="return false" onclick="this.removeAttribute('readonly'); this.showPicker(); this.addEventListener('change', () => this.setAttribute('readonly',''), {once:true})"
+                        style="width:100%;padding:11px 14px;border:1.5px solid rgba(255,255,255,0.1);border-radius:10px;font-size:14px;background:rgba(255,255,255,0.07);color:#fff;font-family:inherit;cursor:pointer;">
                 </div>
                 <div>
                     <label style="color:rgba(255,255,255,0.6);font-size:13px;font-weight:700;display:block;margin-bottom:6px;"><i class="fas fa-door-closed"></i> Hora de Cierre</label>
-                    <input type="time" name="hora_cierre" value="<?= htmlspecialchars($horaCierre) ?>"
-                        style="width:100%;padding:11px 14px;border:1.5px solid rgba(255,255,255,0.1);border-radius:10px;font-size:14px;background:rgba(255,255,255,0.07);color:#fff;font-family:inherit;">
+                    <input type="time" name="hora_cierre" value="<?= htmlspecialchars($horaCierre) ?>" readonly onkeydown="return false" onclick="this.removeAttribute('readonly'); this.showPicker(); this.addEventListener('change', () => this.setAttribute('readonly',''), {once:true})"
+                        style="width:100%;padding:11px 14px;border:1.5px solid rgba(255,255,255,0.1);border-radius:10px;font-size:14px;background:rgba(255,255,255,0.07);color:#fff;font-family:inherit;cursor:pointer;">
                 </div>
                 <div>
                     <button type="submit" style="width:100%;padding:12px;background:#FF6B00;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">

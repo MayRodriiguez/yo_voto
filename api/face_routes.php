@@ -1,5 +1,5 @@
 <?php
-
+// api/face_routes.php
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
@@ -26,9 +26,12 @@ $conn = $db->getConnection();
 $url = $_SERVER['REQUEST_URI'];
 
 
+// =====================================================
+// LOGIN CON RECONOCIMIENTO FACIAL
+// =====================================================
 if (strpos($url, '/api/face/login') !== false) {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-
+        // Devolver estado (útil para verificar que el endpoint existe)
         echo json_encode(['status' => 'ok', 'message' => 'Endpoint de autenticación facial activo']);
         exit();
     }
@@ -37,21 +40,21 @@ if (strpos($url, '/api/face/login') !== false) {
         $data       = json_decode(file_get_contents('php://input'), true);
         $carnet     = trim($data['carnet'] ?? '');
         $captcha    = $data['captcha'] ?? '';
-        $descriptor = $data['descriptor'] ?? null; 
+        $descriptor = $data['descriptor'] ?? null; // Vector facial 128D (no se usa en servidor, solo logging)
 
         if (empty($carnet)) {
             echo json_encode(['success' => false, 'error' => 'El número de carnet es requerido.']);
             exit();
         }
 
-
+        // Validar captcha
         $captchaSession = $_SESSION['captcha_codigo'] ?? '';
         if (empty($captcha) || strtoupper((string)$captcha) !== strtoupper((string)$captchaSession)) {
             echo json_encode(['success' => false, 'error' => 'Código de seguridad incorrecto. Recarga el captcha.']);
             exit();
         }
 
-
+        // Buscar usuario
         $stmt = $conn->prepare("SELECT * FROM usuarios WHERE carnet = ? AND activo = 1");
         $stmt->bind_param("s", $carnet);
         $stmt->execute();
@@ -72,8 +75,9 @@ if (strpos($url, '/api/face/login') !== false) {
             exit();
         }
 
+        // Autenticación facial exitosa: iniciar sesión
         $_SESSION['user'] = $user;
-
+        // Regenerar captcha para la próxima solicitud
         unset($_SESSION['captcha_codigo']);
 
         echo json_encode([
@@ -88,6 +92,8 @@ if (strpos($url, '/api/face/login') !== false) {
     exit();
 }
 
+
+// recuperar contraseña — enviar codigo
 if (strpos($url, '/api/recuperar-password') !== false && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $data   = json_decode(file_get_contents('php://input'), true);
     $carnet = trim($data['carnet'] ?? '');
@@ -128,6 +134,7 @@ if (strpos($url, '/api/recuperar-password') !== false && $_SERVER['REQUEST_METHO
         $stmt2->execute();
     }
 
+    // Enviar con PHPMailer
     $mail = new PHPMailer(true);
     try {
         $mail->isSMTP();
@@ -169,11 +176,12 @@ if (strpos($url, '/api/recuperar-password') !== false && $_SERVER['REQUEST_METHO
     exit();
 }
 
+
+// verificar codigo
 if (strpos($url, '/api/verificar-reset') !== false && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $data   = json_decode(file_get_contents('php://input'), true);
-    $codigo = trim($data['codigo'] ?? '');
-
-    $codigoGuardado = $_SESSION['reset_codigo'] ?? '';
+    $codigo         = trim($data['codigo'] ?? '');
+    $codigoGuardado = trim((string)($_SESSION['reset_codigo'] ?? ''));
     $expira         = $_SESSION['reset_expira'] ?? 0;
     $userId         = $_SESSION['reset_user_id'] ?? null;
 
@@ -185,9 +193,20 @@ if (strpos($url, '/api/verificar-reset') !== false && $_SERVER['REQUEST_METHOD']
         echo json_encode(['success' => false, 'error' => 'El código ha expirado. Solicita uno nuevo.']);
         exit();
     }
-    if ($codigo !== $codigoGuardado) {
-        echo json_encode(['success' => false, 'error' => 'Código incorrecto.']);
-        exit();
+    if (empty($codigo) || $codigo !== $codigoGuardado) {
+        // También verificar contra la BD como respaldo
+        $stmtCheck = $conn->prepare("SELECT reset_code, reset_expira FROM usuarios WHERE id = ?");
+        $stmtCheck->bind_param("i", $userId);
+        $stmtCheck->execute();
+        $dbUser = $stmtCheck->get_result()->fetch_assoc();
+
+        $codigoBD = trim((string)($dbUser['reset_code'] ?? ''));
+        $expiraBD = strtotime($dbUser['reset_expira'] ?? '0');
+
+        if ($codigo !== $codigoBD || time() > $expiraBD) {
+            echo json_encode(['success' => false, 'error' => 'Código incorrecto.']);
+            exit();
+        }
     }
 
     $_SESSION['reset_verificado'] = true;
@@ -195,6 +214,7 @@ if (strpos($url, '/api/verificar-reset') !== false && $_SERVER['REQUEST_METHOD']
     exit();
 }
 
+// nueva contraseña
 if (strpos($url, '/api/nueva-password') !== false && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $data      = json_decode(file_get_contents('php://input'), true);
     $password  = $data['password'] ?? '';
