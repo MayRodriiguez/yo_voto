@@ -34,7 +34,6 @@ class AuthController {
             header("Location: /yo_voto/");
             exit();
         }
-        // Protección fuerza bruta
 
         $tokenEnviado = $_POST['csrf_token'] ?? '';
         $tokenSesion  = $_SESSION['csrf_token'] ?? '';
@@ -175,8 +174,8 @@ class AuthController {
 
         $password = $_POST['password'] ?? '';
         $confirm  = $_POST['confirm_password'] ?? '';
-        if (strlen($password) < 6) {
-            $_SESSION['error_registro'] = "La contraseña debe tener al menos 6 caracteres";
+        if (strlen($password) !== 6) {
+            $_SESSION['error_registro'] = "La contraseña debe tener exactamente 6 caracteres";
             header("Location: /yo_voto/registro");
             exit();
         }
@@ -208,6 +207,15 @@ class AuthController {
         $telefono         = trim($_POST['telefono'] ?? '');
         $email            = !empty($_POST['email']) ? trim($_POST['email']) : $carnet . '@yovoto.com';
         $departamento     = trim($_POST['departamento'] ?? '');
+
+        // Verificar que el correo fue verificado
+        if (empty($_SESSION['reg_email_verificado']) || $_SESSION['reg_email'] !== $email) {
+            $_SESSION['error_registro'] = " Debes verificar tu correo electrónico antes de registrarte.";
+            header("Location: /yo_voto/registro");
+            exit();
+        }
+        // Limpiar variables de verificación
+        unset($_SESSION['reg_email_verificado'], $_SESSION['reg_email_codigo'], $_SESSION['reg_email_expira'], $_SESSION['reg_email']);
         $hashedPassword   = password_hash($password, PASSWORD_DEFAULT);
         $numeroRegistro   = $this->generarNumeroRegistroUnico();
 
@@ -244,7 +252,7 @@ class AuthController {
                 return;
             }
 
-            //  Protección fuerza bruta admin
+            //  Protección fuerza bruta admin 
             $intentosAdmin     = $_SESSION['admin_intentos']       ?? 0;
             $bloqueadoAdminHasta = $_SESSION['admin_bloqueado_hasta'] ?? 0;
             if ($bloqueadoAdminHasta > time()) {
@@ -253,7 +261,6 @@ class AuthController {
                 require_once 'views/auth/login.php';
                 return;
             }
-            // Protección fuerza bruta admin
 
             $email    = trim($_POST['email'] ?? '');
             $password = $_POST['password'] ?? '';

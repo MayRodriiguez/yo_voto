@@ -30,7 +30,6 @@ if (strpos($_SERVER['REQUEST_URI'], '/api/chatbot') !== false) {
 }
 
 // API
-
 if (strpos($_SERVER['REQUEST_URI'], '/api/') !== false) {
 
     require_once 'controllers/ApiController.php';
@@ -73,7 +72,8 @@ if (strpos($_SERVER['REQUEST_URI'], '/api/') !== false) {
         strpos($url, '/api/recuperar-password') !== false ||
         strpos($url, '/api/verificar-reset') !== false ||
         strpos($url, '/api/nueva-password') !== false ||
-        strpos($url, '/api/face/') !== false
+        strpos($url, '/api/face/') !== false ||
+        strpos($url, '/api/registro/') !== false
     ) {
         require_once 'api/face_routes.php';
         exit();
@@ -210,13 +210,13 @@ if ($controller == 'admin' && $method == 'resultados') {
 }
 
 // VERIFICAR LOGIN ADMIN
-
 if (!isset($_SESSION['user']) || $_SESSION['user']['rol'] != 'admin') {
     header("Location: /yo_voto/login");
     exit();
 }
 
 // RUTAS PROTEGIDAS
+
 switch ($controller) {
 
     case 'admin':

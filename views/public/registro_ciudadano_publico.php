@@ -176,7 +176,6 @@ $coordsDep = [
             <div class="card-head-icon"><i class="fas fa-user-plus"></i></div>
             <div>
                 <h2>Formulario de Registro</h2>
-                <p>Completa todos los campos obligatorios (*)</p>
             </div>
         </div>
         <div class="card-body">
@@ -212,13 +211,13 @@ $coordsDep = [
                         <div class="form-group">
                             <label><i class="fas fa-user"></i> Nombres <span class="req">*</span></label>
                             <div class="input-wrap"><i class="ico fas fa-user"></i>
-                                <input type="text" name="nombres" placeholder="Ej: Juan Carlos" required>
+                                <input type="text" name="nombres" placeholder="Ej: Juan Carlos" required pattern="[A-Za-záéíóúÁÉÍÓÚñÑüÜ\s]+" title="Solo se permiten letras y espacios" oninput="this.value=this.value.replace(/[^A-Za-záéíóúÁÉÍÓÚñÑüÜ\s]/g,'')">
                             </div>
                         </div>
                         <div class="form-group">
                             <label><i class="fas fa-user"></i> Apellidos <span class="req">*</span></label>
                             <div class="input-wrap"><i class="ico fas fa-user"></i>
-                                <input type="text" name="apellidos" placeholder="Ej: Mamani Quispe" required>
+                                <input type="text" name="apellidos" placeholder="Ej: Mamani Quispe" required pattern="[A-Za-záéíóúÁÉÍÓÚñÑüÜ\s]+" title="Solo se permiten letras y espacios" oninput="this.value=this.value.replace(/[^A-Za-záéíóúÁÉÍÓÚñÑüÜ\s]/g,'')">
                             </div>
                         </div>
                     </div>
@@ -251,7 +250,7 @@ $coordsDep = [
                         <div class="form-group">
                             <label><i class="fas fa-phone"></i> Teléfono / Celular</label>
                             <div class="input-wrap"><i class="ico fas fa-phone"></i>
-                                <input type="text" name="telefono" placeholder="Ej: 77712345" maxlength="8">
+                                <input type="tel" name="telefono" placeholder="Ej: 77712345" maxlength="8" pattern="[0-9]{7,8}" title="Solo números, entre 7 y 8 dígitos" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
                             </div>
                         </div>
                     </div>
@@ -272,7 +271,7 @@ $coordsDep = [
                             <label><i class="fas fa-map"></i> Departamento <span class="req">*</span></label>
                             <div class="input-wrap"><i class="ico fas fa-map"></i>
                                 <select name="departamento" id="departamento" required onchange="cambiarDepartamento(this.value)">
-                                    <option value=""> Selecciona tu departamento </option>
+                                    <option value="">Selecciona tu departamento</option>
                                     <?php foreach($departamentos as $dep): ?>
                                         <option value="<?= $dep ?>"><?= $dep ?></option>
                                     <?php endforeach; ?>
@@ -336,7 +335,23 @@ $coordsDep = [
                     <div class="form-group" style="margin-bottom:14px;">
                         <label><i class="fas fa-envelope"></i> Correo Electrónico <span class="req">*</span></label>
                         <div class="input-wrap"><i class="ico fas fa-envelope"></i>
-                            <input type="email" name="email" placeholder="tu@correo.com" required>
+                            <input type="email" name="email" id="emailInput" placeholder="juanito@gmail.com" required pattern="[a-zA-Z0-9._%+\-]+@(gmail|hotmail|outlook|yahoo|live)\.com(\.[a-z]{2})?" title="Solo se aceptan correos de Gmail, Hotmail, Outlook o Yahoo" oninput="resetEmailVerificado()">
+                        </div>
+                        <div id="email-verificado-badge" style="display:none;margin-top:6px;">
+                            <span style="color:#27AE60;font-size:12px;font-weight:700;"><i class="fas fa-check-circle"></i> Correo verificado</span>
+                        </div>
+                        <button type="button" id="btn-verificar-email" onclick="enviarCodigoEmail()" style="margin-top:8px;padding:8px 16px;background:rgba(255,107,0,0.15);border:1px solid rgba(255,107,0,0.4);color:#FF6B00;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;width:100%;">
+                            <i class="fas fa-paper-plane"></i> Verificar Correo
+                        </button>
+                        <div id="codigo-email-wrap" style="display:none;margin-top:10px;">
+                            <div style="display:flex;gap:8px;">
+                                <input type="text" id="codigo-email-input" placeholder="Código de 6 dígitos" maxlength="6" style="flex:1;padding:10px 14px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,107,0,0.4);border-radius:8px;color:#fff;font-size:15px;letter-spacing:6px;text-align:center;font-family:inherit;">
+                                <button type="button" onclick="verificarCodigoEmail()" style="padding:10px 16px;background:#FF6B00;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px;">Verificar</button>
+                            </div>
+                            <div id="codigo-email-status" style="font-size:12px;margin-top:6px;"></div>
+                            <div id="reenviar-wrap" style="display:none;margin-top:6px;">
+                                <button type="button" onclick="enviarCodigoEmail()" style="background:none;border:none;color:rgba(255,107,0,0.7);font-size:12px;cursor:pointer;text-decoration:underline;">Reenviar código</button>
+                            </div>
                         </div>
                     </div>
 
@@ -346,7 +361,7 @@ $coordsDep = [
                         <div class="form-group">
                             <label><i class="fas fa-lock"></i> Contraseña <span class="req">*</span></label>
                             <div class="input-wrap"><i class="ico fas fa-lock"></i>
-                                <input type="password" name="password" id="passInput" placeholder="Solo 6 caracteres" required maxlength="6">
+                                <input type="password" name="password" id="passInput" placeholder="Solo 6 caracteres" required minlength="6" maxlength="6">
                             </div>
                             <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
                             <div class="strength-text" id="strengthText"></div>
@@ -354,7 +369,7 @@ $coordsDep = [
                         <div class="form-group">
                             <label><i class="fas fa-check-double"></i> Confirmar Contraseña <span class="req">*</span></label>
                             <div class="input-wrap"><i class="ico fas fa-check-double"></i>
-                                <input type="password" name="confirm_password" id="confirmInput" placeholder="Repite tu contraseña" required maxlength="6">
+                                <input type="password" name="confirm_password" id="confirmInput" placeholder="Repite tu contraseña" required minlength="6" maxlength="6">
                             </div>
                             <div class="strength-text" id="matchText"></div>
                         </div>
@@ -370,7 +385,6 @@ $coordsDep = [
                                 <i class="fas fa-user-circle" style="font-size:48px;margin-bottom:8px;"></i>
                                 <span style="font-size:12px;font-weight:600;">Sin foto</span>
                             </div>
-                            <p style="color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:16px;">Toma una foto con tu cámara o sube una imagen de tu rostro.<br>Aparecerá en tu certificado de sufragio.</p>
                             <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
                                 <button type="button" class="btn-upload" id="btn-abrir-camara" onclick="abrirCamara()">
                                     <i class="fas fa-camera"></i> Usar Cámara
@@ -385,19 +399,22 @@ $coordsDep = [
                         <div id="estado-camara" style="display:none;">
                             <div style="position:relative;width:280px;margin:0 auto 14px;">
                                 <video id="camara-video" autoplay playsinline style="width:280px;height:280px;border-radius:50%;object-fit:cover;border:4px solid #FF6B00;display:block;background:#000;"></video>
-                                <!-- Guía de rostro -->
                                 <div style="position:absolute;inset:0;border-radius:50%;border:2px dashed rgba(255,255,255,0.3);pointer-events:none;"></div>
                             </div>
                             <p style="color:rgba(255,255,255,0.45);font-size:13px;margin-bottom:14px;">Centra tu rostro en el círculo y presiona <strong style="color:#FF6B00;">Tomar Foto</strong></p>
-                            <div class="tips-grid" style="margin-bottom:16px;">
-                                <div class="tip"><span class="tip-ico ok"><i class="fas fa-check"></i></span><span>Buena iluminación</span></div>
-                                <div class="tip"><span class="tip-ico ok"><i class="fas fa-check"></i></span><span>Rostro de frente</span></div>
-                                <div class="tip"><span class="tip-ico no"><i class="fas fa-times"></i></span><span>Sin mascarilla</span></div>
-                            </div>
                             <div style="display:flex;gap:10px;justify-content:center;">
                                 <button type="button" class="btn-upload" onclick="tomarFoto()"><i class="fas fa-camera"></i> Tomar Foto</button>
                                 <button type="button" class="btn-upload" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);" onclick="cancelarCamara()"><i class="fas fa-times"></i> Cancelar</button>
                             </div>
+                        </div>
+
+                        <!-- Estado: verificando rostro -->
+                        <div id="estado-verificando" style="display:none;">
+                            <div style="width:160px;height:160px;border-radius:50%;background:rgba(255,107,0,0.1);border:4px solid #FF6B00;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 16px;">
+                                <i class="fas fa-spinner fa-spin" style="font-size:36px;color:#FF6B00;margin-bottom:8px;"></i>
+                                <span style="font-size:12px;color:rgba(255,255,255,0.5);">Verificando...</span>
+                            </div>
+                            <p style="color:rgba(255,255,255,0.4);font-size:13px;">Analizando la foto, un momento...</p>
                         </div>
 
                         <!-- Estado: foto tomada/cargada -->
@@ -408,7 +425,7 @@ $coordsDep = [
                                     <i class="fas fa-check" style="color:#fff;font-size:14px;"></i>
                                 </div>
                             </div>
-                            <p style="color:#5cdb95;font-size:14px;font-weight:700;margin-bottom:14px;"><i class="fas fa-check-circle"></i> Foto lista para el registro</p>
+                            <p style="color:#5cdb95;font-size:14px;font-weight:700;margin-bottom:14px;"><i class="fas fa-check-circle"></i> Foto aceptada</p>
                             <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
                                 <button type="button" class="btn-upload" onclick="abrirCamara()"><i class="fas fa-camera"></i> Nueva foto</button>
                                 <button type="button" class="btn-upload" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);" onclick="document.getElementById('foto-input').click()"><i class="fas fa-upload"></i> Subir otra</button>
@@ -428,7 +445,7 @@ $coordsDep = [
                     <button type="submit" class="btn-submit" id="submit-btn" disabled>
                         <i class="fas fa-user-plus"></i> Crear mi Cuenta
                     </button>
-                    <p style="text-align:center;margin-top:10px;font-size:12px;color:rgba(255,255,255,0.28);"> Debes tomar o subir una foto antes de registrarte</p>
+                    <p style="text-align:center;margin-top:10px;font-size:12px;color:rgba(255,255,255,0.28);"> Debes tomar o subir una foto antes de registrarte ya que ira al carnet de sufragio</p>
                 </form>
 
             <?php endif; ?>
@@ -439,6 +456,22 @@ $coordsDep = [
 </div>
 
 <footer><p> <span>Yo Voto</span> — Sistema Electoral Bolivia 2026 · Democracia y Transparencia</p></footer>
+
+<!-- Face API para detección de rostro -->
+<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<script>
+// Cargar modelos de face-api.js
+let faceApiListo = false;
+async function cargarModelosFace() {
+    try {
+        await faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights');
+        faceApiListo = true;
+    } catch(e) {
+        faceApiListo = false;
+    }
+}
+cargarModelosFace();
+</script>
 
 <script>
 const coordsDep = <?= json_encode($coordsDep) ?>;
@@ -630,7 +663,6 @@ function obtenerDireccion(lat, lng) {
             }
         }).catch(() => {});
 }
-
 // CÁMARA / FOTO
 let streamActivo = null;
 
@@ -673,14 +705,13 @@ function detenerStream() {
     }
 }
 
-function tomarFoto() {
+async function tomarFoto() {
     const video  = document.getElementById('camara-video');
     const canvas = document.getElementById('foto-canvas');
     const size   = 400;
     canvas.width  = size;
     canvas.height = size;
     const ctx = canvas.getContext('2d');
-    // Capturar cuadrado centrado del video
     const vw = video.videoWidth;
     const vh = video.videoHeight;
     const lado = Math.min(vw, vh);
@@ -688,19 +719,35 @@ function tomarFoto() {
     const sy = (vh - lado) / 2;
     ctx.drawImage(video, sx, sy, lado, lado, 0, 0, size, size);
 
-    const dataURL = canvas.toDataURL('image/jpeg', 0.85);
+    // Mostrar estado verificando
     detenerStream();
+    document.getElementById('estado-camara').style.display   = 'none';
+    document.getElementById('estado-verificando').style.display = 'block';
 
-    // Mostrar preview
+    // Verificar rostro si face-api está listo
+    if (faceApiListo) {
+        try {
+            const detecciones = await faceapi.detectAllFaces(canvas, new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.4 }));
+            if (detecciones.length === 0) {
+                document.getElementById('estado-verificando').style.display = 'none';
+                document.getElementById('estado-inicial').style.display = 'block';
+                mostrarStatus('No se detectó ningún rostro. Asegúrate de tener buena iluminación y que tu cara esté visible (sin gorro, lentes de sol ni mascarilla).', 'error');
+                return;
+            }
+        } catch(e) {
+            // Si falla la detección, continuar igual
+        }
+    }
+
+    const dataURL = canvas.toDataURL('image/jpeg', 0.85);
     const preview = document.getElementById('foto-preview');
     preview.src = dataURL;
-    document.getElementById('estado-camara').style.display = 'none';
-    document.getElementById('estado-preview').style.display = 'block';
-    document.getElementById('estado-inicial').style.display = 'none';
+    document.getElementById('estado-verificando').style.display = 'none';
+    document.getElementById('estado-preview').style.display    = 'block';
+    document.getElementById('estado-inicial').style.display    = 'none';
     document.getElementById('submit-btn').disabled = false;
-    mostrarStatus('¡Foto tomada! Ya puedes registrarte.', 'success');
+    mostrarStatus('¡Foto aceptada! Ya puedes registrarte.', 'success');
 
-    // Convertir dataURL a Blob y asignarlo al input file para que el servidor lo reciba
     dataURLaBlob(dataURL, function(blob) {
         const dt = new DataTransfer();
         const archivo = new File([blob], 'foto_rostro_camara.jpg', { type: 'image/jpeg' });
@@ -719,19 +766,41 @@ function dataURLaBlob(dataURL, callback) {
     callback(new Blob([u8arr], { type: mime }));
 }
 
-function procesarArchivoFoto(input) {
+async function procesarArchivoFoto(input) {
     const file = input.files[0];
     if (!file) return;
     if (file.size > 5 * 1024 * 1024) { mostrarStatus('La foto es muy grande. Máximo 5MB.', 'error'); return; }
+
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
+        // Mostrar verificando
+        document.getElementById('estado-inicial').style.display    = 'none';
+        document.getElementById('estado-verificando').style.display = 'block';
+
+        if (faceApiListo) {
+            try {
+                const img = new Image();
+                img.src = e.target.result;
+                await new Promise(r => img.onload = r);
+                const detecciones = await faceapi.detectAllFaces(img, new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.4 }));
+                if (detecciones.length === 0) {
+                    document.getElementById('estado-verificando').style.display = 'none';
+                    document.getElementById('estado-inicial').style.display    = 'block';
+                    mostrarStatus('No se detectó ningún rostro en la foto. Sube una foto donde tu cara sea claramente visible (sin gorro, lentes de sol ni mascarilla).', 'error');
+                    input.value = '';
+                    return;
+                }
+            } catch(e) { /* continuar si falla */ }
+        }
+
         const preview = document.getElementById('foto-preview');
         preview.src = e.target.result;
-        document.getElementById('estado-camara').style.display = 'none';
-        document.getElementById('estado-inicial').style.display = 'none';
-        document.getElementById('estado-preview').style.display = 'block';
+        document.getElementById('estado-verificando').style.display = 'none';
+        document.getElementById('estado-camara').style.display      = 'none';
+        document.getElementById('estado-inicial').style.display     = 'none';
+        document.getElementById('estado-preview').style.display     = 'block';
         document.getElementById('submit-btn').disabled = false;
-        mostrarStatus('Foto cargada correctamente.', 'success');
+        mostrarStatus('Foto aceptada correctamente.', 'success');
     };
     reader.readAsDataURL(file);
 }
@@ -745,8 +814,80 @@ function mostrarStatus(msg, type) {
     if (type === 'success') setTimeout(() => s.style.display = 'none', 4000);
 }
 
-// Detener cámara si el usuario sale de la página sin guardar
-window.addEventListener('beforeunload', detenerStream);
+// VERIFICACIÓN DE CORREO
+let emailVerificado = false;
+
+function resetEmailVerificado() {
+    emailVerificado = false;
+    document.getElementById('email-verificado-badge').style.display = 'none';
+    document.getElementById('codigo-email-wrap').style.display = 'none';
+    document.getElementById('btn-verificar-email').style.display = 'block';
+    document.getElementById('btn-verificar-email').innerHTML = '<i class="fas fa-paper-plane"></i> Verificar Correo';
+}
+
+async function enviarCodigoEmail() {
+    const email = document.getElementById('emailInput').value.trim();
+    if (!email) { alert('Ingresa tu correo primero.'); return; }
+
+    const btn = document.getElementById('btn-verificar-email');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+
+    const res  = await fetch('/yo_voto/api/registro/enviar-codigo', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Reenviar Código';
+        btn.disabled  = false;
+        document.getElementById('codigo-email-wrap').style.display = 'block';
+        document.getElementById('codigo-email-status').innerHTML   = '<span style="color:#FF6B00;">Código enviado a ' + email + '. Revisa tu bandeja de entrada.</span>';
+        // Mostrar reenviar después de 30 segundos
+        setTimeout(() => document.getElementById('reenviar-wrap').style.display = 'block', 30000);
+    } else {
+        btn.disabled  = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Verificar Correo';
+        document.getElementById('codigo-email-status').innerHTML = '<span style="color:#E74C3C;">' + data.error + '</span>';
+        document.getElementById('codigo-email-wrap').style.display = 'block';
+    }
+}
+
+async function verificarCodigoEmail() {
+    const codigo = document.getElementById('codigo-email-input').value.trim();
+    if (codigo.length !== 6) {
+        document.getElementById('codigo-email-status').innerHTML = '<span style="color:#E74C3C;">Ingresa el código de 6 dígitos.</span>';
+        return;
+    }
+
+    const res  = await fetch('/yo_voto/api/registro/verificar-codigo', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ codigo })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+        emailVerificado = true;
+        document.getElementById('codigo-email-wrap').style.display    = 'none';
+        document.getElementById('btn-verificar-email').style.display  = 'none';
+        document.getElementById('email-verificado-badge').style.display = 'block';
+        document.getElementById('emailInput').readOnly = true;
+    } else {
+        document.getElementById('codigo-email-status').innerHTML = '<span style="color:#E74C3C;">' + data.error + '</span>';
+    }
+}
+
+// Validar que el correo esté verificado antes de enviar el formulario
+document.getElementById('registroForm').addEventListener('submit', function(e) {
+    if (!emailVerificado) {
+        e.preventDefault();
+        alert('Debes verificar tu correo electrónico antes de registrarte.');
+        document.getElementById('emailInput').focus();
+    }
+});
 
 document.getElementById('carnet').addEventListener('input', function() {
     this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);
@@ -761,9 +902,7 @@ const matchTxt     = document.getElementById('matchText');
 passInput.addEventListener('input', () => {
     const v = passInput.value;
     let s = 0;
-    if (v.length >= 6) s++;
-    if (/[A-Z]/.test(v)) s++;
-    if (/[0-9]/.test(v)) s++;
+    if (/[A-Z]/.test(v)) s++; if (/[0-9]/.test(v)) s++;
     if (/[^A-Za-z0-9]/.test(v)) s++;
     const levels = [{w:'33%',c:'#E74C3C',l:'Mala'},{w:'66%',c:'#F1C40F',l:'Buena'},{w:'100%',c:'#27AE60',l:'Muy buena'}];
     const lv = v.length > 0 ? (levels[Math.min(s-1,2)] || levels[0]) : {w:'0%',c:'transparent',l:''};

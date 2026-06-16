@@ -245,4 +245,89 @@ if (strpos($url, '/api/nueva-password') !== false && $_SERVER['REQUEST_METHOD'] 
     }
     exit();
 }
+
+// ENVIAR CÓDIGO DE VERIFICACIÓN DE CORREO (REGISTRO)
+if (strpos($url, '/api/registro/enviar-codigo') !== false && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $data  = json_decode(file_get_contents('php://input'), true);
+    $email = trim($data['email'] ?? '');
+
+    if (empty($email)) {
+        echo json_encode(['success' => false, 'error' => 'Correo requerido.']);
+        exit();
+    }
+
+    // Verificar que el correo no esté ya registrado
+    $stmt = $conn->prepare("SELECT id FROM usuarios WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    if ($stmt->get_result()->num_rows > 0) {
+        echo json_encode(['success' => false, 'error' => 'Este correo ya está registrado.']);
+        exit();
+    }
+
+    // Generar código de 6 dígitos
+    $codigo  = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
+    $expira  = time() + 600; // 10 minutos
+    $_SESSION['reg_email_codigo'] = $codigo;
+    $_SESSION['reg_email_expira'] = $expira;
+    $_SESSION['reg_email']        = $email;
+
+    // Enviar correo
+    try {
+        $mail = new PHPMailer(true);
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'angelamarianagonzales@gmail.com';
+        $mail->Password   = 'mwew onrj cxpd wvpk';
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
+        $mail->CharSet    = 'UTF-8';
+        $mail->setFrom('angelamarianagonzales@gmail.com', 'Yo Voto Bolivia');
+        $mail->addAddress($email);
+        $mail->isHTML(true);
+        $mail->Subject = 'Verificación de correo - Yo Voto Bolivia';
+        $mail->Body    = "
+            <div style='font-family:Arial,sans-serif;max-width:480px;margin:0 auto;background:#0a1628;color:#fff;padding:32px;border-radius:16px;'>
+                <h2 style='color:#FF6B00;text-align:center;'> Yo Voto Bolivia</h2>
+                <p style='color:rgba(255,255,255,0.7);text-align:center;'>Ingresa este código para verificar tu correo electrónico:</p>
+                <div style='background:rgba(255,107,0,0.15);border:2px solid #FF6B00;border-radius:12px;padding:20px;text-align:center;margin:24px 0;'>
+                    <span style='font-size:36px;font-weight:900;letter-spacing:10px;color:#FF6B00;'>{$codigo}</span>
+                </div>
+                <p style='color:rgba(255,255,255,0.4);font-size:12px;text-align:center;'>Este código expira en 10 minutos.</p>
+            </div>";
+        $mail->send();
+        echo json_encode(['success' => true, 'message' => 'Código enviado a ' . $email]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => 'No se pudo enviar el correo. Verifica que sea válido.']);
+    }
+    exit();
+}
+
+// VERIFICAR CÓDIGO DE CORREO (REGISTRO)
+if (strpos($url, '/api/registro/verificar-codigo') !== false && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $data   = json_decode(file_get_contents('php://input'), true);
+    $codigo = trim($data['codigo'] ?? '');
+
+    $codigoGuardado = trim((string)($_SESSION['reg_email_codigo'] ?? ''));
+    $expira         = $_SESSION['reg_email_expira'] ?? 0;
+
+    if (empty($codigoGuardado)) {
+        echo json_encode(['success' => false, 'error' => 'Primero solicita el código de verificación.']);
+        exit();
+    }
+    if (time() > $expira) {
+        echo json_encode(['success' => false, 'error' => 'El código ha expirado. Solicita uno nuevo.']);
+        exit();
+    }
+    if ($codigo !== $codigoGuardado) {
+        echo json_encode(['success' => false, 'error' => 'Código incorrecto.']);
+        exit();
+    }
+
+    // Marcar email como verificado
+    $_SESSION['reg_email_verificado'] = true;
+    echo json_encode(['success' => true, 'message' => 'Correo verificado correctamente.']);
+    exit();
+}
 ?>
