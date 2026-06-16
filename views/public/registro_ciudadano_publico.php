@@ -176,6 +176,7 @@ $coordsDep = [
             <div class="card-head-icon"><i class="fas fa-user-plus"></i></div>
             <div>
                 <h2>Formulario de Registro</h2>
+                <p>Completa todos los campos obligatorios (*)</p>
             </div>
         </div>
         <div class="card-body">
@@ -271,7 +272,7 @@ $coordsDep = [
                             <label><i class="fas fa-map"></i> Departamento <span class="req">*</span></label>
                             <div class="input-wrap"><i class="ico fas fa-map"></i>
                                 <select name="departamento" id="departamento" required onchange="cambiarDepartamento(this.value)">
-                                    <option value="">Selecciona tu departamento</option>
+                                    <option value="">Selecciona tu departamento </option>
                                     <?php foreach($departamentos as $dep): ?>
                                         <option value="<?= $dep ?>"><?= $dep ?></option>
                                     <?php endforeach; ?>
@@ -361,7 +362,7 @@ $coordsDep = [
                         <div class="form-group">
                             <label><i class="fas fa-lock"></i> Contraseña <span class="req">*</span></label>
                             <div class="input-wrap"><i class="ico fas fa-lock"></i>
-                                <input type="password" name="password" id="passInput" placeholder="Solo 6 caracteres" required minlength="6" maxlength="6">
+                                <input type="password" name="password" id="passInput" placeholder="Mín. 6 caracteres" required minlength="6" maxlength="6">
                             </div>
                             <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
                             <div class="strength-text" id="strengthText"></div>
@@ -385,39 +386,9 @@ $coordsDep = [
                                 <i class="fas fa-user-circle" style="font-size:48px;margin-bottom:8px;"></i>
                                 <span style="font-size:12px;font-weight:600;">Sin foto</span>
                             </div>
-                            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-                                <button type="button" class="btn-upload" id="btn-abrir-camara" onclick="abrirCamara()">
-                                    <i class="fas fa-camera"></i> Usar Cámara
-                                </button>
-                                <button type="button" class="btn-upload" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);" onclick="document.getElementById('foto-input').click()">
-                                    <i class="fas fa-upload"></i> Subir Foto
-                                </button>
-                            </div>
                         </div>
 
-                        <!-- Estado: cámara activa -->
-                        <div id="estado-camara" style="display:none;">
-                            <div style="position:relative;width:280px;margin:0 auto 14px;">
-                                <video id="camara-video" autoplay playsinline style="width:280px;height:280px;border-radius:50%;object-fit:cover;border:4px solid #FF6B00;display:block;background:#000;"></video>
-                                <div style="position:absolute;inset:0;border-radius:50%;border:2px dashed rgba(255,255,255,0.3);pointer-events:none;"></div>
-                            </div>
-                            <p style="color:rgba(255,255,255,0.45);font-size:13px;margin-bottom:14px;">Centra tu rostro en el círculo y presiona <strong style="color:#FF6B00;">Tomar Foto</strong></p>
-                            <div style="display:flex;gap:10px;justify-content:center;">
-                                <button type="button" class="btn-upload" onclick="tomarFoto()"><i class="fas fa-camera"></i> Tomar Foto</button>
-                                <button type="button" class="btn-upload" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);" onclick="cancelarCamara()"><i class="fas fa-times"></i> Cancelar</button>
-                            </div>
-                        </div>
-
-                        <!-- Estado: verificando rostro -->
-                        <div id="estado-verificando" style="display:none;">
-                            <div style="width:160px;height:160px;border-radius:50%;background:rgba(255,107,0,0.1);border:4px solid #FF6B00;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 16px;">
-                                <i class="fas fa-spinner fa-spin" style="font-size:36px;color:#FF6B00;margin-bottom:8px;"></i>
-                                <span style="font-size:12px;color:rgba(255,255,255,0.5);">Verificando...</span>
-                            </div>
-                            <p style="color:rgba(255,255,255,0.4);font-size:13px;">Analizando la foto, un momento...</p>
-                        </div>
-
-                        <!-- Estado: foto tomada/cargada -->
+                        <!-- Estado: foto cargada -->
                         <div id="estado-preview" style="display:none;">
                             <div style="position:relative;width:160px;height:160px;margin:0 auto 16px;">
                                 <img id="foto-preview" style="width:160px;height:160px;border-radius:50%;object-fit:cover;border:4px solid #FF6B00;display:block;" src="" alt="Foto de perfil">
@@ -425,35 +396,37 @@ $coordsDep = [
                                     <i class="fas fa-check" style="color:#fff;font-size:14px;"></i>
                                 </div>
                             </div>
-                            <p style="color:#5cdb95;font-size:14px;font-weight:700;margin-bottom:14px;"><i class="fas fa-check-circle"></i> Foto aceptada</p>
-                            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-                                <button type="button" class="btn-upload" onclick="abrirCamara()"><i class="fas fa-camera"></i> Nueva foto</button>
-                                <button type="button" class="btn-upload" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);" onclick="document.getElementById('foto-input').click()"><i class="fas fa-upload"></i> Subir otra</button>
-                            </div>
                         </div>
 
-                        <!-- Canvas oculto para captura -->
-                        <canvas id="foto-canvas" style="display:none;"></canvas>
-                        <!-- Input oculto para el archivo final que se envía -->
-                        <input type="file" id="foto-input" name="foto_rostro" accept="image/jpeg,image/png,image/jpg" style="display:none;" onchange="procesarArchivoFoto(this)">
-                        <!-- Input hidden para foto capturada por cámara (base64 → blob) -->
-                        <input type="hidden" id="foto-data-url" name="">
+                        <p style="color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:14px;">Sube una foto clara de tu rostro para el certificado de sufragio</p>
 
-                        <div id="foto-status" class="foto-status" style="margin-top:12px;"></div>
+                        <div class="tips-grid">
+                            <div class="tip"><span class="tip-ico ok"><i class="fas fa-check"></i></span><span>Buena iluminación</span></div>
+                            <div class="tip"><span class="tip-ico ok"><i class="fas fa-check"></i></span><span>Rostro de frente</span></div>
+                            <div class="tip"><span class="tip-ico ok"><i class="fas fa-check"></i></span><span>Fondo claro</span></div>
+                            <div class="tip"><span class="tip-ico no"><i class="fas fa-times"></i></span><span>Sin gorro</span></div>
+                            <div class="tip"><span class="tip-ico no"><i class="fas fa-times"></i></span><span>Sin lentes oscuros</span></div>
+                            <div class="tip"><span class="tip-ico no"><i class="fas fa-times"></i></span><span>Sin mascarilla</span></div>
+                        </div>
+
+                        <input type="file" id="foto-input" name="foto_rostro" accept="image/jpeg,image/png,image/jpg" style="display:none;" onchange="procesarArchivoFoto(this)">
+                        <div style="margin-top:16px;display:flex;gap:10px;justify-content:center;">
+                            <button type="button" class="btn-upload" onclick="document.getElementById('foto-input').click()"><i class="fas fa-upload"></i> Seleccionar Foto</button>
+                            <button type="button" class="btn-retake" id="btn-retake" onclick="retakePhoto()"><i class="fas fa-redo"></i> Cambiar Foto</button>
+                        </div>
+                        <div id="foto-status" class="foto-status"></div>
                     </div>
 
                     <button type="submit" class="btn-submit" id="submit-btn" disabled>
                         <i class="fas fa-user-plus"></i> Crear mi Cuenta
                     </button>
-                    <p style="text-align:center;margin-top:10px;font-size:12px;color:rgba(255,255,255,0.28);"> Debes tomar o subir una foto antes de registrarte ya que ira al carnet de sufragio</p>
-                </form>
+                    <p style="text-align:center;margin-top:10px;font-size:12px;color:rgba(255,255,255,0.28);">Debes subir una foto antes de registrarte</p>
 
+                    </form>
             <?php endif; ?>
-
-            <div class="login-link">¿Ya tienes cuenta? <a href="/yo_voto/">Iniciar sesión aquí</a></div>
-        </div>
-    </div>
-</div>
+            </div><!-- /.card-body -->
+        </div><!-- /.card -->
+    </div><!-- /.main -->
 
 <footer><p> <span>Yo Voto</span> — Sistema Electoral Bolivia 2026 · Democracia y Transparencia</p></footer>
 
@@ -663,107 +636,16 @@ function obtenerDireccion(lat, lng) {
             }
         }).catch(() => {});
 }
-// CÁMARA / FOTO
-let streamActivo = null;
 
-function abrirCamara() {
-    mostrarStatus('', '');
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        mostrarStatus('Tu navegador no soporta acceso a la cámara. Usa la opción de subir foto.', 'error');
-        return;
-    }
-    navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 640, facingMode: 'user' } })
-        .then(function(stream) {
-            streamActivo = stream;
-            const video = document.getElementById('camara-video');
-            video.srcObject = stream;
-            document.getElementById('estado-inicial').style.display = 'none';
-            document.getElementById('estado-preview').style.display = 'none';
-            document.getElementById('estado-camara').style.display = 'block';
-        })
-        .catch(function(err) {
-            if (err.name === 'NotAllowedError') {
-                mostrarStatus('Permiso de cámara denegado. Por favor permite el acceso o usa la opción de subir foto.', 'error');
-            } else {
-                mostrarStatus('No se pudo acceder a la cámara. Usa la opción de subir foto.', 'error');
-            }
-        });
-}
 
-function cancelarCamara() {
-    detenerStream();
-    document.getElementById('estado-camara').style.display = 'none';
-    const hayFoto = document.getElementById('foto-preview').src && document.getElementById('foto-preview').src !== window.location.href;
-    document.getElementById('estado-preview').style.display = hayFoto ? 'block' : 'none';
-    document.getElementById('estado-inicial').style.display = hayFoto ? 'none' : 'block';
-}
-
-function detenerStream() {
-    if (streamActivo) {
-        streamActivo.getTracks().forEach(t => t.stop());
-        streamActivo = null;
-    }
-}
-
-async function tomarFoto() {
-    const video  = document.getElementById('camara-video');
-    const canvas = document.getElementById('foto-canvas');
-    const size   = 400;
-    canvas.width  = size;
-    canvas.height = size;
-    const ctx = canvas.getContext('2d');
-    const vw = video.videoWidth;
-    const vh = video.videoHeight;
-    const lado = Math.min(vw, vh);
-    const sx = (vw - lado) / 2;
-    const sy = (vh - lado) / 2;
-    ctx.drawImage(video, sx, sy, lado, lado, 0, 0, size, size);
-
-    // Mostrar estado verificando
-    detenerStream();
-    document.getElementById('estado-camara').style.display   = 'none';
-    document.getElementById('estado-verificando').style.display = 'block';
-
-    // Verificar rostro si face-api está listo
-    if (faceApiListo) {
-        try {
-            const detecciones = await faceapi.detectAllFaces(canvas, new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.4 }));
-            if (detecciones.length === 0) {
-                document.getElementById('estado-verificando').style.display = 'none';
-                document.getElementById('estado-inicial').style.display = 'block';
-                mostrarStatus('No se detectó ningún rostro. Asegúrate de tener buena iluminación y que tu cara esté visible (sin gorro, lentes de sol ni mascarilla).', 'error');
-                return;
-            }
-        } catch(e) {
-            // Si falla la detección, continuar igual
-        }
-    }
-
-    const dataURL = canvas.toDataURL('image/jpeg', 0.85);
-    const preview = document.getElementById('foto-preview');
-    preview.src = dataURL;
-    document.getElementById('estado-verificando').style.display = 'none';
-    document.getElementById('estado-preview').style.display    = 'block';
-    document.getElementById('estado-inicial').style.display    = 'none';
-    document.getElementById('submit-btn').disabled = false;
-    mostrarStatus('¡Foto aceptada! Ya puedes registrarte.', 'success');
-
-    dataURLaBlob(dataURL, function(blob) {
-        const dt = new DataTransfer();
-        const archivo = new File([blob], 'foto_rostro_camara.jpg', { type: 'image/jpeg' });
-        dt.items.add(archivo);
-        document.getElementById('foto-input').files = dt.files;
-    });
-}
-
-function dataURLaBlob(dataURL, callback) {
-    const parts = dataURL.split(',');
-    const mime  = parts[0].match(/:(.*?);/)[1];
-    const bstr  = atob(parts[1]);
-    let n = bstr.length;
-    const u8arr = new Uint8Array(n);
-    while (n--) u8arr[n] = bstr.charCodeAt(n);
-    callback(new Blob([u8arr], { type: mime }));
+function retakePhoto() {
+    document.getElementById('foto-input').value = '';
+    document.getElementById('foto-preview') && (document.getElementById('foto-preview').src = '');
+    document.getElementById('estado-preview').style.display = 'none';
+    document.getElementById('estado-inicial').style.display = 'block';
+    document.getElementById('btn-retake').style.display = 'none';
+    document.getElementById('submit-btn').disabled = true;
+    document.getElementById('foto-status').style.display = 'none';
 }
 
 async function procesarArchivoFoto(input) {
@@ -775,7 +657,6 @@ async function procesarArchivoFoto(input) {
     reader.onload = async (e) => {
         // Mostrar verificando
         document.getElementById('estado-inicial').style.display    = 'none';
-        document.getElementById('estado-verificando').style.display = 'block';
 
         if (faceApiListo) {
             try {
@@ -784,7 +665,6 @@ async function procesarArchivoFoto(input) {
                 await new Promise(r => img.onload = r);
                 const detecciones = await faceapi.detectAllFaces(img, new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.4 }));
                 if (detecciones.length === 0) {
-                    document.getElementById('estado-verificando').style.display = 'none';
                     document.getElementById('estado-inicial').style.display    = 'block';
                     mostrarStatus('No se detectó ningún rostro en la foto. Sube una foto donde tu cara sea claramente visible (sin gorro, lentes de sol ni mascarilla).', 'error');
                     input.value = '';
@@ -795,10 +675,9 @@ async function procesarArchivoFoto(input) {
 
         const preview = document.getElementById('foto-preview');
         preview.src = e.target.result;
-        document.getElementById('estado-verificando').style.display = 'none';
-        document.getElementById('estado-camara').style.display      = 'none';
         document.getElementById('estado-inicial').style.display     = 'none';
         document.getElementById('estado-preview').style.display     = 'block';
+        document.getElementById('btn-retake').style.display         = 'inline-flex';
         document.getElementById('submit-btn').disabled = false;
         mostrarStatus('Foto aceptada correctamente.', 'success');
     };
@@ -814,7 +693,9 @@ function mostrarStatus(msg, type) {
     if (type === 'success') setTimeout(() => s.style.display = 'none', 4000);
 }
 
+// =====================================================
 // VERIFICACIÓN DE CORREO
+// =====================================================
 let emailVerificado = false;
 
 function resetEmailVerificado() {
