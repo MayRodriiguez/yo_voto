@@ -176,7 +176,6 @@ $coordsDep = [
             <div class="card-head-icon"><i class="fas fa-user-plus"></i></div>
             <div>
                 <h2>Formulario de Registro</h2>
-                <p>Completa todos los campos obligatorios (*)</p>
             </div>
         </div>
         <div class="card-body">
