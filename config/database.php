@@ -6,7 +6,7 @@ date_default_timezone_set('America/La_Paz');
 
 class Database {
     private $host = "localhost";
-    private $db_name = "yo_voto010";
+    private $db_name = "yo_voto02";
     private $username = "root";
     private $password = "";
     public $conn;
