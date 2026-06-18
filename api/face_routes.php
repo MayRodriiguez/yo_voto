@@ -26,70 +26,6 @@ $conn = $db->getConnection();
 $url = $_SERVER['REQUEST_URI'];
 
 
-// LOGIN CON RECONOCIMIENTO FACIAL
-if (strpos($url, '/api/face/login') !== false) {
-    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        // Devolver estado (útil para verificar que el endpoint existe)
-        echo json_encode(['status' => 'ok', 'message' => 'Endpoint de autenticación facial activo']);
-        exit();
-    }
-
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $data       = json_decode(file_get_contents('php://input'), true);
-        $carnet     = trim($data['carnet'] ?? '');
-        $captcha    = $data['captcha'] ?? '';
-        $descriptor = $data['descriptor'] ?? null; // Vector facial 128D (no se usa en servidor, solo logging)
-
-        if (empty($carnet)) {
-            echo json_encode(['success' => false, 'error' => 'El número de carnet es requerido.']);
-            exit();
-        }
-
-        // Validar captcha
-        $captchaSession = $_SESSION['captcha_codigo'] ?? '';
-        if (empty($captcha) || strtoupper((string)$captcha) !== strtoupper((string)$captchaSession)) {
-            echo json_encode(['success' => false, 'error' => 'Código de seguridad incorrecto. Recarga el captcha.']);
-            exit();
-        }
-
-        // Buscar usuario
-        $stmt = $conn->prepare("SELECT * FROM usuarios WHERE carnet = ? AND activo = 1");
-        $stmt->bind_param("s", $carnet);
-        $stmt->execute();
-        $user = $stmt->get_result()->fetch_assoc();
-
-        if (!$user) {
-            echo json_encode(['success' => false, 'error' => 'No se encontró ninguna cuenta con ese carnet.']);
-            exit();
-        }
-
-        if ($user['rol'] !== 'usuario') {
-            echo json_encode(['success' => false, 'error' => 'Acceso no permitido para este tipo de cuenta.']);
-            exit();
-        }
-
-        if ($user['habilitado_voto'] != 1) {
-            echo json_encode(['success' => false, 'error' => 'Tu cuenta aún no está habilitada para votar.']);
-            exit();
-        }
-
-        // Autenticación facial exitosa: iniciar sesión
-        $_SESSION['user'] = $user;
-        // Regenerar captcha para la próxima solicitud
-        unset($_SESSION['captcha_codigo']);
-
-        echo json_encode([
-            'success'  => true,
-            'redirect' => '/yo_voto/mi-perfil',
-            'nombre'   => $user['nombres'] . ' ' . $user['apellidos']
-        ]);
-        exit();
-    }
-
-    echo json_encode(['success' => false, 'error' => 'Método no permitido.']);
-    exit();
-}
-
 
 // recuperar contraseña — enviar codigo
 if (strpos($url, '/api/recuperar-password') !== false && $_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -247,6 +183,7 @@ if (strpos($url, '/api/nueva-password') !== false && $_SERVER['REQUEST_METHOD'] 
 }
 
 // ENVIAR CÓDIGO DE VERIFICACIÓN DE CORREO (REGISTRO)
+
 if (strpos($url, '/api/registro/enviar-codigo') !== false && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $data  = json_decode(file_get_contents('php://input'), true);
     $email = trim($data['email'] ?? '');
@@ -289,7 +226,7 @@ if (strpos($url, '/api/registro/enviar-codigo') !== false && $_SERVER['REQUEST_M
         $mail->Subject = 'Verificación de correo - Yo Voto Bolivia';
         $mail->Body    = "
             <div style='font-family:Arial,sans-serif;max-width:480px;margin:0 auto;background:#0a1628;color:#fff;padding:32px;border-radius:16px;'>
-                <h2 style='color:#FF6B00;text-align:center;'> Yo Voto Bolivia</h2>
+                <h2 style='color:#FF6B00;text-align:center;'>Yo Voto Bolivia</h2>
                 <p style='color:rgba(255,255,255,0.7);text-align:center;'>Ingresa este código para verificar tu correo electrónico:</p>
                 <div style='background:rgba(255,107,0,0.15);border:2px solid #FF6B00;border-radius:12px;padding:20px;text-align:center;margin:24px 0;'>
                     <span style='font-size:36px;font-weight:900;letter-spacing:10px;color:#FF6B00;'>{$codigo}</span>
