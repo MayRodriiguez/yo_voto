@@ -31,7 +31,7 @@ class ChatbotController {
     private function getRespuesta($opcion) {
         switch ($opcion) {
             case 'como_votar':
-                return " <strong>Pasos para votar:</strong><br><br>1️⃣ Regístrate con tu CI y contraseña.<br>2️⃣ Espera habilitación del administrador.<br>3️⃣ Inicia sesión con tu carnet y contraseña.<br>4️⃣ Ve a 'Votar' y elige tu candidato.<br><br>⚠️ Voto secreto, único e inmutable (Blockchain).";
+                return " <strong>Pasos para votar:</strong><br><br>1️ Regístrate con tu CI y contraseña.<br>2️ Espera habilitación del administrador.<br>3️ Inicia sesión con tu carnet y contraseña.<br>4️⃣ Ve a 'Votar' y elige tu candidato.<br><br> Voto secreto, único e inmutable (Blockchain).";
                 
             case 'candidatos':
                 $result = $this->conn->query("SELECT nombre, partido, cargo FROM candidatos WHERE estado = 'activo' LIMIT 5");

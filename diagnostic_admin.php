@@ -70,7 +70,7 @@ if ($admin = $result->fetch_assoc()) {
 }
 
 // 3. Mostrar todos los usuarios
-echo "<h2>📋 3. Todos los usuarios en el sistema:</h2>";
+echo "<h2> 3. Todos los usuarios en el sistema:</h2>";
 $allUsers = $conn->query("SELECT id, nombres, apellidos, email, carnet, rol FROM usuarios");
 echo "<table border='1' cellpadding='8' style='border-collapse: collapse;'>";
 echo "<tr style='background: #003399; color: white;'><th>ID</th><th>Nombre</th><th>Email</th><th>Carnet</th><th>Rol</th></tr>";

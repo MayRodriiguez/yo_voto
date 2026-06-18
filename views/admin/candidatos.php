@@ -90,7 +90,7 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['rol'] != 'admin') {
                             <div class="candidato-partido"><?= htmlspecialchars($candidato['partido']) ?></div>
                             <div class="candidato-cargo">Candidato a <?= htmlspecialchars($candidato['cargo']) ?></div>
                             <span class="<?= $candidato['estado'] === 'activo' ? 'badge-activo' : 'badge-inactivo' ?>">
-                                <?= $candidato['estado'] === 'activo' ? '✓ Habilitado' : '✗ Inhabilitado' ?>
+                                <?= $candidato['estado'] === 'activo' ? ' Habilitado' : ' Inhabilitado' ?>
                             </span>
                             <div class="btn-actions">
                                 <a href="/yo_voto/propuestas/<?= $candidato['id_candidato'] ?>" class="btn-propuestas"><i class="fas fa-list-check"></i> Propuestas</a>

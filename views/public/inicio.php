@@ -569,9 +569,9 @@ $votacionActiva = $config['votacion_activa'] ?? '0';
             <div class="msg-bubble msg-bot">👋 ¡Hola! Soy el asistente virtual de Yo Voto. ¿En qué puedo ayudarte?</div>
         </div>
         <div class="quick-buttons">
-            <button class="chat-btn-option" data-opcion="como_votar">🗳️ ¿Cómo votar?</button>
-            <button class="chat-btn-option" data-opcion="candidatos">👥 Candidatos</button>
-            <button class="chat-btn-option" data-opcion="habilitacion">⏳ Habilitación</button>
+            <button class="chat-btn-option" data-opcion="como_votar"> ¿Cómo votar?</button>
+            <button class="chat-btn-option" data-opcion="candidatos">Candidatos</button>
+            <button class="chat-btn-option" data-opcion="habilitacion"> Habilitación</button>
         </div>
     </div>
 </div>

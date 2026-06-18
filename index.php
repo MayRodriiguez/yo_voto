@@ -20,10 +20,10 @@ if (strpos($_SERVER['REQUEST_URI'], '/api/chatbot') !== false) {
     } else {
         header('Content-Type: application/json');
         echo json_encode(['opciones' => [
-            'como_votar'  => '🗳️ ¿Cómo votar?',
-            'candidatos'  => '👥 Ver Candidatos',
-            'blockchain'  => '🔒 Seguridad Blockchain',
-            'habilitacion'=> '⏳ Mi cuenta no está habilitada'
+            'como_votar'  => ' ¿Cómo votar?',
+            'candidatos'  => ' Ver Candidatos',
+            'blockchain'  => ' Seguridad Blockchain',
+            'habilitacion'=> ' Mi cuenta no está habilitada'
         ]]);
     }
     exit();

@@ -83,8 +83,8 @@ if (session_status() === PHP_SESSION_NONE) {
                     <label class="form-label"><i class="fas fa-flag"></i> Tipo de elección *</label>
                     <select name="tipo" class="form-select" required>
                         <option value="">-- Seleccionar tipo --</option>
-                        <option value="nacional">🏛️ Nacional (Presidente, Vicepresidente)</option>
-                        <option value="subnacional">🗺️ Subnacional (Gobernador, Alcalde)</option>
+                        <option value="nacional"> Nacional (Presidente, Vicepresidente)</option>
+                        <option value="subnacional"> Subnacional (Gobernador, Alcalde)</option>
                     </select>
                 </div>
 

@@ -56,16 +56,16 @@ $chatUserId = isset($_SESSION['user']['id']) ? 'user_' . $_SESSION['user']['id']
     <button id="chatbot-toggle"><i class="fas fa-headset"></i></button>
     <div id="chatbot-window">
         <div id="chatbot-header">
-            <span>🤖 Soporte Yo Voto</span>
+            <span> Soporte Yo Voto</span>
             <button id="chatbot-close"><i class="fas fa-times"></i></button>
         </div>
         <div id="chatbot-messages"></div>
         
         <div id="chatbot-options-area">
-            <button class="chat-btn-option" data-opcion="como_votar">🗳️ ¿Cómo votar?</button>
-            <button class="chat-btn-option" data-opcion="candidatos">👥 Ver Candidatos</button>
-            <button class="chat-btn-option" data-opcion="blockchain">🔒 Seguridad Blockchain</button>
-            <button class="chat-btn-option" data-opcion="habilitacion">⏳ Mi cuenta no está habilitada</button>
+            <button class="chat-btn-option" data-opcion="como_votar"> ¿Cómo votar?</button>
+            <button class="chat-btn-option" data-opcion="candidatos"> Ver Candidatos</button>
+            <button class="chat-btn-option" data-opcion="blockchain"> Seguridad Blockchain</button>
+            <button class="chat-btn-option" data-opcion="habilitacion"> Mi cuenta no está habilitada</button>
         </div>
     </div>
 </div>

@@ -73,14 +73,14 @@ if (session_status() === PHP_SESSION_NONE) {
                 <div class="mb-3">
                     <label class="form-label">Categoría</label>
                     <select name="categoria" class="form-select" required>
-                        <option value="Educación" <?= $propuesta['categoria'] == 'Educación' ? 'selected' : '' ?>>📚 Educación</option>
-                        <option value="Salud" <?= $propuesta['categoria'] == 'Salud' ? 'selected' : '' ?>>🏥 Salud</option>
-                        <option value="Economía" <?= $propuesta['categoria'] == 'Economía' ? 'selected' : '' ?>>💰 Economía</option>
-                        <option value="Seguridad" <?= $propuesta['categoria'] == 'Seguridad' ? 'selected' : '' ?>>🛡️ Seguridad</option>
-                        <option value="Medio Ambiente" <?= $propuesta['categoria'] == 'Medio Ambiente' ? 'selected' : '' ?>>🌿 Medio Ambiente</option>
-                        <option value="Infraestructura" <?= $propuesta['categoria'] == 'Infraestructura' ? 'selected' : '' ?>>🏗️ Infraestructura</option>
-                        <option value="Vivienda" <?= $propuesta['categoria'] == 'Vivienda' ? 'selected' : '' ?>>🏠 Vivienda</option>
-                        <option value="Gobierno" <?= $propuesta['categoria'] == 'Gobierno' ? 'selected' : '' ?>>🏛️ Gobierno</option>
+                        <option value="Educación" <?= $propuesta['categoria'] == 'Educación' ? 'selected' : '' ?>> Educación</option>
+                        <option value="Salud" <?= $propuesta['categoria'] == 'Salud' ? 'selected' : '' ?>> Salud</option>
+                        <option value="Economía" <?= $propuesta['categoria'] == 'Economía' ? 'selected' : '' ?>> Economía</option>
+                        <option value="Seguridad" <?= $propuesta['categoria'] == 'Seguridad' ? 'selected' : '' ?>> Seguridad</option>
+                        <option value="Medio Ambiente" <?= $propuesta['categoria'] == 'Medio Ambiente' ? 'selected' : '' ?>> Medio Ambiente</option>
+                        <option value="Infraestructura" <?= $propuesta['categoria'] == 'Infraestructura' ? 'selected' : '' ?>> Infraestructura</option>
+                        <option value="Vivienda" <?= $propuesta['categoria'] == 'Vivienda' ? 'selected' : '' ?>> Vivienda</option>
+                        <option value="Gobierno" <?= $propuesta['categoria'] == 'Gobierno' ? 'selected' : '' ?>> Gobierno</option>
                     </select>
                 </div>
                 <div class="mb-3">

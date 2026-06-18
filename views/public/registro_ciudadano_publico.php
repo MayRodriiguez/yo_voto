@@ -605,7 +605,7 @@ function ubicarEnMapa(lat, lng) {
         className: '', iconAnchor: [10, 10]
     });
     marcadorUsuario = L.marker([lat, lng], { icon: iconUsuario, draggable: true })
-        .addTo(mapa).bindPopup('📍 Tu ubicación').openPopup();
+        .addTo(mapa).bindPopup(' Tu ubicación').openPopup();
     marcadorUsuario.on('dragend', function(e) {
         const pos = e.target.getLatLng();
         document.getElementById('lat-hidden').value = pos.lat;
@@ -794,8 +794,8 @@ passInput.addEventListener('input', () => {
 confirmInput.addEventListener('input', checkMatch);
 function checkMatch() {
     if (!confirmInput.value) { matchTxt.textContent = ''; return; }
-    if (passInput.value === confirmInput.value) { matchTxt.textContent = '✓ Las contraseñas coinciden'; matchTxt.style.color = '#27AE60'; }
-    else { matchTxt.textContent = '✗ Las contraseñas no coinciden'; matchTxt.style.color = '#E74C3C'; }
+    if (passInput.value === confirmInput.value) { matchTxt.textContent = ' Las contraseñas coinciden'; matchTxt.style.color = '#27AE60'; }
+    else { matchTxt.textContent = ' Las contraseñas no coinciden'; matchTxt.style.color = '#E74C3C'; }
 }
 
 document.getElementById('registroForm').addEventListener('submit', function() {

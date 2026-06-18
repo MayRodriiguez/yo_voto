@@ -255,7 +255,7 @@ if ($yaVoto || $mensaje) {
                     </div>
                     <div class="cert-footer">
                         <div class="cert-footer-text">Generado: <?= date('d/m/Y H:i:s') ?></div>
-                        <div class="cert-sello">✓ SUFRAGIO VÁLIDO<br>Sistema Electoral Bolivia 2026</div>
+                        <div class="cert-sello"> SUFRAGIO VÁLIDO<br>Sistema Electoral Bolivia 2026</div>
                     </div>
                 </div>
             </div>
@@ -307,7 +307,7 @@ if ($yaVoto || $mensaje) {
                     </div>
                     <div class="cert-footer">
                         <div class="cert-footer-text"> Generado: <?= date('d/m/Y H:i:s') ?></div>
-                        <div class="cert-sello">✓ SUFRAGIO VÁLIDO<br>Sistema Electoral Bolivia 2026</div>
+                        <div class="cert-sello"> SUFRAGIO VÁLIDO<br>Sistema Electoral Bolivia 2026</div>
                     </div>
                 </div>
             </div>
