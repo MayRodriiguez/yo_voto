@@ -562,11 +562,11 @@ $votacionActiva = $config['votacion_activa'] ?? '0';
     <button id="chatbot-toggle"><i class="fas fa-headset"></i></button>
     <div id="chatbot-window">
         <div id="chatbot-header">
-            <span>🤖 Soporte Yo Voto</span>
+            <span> Soporte Yo Voto</span>
             <button id="chatbot-close"><i class="fas fa-times"></i></button>
         </div>
         <div id="chatbot-messages">
-            <div class="msg-bubble msg-bot">👋 ¡Hola! Soy el asistente virtual de Yo Voto. ¿En qué puedo ayudarte?</div>
+            <div class="msg-bubble msg-bot"> ¡Hola! Soy el asistente virtual de Yo Voto. ¿En qué puedo ayudarte?</div>
         </div>
         <div class="quick-buttons">
             <button class="chat-btn-option" data-opcion="como_votar"> ¿Cómo votar?</button>
